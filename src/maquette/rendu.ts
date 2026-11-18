@@ -75,7 +75,7 @@ const INK = '#2b2724';
 const S = 40;
 const PAPIER = '#f7f2ed';
 /** Dessus des murs et cloisons. */
-const ARASE = '#514e4b';
+const ARASE = '#5d5a57';
 
 // ------------------------------------------------------------------ couleurs
 const cacheTeinte = new Map<string, string>();
@@ -760,12 +760,29 @@ function hauteurMur(w: Mur, p: Proj, sc: Scene, coupe: number[] | null): number 
   return h;
 }
 
+/** Épaisseur dessinée des murs fins : réduite autour de l'axe pour un trait plus léger. */
+const EPAISSEUR_DESSIN = { facteur: 0.5, min: 0.05 };
+
 function dessinerMur(pt: Peintre, w: Mur, h: number, sc: Scene) {
-  const [x0, y0, x1, y1] = w.r;
+  let [x0, y0, x1, y1] = w.r;
   const epais = Math.min(x1 - x0, y1 - y0) > 0.32;
+  if (!epais) {
+    // Murs et cloisons fins : même axe, épaisseur dessinée divisée par deux.
+    if (x1 - x0 < y1 - y0) {
+      const c = (x0 + x1) / 2,
+        e = Math.max(EPAISSEUR_DESSIN.min, (x1 - x0) * EPAISSEUR_DESSIN.facteur) / 2;
+      x0 = c - e;
+      x1 = c + e;
+    } else {
+      const c = (y0 + y1) / 2,
+        e = Math.max(EPAISSEUR_DESSIN.min, (y1 - y0) * EPAISSEUR_DESSIN.facteur) / 2;
+      y0 = c - e;
+      y1 = c + e;
+    }
+  }
   // Arase des murs : aplat gris anthracite (moins lourd que le noir), traits fins.
   const topCol = epais ? 'hatch' : ARASE;
-  const sw = w.k === 'int' ? 0.6 : 0.85;
+  const sw = w.k === 'int' ? 0.45 : 0.65;
   if (w.k === 'ext' && w.g) {
     // façade vitrée : allège, vitrage à montants fins, linteau si elle est au fond
     const avant = h <= sc.hauteurs.facadeAvant + 0.01;
@@ -792,7 +809,7 @@ function dessinerMur(pt: Peintre, w: Mur, h: number, sc: Scene) {
       c.beginPath();
       c.moveTo(p.x(A[0], A[1]), p.y(A[0], A[1], zv));
       c.lineTo(p.x(B[0], B[1]), p.y(B[0], B[1], zv));
-      pt.tracer(ARASE, 1.3);
+      pt.tracer(ARASE, 1);
     } else {
       pt.boite(x0, y0, x1, y1, 2.62, w.h, '#f3ede7', sw, topCol, INK, COUL_MUR);
     }
