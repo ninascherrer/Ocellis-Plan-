@@ -6,14 +6,19 @@ import eng
 
 R = random.Random(7)
 
-WHITE = '#f7f4ee'; WOOD = '#e4cda8'; WOOD2 = '#d8bb8f'; OAK_DARK = '#b8946a'
-SAGE = '#b9c3a5'; SAGE_L = '#d7ddca'; SAGE_D = '#8e9b7a'
-BEIGE = '#e9dcc6'; BEIGE_D = '#d4c2a5'
-PLUM = '#7a3e63'; PLUM_M = '#a96b92'; PLUM_L = '#c9a2bb'; PLUM_XL = '#e6d3de'
-ROSE = '#dcc4bf'; ROSE_D = '#c9aaa4'
-GREYL = '#e8e5df'; GREY = '#cdc9c2'; GREYM = '#a7a29b'; CHAR = '#5f5a55'
-GLASS = '#cfe4e2'; TERRA = '#c98b6b'; BLUEG = '#8fa6b3'
-WALL_S = '#f2ede4'
+# Palette de la DA du lieu (nuanciers fournis par Ocellis) :
+#   lin #F0E7E0 · sable #DDD6CE · rose sable #CEAB97 · terracotta #BF7B69 / #AE6542
+#   sauge claire #A1A58C · sauge #708B72 · vert-de-gris #5F7570
+#   brume #BEC8C9 · gris bleuté #8D9795 · ardoise #4B5557 · bleu pétrole #3D5C6E
+WHITE = '#f6f1ec'; WOOD = '#e2cdb8'; WOOD2 = '#d3b9a0'; OAK_DARK = '#b08f74'
+SAGE = '#a1a58c'; SAGE_L = '#c9ccb9'; SAGE_D = '#708b72'
+BEIGE = '#ddd6ce'; BEIGE_D = '#ceab97'
+PETROLE = '#3d5c6e'; PETROLE_M = '#5f7a8a'; PETROLE_L = '#9fb1ba'; PETROLE_XL = '#d6dee0'
+ROSE = '#ceab97'; ROSE_D = '#b98f7c'
+GREYL = '#e4e1dc'; GREY = '#c6c9c6'; GREYM = '#8d9795'; CHAR = '#4b5557'
+GLASS = '#cdd6d7'; TERRA = '#bf7b69'; TERRA_D = '#ae6542'; BLUEG = '#8d9795'
+VERT_GRIS = '#5f7570'; BRUME = '#bec8c9'; LIN = '#f0e7e0'
+WALL_S = '#f3ede7'
 FINE = 0.45
 
 def G(c3, prims, bias=0.0):
@@ -24,8 +29,8 @@ def G(c3, prims, bias=0.0):
 # ---------------------------------------------------------------- personnages
 SKINS = ['#f2d0b6', '#e5b694', '#c99069', '#9c6a4a', '#73503a', '#f7dfcc', '#d9a47e']
 HAIRS = ['#2c2420', '#5b3e2c', '#8b6a4a', '#c8a46e', '#b9b3aa', '#1f1b1a', '#7b3f2b', '#3d2f28']
-TOPS = [SAGE, PLUM_M, '#d9b2ad', '#56637a', BEIGE_D, '#d6ad62', '#c98b6b', '#a9c0cc', '#f3efe6', '#8a8f63', '#e8d6a8', PLUM]
-PANTS = ['#4a5569', '#4b4744', '#cdbb9c', '#6f879f', '#3a3634', '#7e8460', '#8b5e4f', '#e2d8c6']
+TOPS = [SAGE, PETROLE_M, ROSE, PETROLE, BEIGE_D, TERRA_D, TERRA, BRUME, '#f3efe6', SAGE_D, BEIGE, PETROLE]
+PANTS = [PETROLE, '#4b4744', '#cdbb9c', PETROLE_M, '#3a3634', SAGE_D, TERRA_D, '#e2d8c6']
 
 def style(rng):
     return dict(skin=rng.choice(SKINS), hair=rng.choice(HAIRS), top=rng.choice(TOPS),
@@ -64,7 +69,7 @@ def task_chair(x, y, ang, col=None, person=None, st=None):
     return add((x - 0.3, y - 0.3, x + 0.3, y + 0.3, 0, 1.3 if person else 1.0), parts, tag='siege')
 
 def shell_chair(x, y, ang, col=None, person=None, st=None, legs=WOOD2, seat_h=0.46, w=0.5):
-    col = col or PLUM_L
+    col = col or PETROLE_L
     fa = math.radians(ang); f = (math.cos(fa), math.sin(fa)); l = (-f[1], f[0])
     lg = []
     for sf, sl in ((1, 1), (1, -1), (-1, 1), (-1, -1)):
@@ -136,7 +141,7 @@ def mug(x, y, z, col='#f7f4ee'):
     return PR(circle_pts(x, y, 0.045, 12), z, z + 0.095, col, 0.4, smooth=True)
 
 def notebook(x, y, ang, z, col=None):
-    col = col or R.choice([PLUM_M, SAGE_D, '#d6ad62', TERRA])
+    col = col or R.choice([PETROLE_M, SAGE_D, TERRA_D, TERRA])
     return P([(px, py, z + 0.01) for px, py in rect_pts(x, y, 0.21, 0.15, ang + 8)], col, INK, 0.4)
 
 def desk_lamp(x, y, ang, z):
@@ -144,7 +149,7 @@ def desk_lamp(x, y, ang, z):
     a = (x, y, z); b = (x + f[0] * 0.05, y + f[1] * 0.05, z + 0.38); c = (x + f[0] * 0.2, y + f[1] * 0.2, z + 0.42)
     s = C(a, 2.6, 1.4, CHAR, INK, 0.4)
     s += L([a, b, c], INK, 0.7)
-    s += BL(c, [(-2.5, 2.5), (2.5, 2.5), (1.3, -1.3), (-1.3, -1.3)], '#d6ad62', INK, 0.4)
+    s += BL(c, [(-2.5, 2.5), (2.5, 2.5), (1.3, -1.3), (-1.3, -1.3)], TERRA_D, INK, 0.4)
     return s
 
 def leaf_fan(anchor, rng, n, lmin, lmax, size, cols, spread=(-170, -10), up=0.25, sw=0.4):
@@ -290,7 +295,7 @@ def sofa(x0, y0, x1, y1, back='n', col=ROSE, arms=True, seat_h=0.42, back_h=0.8,
         else:
             py = y0 + 0.25 + (Ln - 0.5) * t; px = (x0 + bt + 0.08) if back == 'w' else (x1 - bt - 0.08)
         Pp = rect_pts(px, py, 0.12, 0.4, {'n': 90, 's': -90, 'w': 0, 'e': 180}[back] + rr.uniform(-12, 12))
-        parts += G((px, py, seat_h + 0.15), PR(Pp, seat_h, seat_h + 0.34, pcol or rr.choice([GREYL, BEIGE, PLUM_XL, SAGE_L]), FINE, smooth=True), 0.05)
+        parts += G((px, py, seat_h + 0.15), PR(Pp, seat_h, seat_h + 0.34, pcol or rr.choice([GREYL, BEIGE, PETROLE_XL, SAGE_L]), FINE, smooth=True), 0.05)
     face = {'n': 90, 's': -90, 'w': 0, 'e': 180}[back]
     for (t, pose) in persons:
         if horiz:
@@ -349,7 +354,7 @@ def lockers(x0, y0, x1, y1, h, cols=4, rows=3, col=WOOD, faces='sn'):
     shadow([(x0, y0), (x1, y0), (x1, y1), (x0, y1)], op=0.08, grow=0.02)
     return add((x0, y0, x1, y1, 0, h), s, tag='meuble')
 
-BOOKC = [PLUM_M, SAGE_D, '#d6ad62', TERRA, BLUEG, BEIGE_D, '#f1ece2', PLUM_L, '#6f7d64', '#e3c48a']
+BOOKC = [PETROLE_M, SAGE_D, TERRA_D, TERRA, BLUEG, BEIGE_D, '#f1ece2', PETROLE_L, VERT_GRIS, BEIGE_D]
 
 def bookshelf(x0, y0, x1, y1, h, levels=4, col=WOOD, faces=None, rng=None):
     rng = rng or random.Random(int(x0 * 13 + y0 * 7))
@@ -400,7 +405,7 @@ def plant(x, y, kind='leafy', pot_r=0.22, pot_h=0.45, size=1.0, potcol=None, rng
     s += PR(circle_pts(x, y, pot_r * 0.9, 22), pot_h - 0.01, pot_h, '#8b7258', 0.35, smooth=True)
     top = (x, y, pot_h)
     if kind == 'leafy':
-        s += leaf_fan(top, rng, 16, 0.35, 0.65, size, [SAGE, SAGE_D, SAGE_L, '#a3b18f'])
+        s += leaf_fan(top, rng, 16, 0.35, 0.65, size, [SAGE, SAGE_D, SAGE_L, '#9da38a'])
     elif kind == 'grass':
         lv = []
         for k in range(26):
@@ -425,7 +430,7 @@ def plant(x, y, kind='leafy', pot_r=0.22, pot_h=0.45, size=1.0, potcol=None, rng
             cxl = rr_ * math.cos(t) * 1.1; cyl = -cr * 0.55 + rr_ * math.sin(t) * 0.8
             a = rng.uniform(0, 2 * math.pi); Lf = rng.uniform(3.2, 5.0)
             lv.append((cyl, LEAF(tt, (cxl, cyl), (cxl + Lf * math.cos(a), cyl + Lf * math.sin(a)), 1.0,
-                                 rng.choice([SAGE, SAGE_L, '#a8b494', '#c6cfb3']), 0.28)))
+                                 rng.choice([SAGE, SAGE_L, SAGE, '#c3c6b4']), 0.28)))
         lv.sort(key=lambda t: t[0])
         for t in lv: s += t[1]
     shadow(circle_pts(x, y, pot_r, 16), op=0.09, grow=0.02)
@@ -446,7 +451,7 @@ def tree(x, y, base_z=0.45, trunk=2.1, crown=1.35, rng=None, n=380):
     for k in range(14):
         a = rng.uniform(0, 2 * math.pi); r_ = cr * 0.55 * math.sqrt(rng.random())
         rr_ = cr * rng.uniform(0.35, 0.55)
-        s += [['C', r(t[0]), r(t[1]), r(t[2]), rr_, rr_, rng.choice([SAGE_L, '#dfe4d3']), 'none', 0,
+        s += [['C', r(t[0]), r(t[1]), r(t[2]), rr_, rr_, rng.choice([SAGE_L, '#d9dccd']), 'none', 0,
                {'op': 0.45, 'dx': r(cc[0] + r_ * math.cos(a)), 'dy': r(cc[1] + r_ * math.sin(a) * 0.8)}]]
     Lv = []
     for k in range(n):
@@ -454,7 +459,7 @@ def tree(x, y, base_z=0.45, trunk=2.1, crown=1.35, rng=None, n=380):
         r_ = cr * (rng.random() ** 0.45)
         px = cc[0] + r_ * math.cos(a) * 1.08; py = cc[1] + r_ * math.sin(a) * 0.86
         la = rng.uniform(0, 2 * math.pi); ll = rng.uniform(3.6, 5.8)
-        fill = rng.choice([SAGE_L, '#e4e8da', '#c7d0b5', '#f4f5ee', SAGE_L, SAGE])
+        fill = rng.choice([SAGE_L, '#dfe1d6', '#c3c6b4', '#f4f5ee', SAGE_L, SAGE])
         Lv.append((py + rng.uniform(-6, 6), LEAF(t, (px, py), (px + ll * math.cos(la), py + ll * math.sin(la)), 1.3, fill, 0.24)))
     Lv.sort(key=lambda q: q[0])
     for q in Lv: s += q[1]

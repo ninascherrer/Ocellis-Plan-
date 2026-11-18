@@ -51,8 +51,9 @@ const AZ_DEPART = Math.PI / 4; // vue depuis le sud-est : terrasse et accès au 
 const EL_DEPART = (52 * Math.PI) / 180;
 const EL_MIN = (22 * Math.PI) / 180;
 const EL_MAX = (84 * Math.PI) / 180;
-const ACCENT = '#7a3e63';
-const PAPIER = '#fbf8f1';
+/** Accent de sélection : terracotta de la DA du lieu. */
+const ACCENT = '#ae6542';
+const PAPIER = '#f7f2ed';
 
 const lisser = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
 

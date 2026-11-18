@@ -73,7 +73,7 @@ export interface OptionsRendu {
 
 const INK = '#2b2724';
 const S = 40;
-const PAPIER = '#fbf8f1';
+const PAPIER = '#f7f2ed';
 
 // ------------------------------------------------------------------ couleurs
 const cacheTeinte = new Map<string, string>();
@@ -632,7 +632,7 @@ function personnage(pt: Peintre, q: Prim) {
   if (pose === 'tablet') {
     items.push([
       dep(haR) + 0.05,
-      () => pt.poly2([J(0.3, 0.13, 1.13), J(0.3, -0.13, 1.13), J(0.42, -0.13, 1.2), J(0.42, 0.13, 1.2)].map(P), '#4b4f55', INK, 0.4),
+      () => pt.poly2([J(0.3, 0.13, 1.13), J(0.3, -0.13, 1.13), J(0.42, -0.13, 1.2), J(0.42, 0.13, 1.2)].map(P), '#4b5557', INK, 0.4),
     ]);
   }
   items.sort((a, b) => a[0] - b[0]);
@@ -733,7 +733,7 @@ export function preparer(scene: Scene): Preparee {
   return { scene, elements, murs };
 }
 
-const COUL_MUR = { e: teinte('#f2ede4', 0.94), s: '#f2ede4', w: teinte('#f2ede4', 1.0), n: teinte('#f2ede4', 0.97) };
+const COUL_MUR = { e: teinte('#f3ede7', 0.94), s: '#f3ede7', w: teinte('#f3ede7', 1.0), n: teinte('#f3ede7', 0.97) };
 
 function hauteurMur(w: Mur, p: Proj, sc: Scene, coupe: number[] | null): number {
   const [x0, y0, x1, y1] = w.r;
@@ -767,11 +767,11 @@ function dessinerMur(pt: Peintre, w: Mur, h: number, sc: Scene) {
     // façade vitrée : allège, vitrage à montants fins, linteau si elle est au fond
     const avant = h <= sc.hauteurs.facadeAvant + 0.01;
     const zv = avant ? h : 2.62;
-    pt.boite(x0, y0, x1, y1, 0, 0.12, '#f2ede4', sw, topCol, INK, COUL_MUR);
+    pt.boite(x0, y0, x1, y1, 0, 0.12, '#f3ede7', sw, topCol, INK, COUL_MUR);
     const horiz = x1 - x0 >= y1 - y0;
     const A = horiz ? [x0, (y0 + y1) / 2] : [(x0 + x1) / 2, y0];
     const B = horiz ? [x1, (y0 + y1) / 2] : [(x0 + x1) / 2, y1];
-    pt.quad(A[0], A[1], B[0], B[1], 0.12, zv, 'rgba(207,228,226,0.16)', 'none', 0);
+    pt.quad(A[0], A[1], B[0], B[1], 0.12, zv, 'rgba(190,200,201,0.18)', 'none', 0);
     const L = Math.hypot(B[0] - A[0], B[1] - A[1]);
     const n = Math.max(1, Math.round(L / 1.25));
     const c = pt.ctx,
@@ -791,11 +791,11 @@ function dessinerMur(pt: Peintre, w: Mur, h: number, sc: Scene) {
       c.lineTo(p.x(B[0], B[1]), p.y(B[0], B[1], zv));
       pt.tracer('#2b2724', 2.2);
     } else {
-      pt.boite(x0, y0, x1, y1, 2.62, w.h, '#f2ede4', sw, topCol, INK, COUL_MUR);
+      pt.boite(x0, y0, x1, y1, 2.62, w.h, '#f3ede7', sw, topCol, INK, COUL_MUR);
     }
     return;
   }
-  pt.boite(x0, y0, x1, y1, w.z0, h, '#f2ede4', sw, topCol, INK, COUL_MUR);
+  pt.boite(x0, y0, x1, y1, w.z0, h, '#f3ede7', sw, topCol, INK, COUL_MUR);
 }
 
 function bboxEcran(p: Proj, b: number[], m: number, out: number[]) {

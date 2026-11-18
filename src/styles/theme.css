@@ -1,64 +1,73 @@
 /*
- * Variables de design — charte Ocellis, direction « dessin d'architecte ».
- *
- * Palette volontairement réduite :
- *   - aubergine (#2B041A, charte) : circulations du plan, sélection, actions ;
- *   - blanc et beige très clair : fond de plan et interface ;
- *   - anthracite (#26282D, charte) : traits et texte.
+ * Variables de design — logo et typographies de la charte Ocellis,
+ * couleurs de la DA du lieu (nuanciers fournis) :
+ *   lin #F0E7E0 · sable #DDD6CE · rose sable #CEAB97 · terracotta #BF7B69 / #AE6542
+ *   sauge claire #A1A58C · sauge #708B72 · brume #BEC8C9 · gris bleuté #8D9795
+ *   ardoise #4B5557 · bleu pétrole #3D5C6E
+ * Rôles : bleu pétrole pour les actions, terracotta pour la sélection sur le plan,
+ * ardoise pour les circulations, lin et sable pour les fonds.
  * Les couleurs des catégories se règlent dans src/config/espaces.json.
  */
 :root {
   /* --- Couleurs de la charte */
   --ocellis-aubergine: #2b041a;
+  --da-lin: #f0e7e0;
+  --da-sable: #ddd6ce;
+  --da-rose-sable: #ceab97;
+  --da-terracotta: #ae6542;
+  --da-sauge: #708b72;
+  --da-brume: #bec8c9;
+  --da-ardoise: #4b5557;
+  --da-petrole: #3d5c6e;
   --ocellis-anthracite: #26282d;
   --ocellis-papier: #f1efeb;
 
   /* --- Rôles */
-  --brand: var(--ocellis-aubergine);
-  --brand-hover: #44102f;
+  --brand: var(--da-petrole);
+  --brand-hover: #2f4857;
   --brand-ink: #ffffff;
-  --brand-soft: #f3ebef; /* fond d'un élément sélectionné */
+  --brand-soft: #e7edef; /* fond d'un élément sélectionné */
 
-  --canvas: #f5f1ea;
-  --grid-line: rgba(43, 4, 26, 0.035);
+  --canvas: #f4eee8;
+  --grid-line: rgba(61, 92, 110, 0.04);
   --surface: #ffffff;
   --surface-raised: rgba(255, 255, 255, 0.95);
-  --surface-sunken: #faf8f4;
-  --surface-hover: #f6f2ec;
+  --surface-sunken: #f8f4f0;
+  --surface-hover: #f3ede7;
 
   --ink: var(--ocellis-anthracite);
   --ink-2: #5f5a5e;
   --ink-3: #8f898d;
-  --line: #ebe5dc;
-  --line-strong: #d9d1c5;
+  --line: #e8e1da;
+  --line-strong: #d6cec6;
 
   --pending: #a8873a; /* « Informations à confirmer » : discret, jamais alarmant */
   --danger: #a3403c;
   --danger-soft: #f8ebea;
 
   /* --- Dessin du plan */
-  --plan-floor: #fffdf9; /* sol des bureaux */
+  --plan-floor: #fbf8f5; /* sol des bureaux */
   --plan-ink: #1d1a1c; /* murs et cloisons */
   --plan-line: #3b3639; /* mobilier, portes */
-  --plan-furniture: #fffdf9; /* remplissage du mobilier */
-  --plan-volume: #ece5da; /* volumes pleins (ex. Espace 07) */
-  --plan-core: #efe9df; /* noyau technique non accessible */
-  --plan-circulation: #4a1537; /* circulations : aubergine */
-  --plan-on-circulation: rgba(255, 245, 250, 0.62); /* traits posés sur l'aubergine */
-  --plan-terrace: #efe7da;
-  --plan-terrace-line: #e2d6c4;
-  --plan-tree: #d8ccb9;
+  --plan-furniture: #fbf8f5; /* remplissage du mobilier */
+  --plan-volume: #ddd6ce; /* volumes pleins (ex. Espace 07) */
+  --plan-core: #e7e2dc; /* noyau technique non accessible */
+  --plan-circulation: #4b5557; /* circulations : ardoise */
+  --plan-on-circulation: rgba(240, 231, 224, 0.62); /* traits posés sur l'ardoise */
+  --plan-terrace: #e6d9cc;
+  --plan-terrace-line: #d8c6b5;
+  --plan-tree: #b9bea8;
   --plan-line-width: 0.55;
 
   /* --- Aperçu 3D : dessin d'architecte, couleurs Ocellis réservées aux repères */
-  --plan3d-paper: #f6f4ef; /* fond blanc cassé */
+  --plan3d-paper: #f4eee8; /* fond blanc cassé */
   --plan3d-floor: #fdfcf9; /* sols */
   --plan3d-ink: #1a181a; /* arases et contours des murs */
   --plan3d-ink-fine: #3a3639; /* portes, mobilier */
-  --plan3d-circulation: #ece3e7; /* repère des circulations, aubergine très pâle */
+  --plan3d-circulation: #dfe3e3; /* repère des circulations, ardoise très pâle */
   --plan3d-core: #ebe6de; /* noyau technique */
-  --plan3d-glass: #dce8ed; /* vitrages */
-  --plan3d-glass-ink: #58788a; /* cadres des vitrages */
+  --plan3d-glass: #d4dcdd; /* vitrages */
+  --plan3d-glass-ink: #5f7a8a; /* cadres des vitrages */
 
   /* --- Typographie */
   --font-title: 'Poppins', 'Segoe UI', system-ui, sans-serif;

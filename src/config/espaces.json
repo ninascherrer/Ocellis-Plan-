@@ -8,12 +8,12 @@
     "hauteur": 625
   },
   "categories": [
-    { "id": "travail", "libelle": "Espaces de travail", "couleur": "#7A3E63" },
-    { "id": "reunion", "libelle": "Salles de réunion", "couleur": "#A9708F" },
-    { "id": "collaboratif", "libelle": "Espaces collaboratifs", "couleur": "#C9A6B9" },
-    { "id": "convivialite", "libelle": "Espaces de convivialité", "couleur": "#B39467" },
-    { "id": "services", "libelle": "Services et sanitaires", "couleur": "#8A8079" },
-    { "id": "circulations", "libelle": "Circulations", "couleur": "#4A1537" }
+    { "id": "travail", "libelle": "Espaces de travail", "couleur": "#3D5C6E" },
+    { "id": "reunion", "libelle": "Salles de réunion", "couleur": "#AE6542" },
+    { "id": "collaboratif", "libelle": "Espaces collaboratifs", "couleur": "#708B72" },
+    { "id": "convivialite", "libelle": "Espaces de convivialité", "couleur": "#CEAB97" },
+    { "id": "services", "libelle": "Services et sanitaires", "couleur": "#8D9795" },
+    { "id": "circulations", "libelle": "Circulations", "couleur": "#4B5557" }
   ],
   "espaces": [
     {

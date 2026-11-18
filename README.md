@@ -87,6 +87,11 @@ personnages et végétation. Boutons **Maquette / Dessin / Original** en bas à 
   `python3 outils/maquette/export.py` à partir de `outils/maquette/plateau.py`
   (transcription du PDF d'implantation, 1/125). Voir `outils/maquette/README.md`.
 - **[à confirmer]** : listés dans la légende de la maquette (`src/maquette/aConfirmer.ts`).
+- **Couleurs** : palette de la DA du lieu (lin, sable, rose sable, terracotta,
+  sauge, brume, ardoise, bleu pétrole), définie en tête de
+  `outils/maquette/meubles.py` pour la maquette (relancer `export.py` après
+  modification) et dans `src/styles/theme.css` (variables `--da-*`) pour
+  l'interface et le dessin 2D. Couleurs des catégories : `src/config/espaces.json`.
 
 L'ancien aperçu three.js limité au secteur nord (`src/plan3d/`) n'est plus affiché ;
 son code est conservé.
