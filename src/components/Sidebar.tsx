@@ -19,6 +19,8 @@ interface SidebarProps {
   onSelect: (id: string) => void;
   onHover: (id: string | null) => void;
   isDesktop: boolean;
+  /** Vue Maquette : glisser fait pivoter au lieu de déplacer. */
+  maquette?: boolean;
 }
 
 export function Sidebar({
@@ -37,6 +39,7 @@ export function Sidebar({
   onSelect,
   onHover,
   isDesktop,
+  maquette = false,
 }: SidebarProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const listId = useId();
@@ -234,7 +237,7 @@ export function Sidebar({
             <kbd>Molette</kbd> zoomer
           </span>
           <span>
-            <kbd>Glisser</kbd> se déplacer
+            <kbd>Glisser</kbd> {maquette ? 'pivoter' : 'se déplacer'}
           </span>
           <span>
             <kbd>/</kbd> rechercher

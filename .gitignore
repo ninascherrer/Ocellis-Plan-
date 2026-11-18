@@ -7,3 +7,6 @@ dist
 # PDF d'implantation confidentiel : jamais dans ce dépôt public
 public/plan/plan-pdf.jpg
 .env.development
+
+# Générateur de la maquette
+__pycache__/

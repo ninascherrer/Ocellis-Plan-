@@ -5,7 +5,8 @@ des nouveaux bureaux en plan d'orientation interactif : zoom, déplacement,
 zones cliquables, recherche, filtres par catégorie et fiche descriptive de
 chaque espace. Utilisable sur ordinateur et sur mobile.
 
-Le plan est **redessiné en vecteurs** (`src/plan/PlanDessin.tsx`) dans le
+La vue d'ouverture est une **maquette axonométrique illustrée** en rotation libre
+(voir « Maquette illustrée »). Le plan 2D est **redessiné en vecteurs** (`src/plan/PlanDessin.tsx`) dans le
 repère exact de l'image d'origine : murs, cloisons, portes, escaliers,
 ascenseurs et mobilier principal reprennent les positions relevées sur le plan
 d'architecte, sans rien déplacer ni ajouter. Les cotes, trames, hachures et
@@ -64,39 +65,31 @@ dans `public/plan/plan-pdf.jpg` (ignoré par git) et créer un fichier
 - **Filtres** par catégorie : espaces de travail, salles de réunion, espaces
   collaboratifs, espaces de convivialité, services et sanitaires, circulations.
 
-## Aperçu 3D
+## Maquette illustrée (vue d'ouverture)
 
-Le bouton **3D** (à côté de **Dessin** et **Original**) ouvre une axonométrie
-en style dessin d'architecte. Le plan 2D reste la vue d'ouverture ; le choix
-3D n'est pas mémorisé.
+Le site s'ouvre sur une **maquette axonométrique illustrée** du plateau, terrasse
+comprise : dessin d'architecte à l'encre rehaussé d'aplats doux, mobilier,
+personnages et végétation. Boutons **Maquette / Dessin / Original** en bas à droite.
 
-**État actuel : aperçu de style, limité au secteur nord** (NOVA, ÉCHO, HALO,
-OREE, escalier, espace de travail ouvert, colonne de services, matériauthèque,
-OCELLE et couloir). Le secteur est défini par `SECTEUR_APERCU` dans
-`src/plan3d/scene.ts` : l'étendre à `0, 0, 624, 625` construit tout le plateau.
+- **Navigation** : glisser pour pivoter et incliner (rotation libre), molette ou
+  pincement pour zoomer, clic droit, `Maj` + glisser ou deux doigts pour déplacer,
+  double-clic pour zoomer ; boutons de quart de tour à côté du zoom ;
+  **Vue générale** (touche `0`) revient à la vue de trois quarts depuis le sud-est.
+- **Coupe automatique** : selon l'angle, les façades tournées vers la caméra sont
+  coupées bas et les cloisons qui masquent une pièce meublée sont coupées à 1 m ;
+  les murs qui cachent l'espace sélectionné s'abaissent.
+- **Espaces** : les contours de `espaces.json` sont cliquables sur la maquette
+  (survol, sélection, fiche, recherche, filtres, liens `#<identifiant>`) ; le
+  reste du plan s'estompe autour de l'espace choisi. Les noms s'affichent au sol.
+- **Rendu** : canvas 2D redessiné à chaque mouvement (`src/maquette/rendu.ts`),
+  avec un tracé simplifié pendant le geste et une image complète à l'arrêt.
+- **Données** : `public/maquette/scene.json`, généré par
+  `python3 outils/maquette/export.py` à partir de `outils/maquette/plateau.py`
+  (transcription du PDF d'implantation, 1/125). Voir `outils/maquette/README.md`.
+- **[à confirmer]** : listés dans la légende de la maquette (`src/maquette/aConfirmer.ts`).
 
-- **Rendu** : caméra orthographique, sans plafond, fond blanc cassé, murs
-  blancs à arase noire et contours épais, traits fins pour les portes, vitrages
-  et mobilier, ombres discrètes. L'aubergine Ocellis ne sert qu'aux
-  circulations (teinte très pâle) et à la mise en évidence de l'espace choisi.
-- **Lisibilité** : un mur qui cache plus des trois quarts de la pièce qu'il
-  borde, une façade tournée vers la caméra, ou tout volume qui masque l'espace
-  sélectionné deviennent transparents pendant la rotation. Les murs du fond
-  restent pleins pour le relief.
-- **Navigation** : vue de trois quarts à l'ouverture ; glisser pour pivoter et
-  incliner, molette ou pincement pour zoomer, clic droit ou deux doigts pour
-  déplacer ; **Vue générale** (touche `0`) revient au cadrage initial.
-- **Sélection** : clic sur une pièce ou recherche → contour aubergine, nom
-  affiché et fiche ouverte. Un espace hors du secteur le signale.
-- **Mobilier** : formes simples aux positions du dessin 2D
-  (`src/plan3d/mobilier.ts`).
-- **Échelle** : 1 unité du plan = 4,18 cm, mesuré sur la barre d'échelle du
-  PDF d'implantation (1/125).
-- **[à confirmer]** : hauteurs et détails absents du PDF, avec le choix
-  schématique retenu (`src/plan3d/aConfirmer.ts`) : cloisons 2,40 m (d'après
-  les portes vitrées « PV 2400/930 »), façades et noyau 2,70 m, portes 2,04 m
-  (« PP 93/204 »), mobilier aux hauteurs usuelles.
-- **Comparer au PDF** : en local uniquement (voir « Mise en ligne »).
+L'ancien aperçu three.js limité au secteur nord (`src/plan3d/`) n'est plus affiché ;
+son code est conservé.
 
 Murs, cloisons et portes viennent d'un seul fichier, `src/plan/structure.ts`,
 lu à la fois par le dessin 2D et par la 3D.

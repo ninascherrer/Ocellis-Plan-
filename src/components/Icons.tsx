@@ -34,6 +34,20 @@ export const CloseIcon = (p: IconProps) => (
   </Icon>
 );
 
+export const RotateLeftIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M4.5 9.5A8 8 0 1 1 4 14" />
+    <path d="M4 4.5v5h5" />
+  </Icon>
+);
+
+export const RotateRightIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M19.5 9.5A8 8 0 1 0 20 14" />
+    <path d="M20 4.5v5h-5" />
+  </Icon>
+);
+
 export const PlusIcon = (p: IconProps) => (
   <Icon {...p}>
     <path d="M12 5v14M5 12h14" />

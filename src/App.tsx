@@ -1,6 +1,4 @@
 import {
-  lazy,
-  Suspense,
   useCallback,
   useEffect,
   useMemo,
@@ -23,13 +21,8 @@ import { usePanZoom, type Insets } from './hooks/usePanZoom';
 import { usePlanEditor } from './hooks/usePlanEditor';
 import { searchEspaces } from './lib/search';
 import { buildZones, type ZoneGeom } from './lib/zones';
-import type { Plan3DHandle } from './plan3d/Plan3D';
+import PlanMaquette, { type PlanMaquetteHandle } from './maquette/PlanMaquette';
 import type { CategorieId } from './types';
-
-/** Aperçu 3D chargé à la demande : three.js n'alourdit pas la vue 2D par défaut. */
-const Plan3D = lazy(() => import('./plan3d/Plan3D'));
-// Le PDF d'implantation est confidentiel : il n'est inclus qu'avec VITE_CALQUE_PDF=1 (voir vite.config.ts).
-const calqueUrl = import.meta.env.VITE_CALQUE_PDF === '1' ? `${import.meta.env.BASE_URL}plan/plan-pdf.jpg` : null;
 
 /** L'éditeur de zones n'est proposé qu'avec `?edition` dans l'adresse. */
 const editionActivee = new URLSearchParams(window.location.search).has('edition');
@@ -72,11 +65,12 @@ export default function App() {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [query, setQuery] = useState('');
   const [activeCategories, setActiveCategories] = useState<Set<CategorieId>>(() => new Set());
-  const [variant, setVariant] = useState<PlanVariant>(readVariant);
+  // La maquette illustrée est la vue d'ouverture ; l'éditeur de zones s'ouvre sur le plan 2D.
+  const [variant, setVariant] = useState<PlanVariant>(() => (editionActivee ? readVariant() : '3d'));
 
   const changeVariant = useCallback((next: PlanVariant) => {
     setVariant(next);
-    // Le plan 2D reste la vue d'ouverture : seul le choix Dessin / Original est mémorisé.
+    // La maquette reste la vue d'ouverture : seul le choix Dessin / Original est mémorisé.
     if (next === '3d') return;
     try {
       localStorage.setItem(VARIANT_KEY, next);
@@ -89,7 +83,7 @@ export default function App() {
   const sidebarRef = useRef<HTMLElement>(null);
   const detailsRef = useRef<HTMLElement>(null);
   const editorRef = useRef<HTMLElement>(null);
-  const plan3dRef = useRef<Plan3DHandle>(null);
+  const maquetteRef = useRef<PlanMaquetteHandle>(null);
   const is3d = variant === '3d' && !editorOpen;
 
   const categoriesById = useMemo(() => new Map(categories.map((c) => [c.id, c])), [categories]);
@@ -174,17 +168,17 @@ export default function App() {
     if (!ready || !selected || !focus) return;
     pendingFocus.current = null;
     if (is3d) {
-      if (focus === 'fly') plan3dRef.current?.focus(selected);
+      if (focus === 'fly') maquetteRef.current?.focus(selected);
     } else if (focus === 'fly') focusBox(selected.box);
     else reveal(selected.box);
   }, [ready, selected, focusBox, reveal, is3d]);
 
   // Commandes de vue : elles pilotent la caméra 3D ou le plan 2D selon la vue affichée.
   const zoomView = useCallback(
-    (factor: number) => (is3d ? plan3dRef.current?.zoomBy(factor) : zoomBy(factor)),
+    (factor: number) => (is3d ? maquetteRef.current?.zoomBy(factor) : zoomBy(factor)),
     [is3d, zoomBy],
   );
-  const resetView = useCallback(() => (is3d ? plan3dRef.current?.reset() : fitAll()), [is3d, fitAll]);
+  const resetView = useCallback(() => (is3d ? maquetteRef.current?.reset() : fitAll()), [is3d, fitAll]);
 
   // Lien partageable : #<identifiant>
   useEffect(() => {
@@ -305,22 +299,19 @@ export default function App() {
           colorOf={colorOf}
         />
         {is3d && (
-          <Suspense fallback={<p className="plan3d-chargement">Chargement de l'aperçu 3D…</p>}>
-            <Plan3D
-              ref={plan3dRef}
-              zones={zones}
-              colorOf={colorOf}
-              selectedId={selectedId}
-              hoveredId={hoveredId}
-              matchIds={matchIds}
-              onZoneClick={onZoneClick}
-              onZoneHover={setHoveredId}
-              onBackgroundClick={() => select(null)}
-              getInsets={getInsets}
-              calqueUrl={calqueUrl}
-              isDesktop={isDesktop}
-            />
-          </Suspense>
+          <PlanMaquette
+            ref={maquetteRef}
+            zones={zones}
+            colorOf={colorOf}
+            selectedId={selectedId}
+            hoveredId={hoveredId}
+            matchIds={matchIds}
+            onZoneClick={onZoneClick}
+            onZoneHover={setHoveredId}
+            onBackgroundClick={() => select(null)}
+            getInsets={getInsets}
+            isDesktop={isDesktop}
+          />
         )}
       </main>
 
@@ -341,6 +332,7 @@ export default function App() {
           onSelect={(id) => select(id, 'fly')}
           onHover={setHoveredId}
           isDesktop={isDesktop}
+          maquette={is3d}
         />
       )}
 
@@ -350,7 +342,7 @@ export default function App() {
           espace={selected.espace}
           categorie={categoriesById.get(selected.espace.categorie)}
           onClose={() => select(null)}
-          onFocus={() => (is3d ? plan3dRef.current?.focus(selected) : focusBox(selected.box))}
+          onFocus={() => (is3d ? maquetteRef.current?.focus(selected) : focusBox(selected.box))}
         />
       )}
 
@@ -358,6 +350,7 @@ export default function App() {
         onZoomIn={() => zoomView(1.5)}
         onZoomOut={() => zoomView(1 / 1.5)}
         onReset={resetView}
+        onRotate={is3d ? (sens) => maquetteRef.current?.rotate(sens) : undefined}
         variant={editorOpen && variant === '3d' ? 'dessin' : variant}
         onVariantChange={changeVariant}
         allow3d={!editorOpen}

@@ -804,6 +804,21 @@ h3 {
   color: var(--ink-2);
 }
 
+.maquette .plan3d-legende[open] {
+  max-height: min(70vh, 560px);
+  overflow-y: auto;
+}
+
+.maquette .plan3d-legende ul.plan3d-choix li {
+  display: list-item;
+  margin-bottom: 4px;
+}
+
+.maquette .plan3d-legende ul.plan3d-choix .plan3d-statut {
+  margin-left: 2px;
+  padding: 0 5px;
+}
+
 .plan3d-note,
 .plan3d-aide {
   margin: var(--sp-2) 0 0;
