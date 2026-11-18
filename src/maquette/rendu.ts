@@ -587,7 +587,7 @@ function personnage(pt: Peintre, q: Prim) {
   };
   const jupe = !!skirt && !seated;
   for (const [hip, knee, foot] of [[hipL, kneeL, footL], [hipR, kneeR, footR]]) {
-    membre(hip, knee, foot, 0.115, jupe ? skin : pants, dep(hip, knee, foot) - (seated ? 0 : 0.02));
+    membre(hip, knee, foot, jupe ? 0.075 : 0.115, jupe ? skin : pants, dep(hip, knee, foot) - (seated ? 0 : 0.02));
     disque(foot, 0.065 * S, 0.04 * S, shoes, dep(foot) - 0.01);
   }
   const off = 0.085;
@@ -637,24 +637,46 @@ function personnage(pt: Peintre, q: Prim) {
       () => pt.poly2([J(0.3, 0.13, 1.13), J(0.3, -0.13, 1.13), J(0.42, -0.13, 1.2), J(0.42, 0.13, 1.2)].map(P), '#4b5557', INK, 0.4),
     ]);
   }
-  items.sort((a, b) => a[0] - b[0]);
-  for (const [, fn] of items) fn();
-  // cou et tête
+  // Orientation de la tête vue de la caméra : 1 = de face, −1 = de dos ; fsx = côté du visage à l'écran.
+  const vers = f[0] * p.ca + f[1] * p.sa;
+  let fsx = f[0] * p.sa - f[1] * p.ca,
+    fsy = (f[0] * p.ca + f[1] * p.sa) * p.se;
+  const fl = Math.hypot(fsx, fsy) || 1;
+  fsx /= fl;
+  fsy /= fl;
   const N = P(neck),
     Hd = P(head);
   const r = 0.1 * S * bs;
   const hx = Hd[0],
     hy = Hd[1];
+
+  // Cheveux longs : volume qui tombe derrière la tête jusqu'aux épaules.
+  // De face, il passe derrière le torse (visible de part et d'autre du cou) ;
+  // de dos, il recouvre le haut du dos.
   if (hs === 'long') {
-    c.beginPath();
-    c.moveTo(hx - r * 1.05, hy);
-    c.quadraticCurveTo(hx - r * 1.2, hy + r * 1.9, hx - r * 0.6, hy + r * 2.2);
-    c.lineTo(hx + r * 0.6, hy + r * 2.2);
-    c.quadraticCurveTo(hx + r * 1.2, hy + r * 1.9, hx + r * 1.05, hy);
-    c.closePath();
-    pt.remplir(hairCol);
-    pt.tracer(INK, 0.45);
+    const dos = vers < -0.2;
+    items.push([
+      dep(chest) + (dos ? 0.05 : -0.05),
+      () => {
+        const lg = r * 1.12,
+          bas = hy + r * (dos ? 2.5 : 2.2);
+        c.beginPath();
+        c.moveTo(hx - lg, hy - r * 0.2);
+        c.quadraticCurveTo(hx - lg * 1.08, bas - r * 0.4, hx - lg * 0.78, bas);
+        c.quadraticCurveTo(hx, bas + r * 0.25, hx + lg * 0.78, bas);
+        c.quadraticCurveTo(hx + lg * 1.08, bas - r * 0.4, hx + lg, hy - r * 0.2);
+        c.arc(hx, hy - r * 0.2, lg, 0, Math.PI, true);
+        c.closePath();
+        pt.remplir(hairCol);
+        pt.tracer(INK, 0.45);
+      },
+    ]);
   }
+
+  items.sort((a, b) => a[0] - b[0]);
+  for (const [, fn] of items) fn();
+
+  // Cou
   c.beginPath();
   c.moveTo(N[0], N[1]);
   c.lineTo(hx, hy + 2 * bs);
@@ -665,35 +687,48 @@ function personnage(pt: Peintre, q: Prim) {
   c.strokeStyle = skin;
   c.lineWidth = 0.06 * S * bs;
   c.stroke();
+
+  // Tête
   c.beginPath();
   c.arc(hx, hy, r, 0, Math.PI * 2);
   pt.remplir(skin);
   pt.tracer(INK, 0.5);
-  let fsx = f[0] * p.sa - f[1] * p.ca,
-    fsy = (f[0] * p.ca + f[1] * p.sa) * p.se;
-  const fl = Math.hypot(fsx, fsy) || 1;
-  fsx /= fl;
-  fsy /= fl;
-  const face = f[0] * p.ca + f[1] * p.sa > -0.18;
+
+  const melange = (a: number, b: number, t: number) => a + (b - a) * Math.min(1, Math.max(0, t));
+  // Chevelure (angles en degrés, repère écran : 270° = haut, 90° = bas)
+  const pointArc = (deg: number, rr = r * 1.04): number[] => {
+    const t = (deg * Math.PI) / 180;
+    return [hx + rr * Math.cos(t), hy + rr * Math.sin(t)];
+  };
   const cap: number[][] = [];
-  if (face) {
-    const ox = -fsx * r * 0.35;
-    const [a0, a1] = hs === 'crop' ? [215, 325] : [200, 340];
-    for (let k = 0; k <= 12; k++) {
-      const t = ((a0 + ((a1 - a0) * k) / 12) * Math.PI) / 180;
-      cap.push([hx + r * 1.04 * Math.cos(t), hy + r * 1.04 * Math.sin(t)]);
-    }
-    cap.push([hx + ox + r * 0.55, hy - r * 0.25], [hx + ox, hy - r * 0.45], [hx + ox - r * 0.55, hy - r * 0.15]);
+  if (vers < -0.35) {
+    // De dos : la chevelure couvre toute la tête, seule la nuque reste visible.
+    const nuque = hs === 'crop' ? 34 : hs === 'long' ? 0 : 26;
+    for (let k = 0; k <= 24; k++) cap.push(pointArc(90 + nuque + ((360 - 2 * nuque) * k) / 24));
   } else {
-    for (let k = 0; k <= 16; k++) {
-      const t = ((150 + (240 * k) / 16) * Math.PI) / 180;
-      cap.push([hx + r * 1.04 * Math.cos(t), hy + r * 1.04 * Math.sin(t)]);
-    }
+    // De face ou de profil : calotte plus descendue à l'arrière du crâne,
+    // ligne frontale qui dégage le visage côté regard.
+    const profil = Math.min(1, Math.abs(fsx) * (1.25 - Math.max(0, vers) * 0.5));
+    const court = hs === 'crop' ? 14 : 0;
+    let a0 = 196 + court,
+      a1 = 344 - court;
+    const arriere = 58 * profil;
+    if (fsx > 0) a0 -= arriere;
+    else a1 += arriere;
+    for (let k = 0; k <= 16; k++) cap.push(pointArc(a0 + ((a1 - a0) * k) / 16));
+    // Ligne frontale, parcourue de droite à gauche (l'arc se termine à droite) :
+    // plus haute côté visage (front dégagé), plus basse côté nuque.
+    const haut = hs === 'crop' ? 0.6 : 0.46,
+      bas = hs === 'crop' ? 0.35 : 0.12;
+    const cote = fsx * profil; // > 0 : visage à droite de l'écran
+    const hD = melange(haut, bas, 0.5 - cote / 2),
+      hG = melange(haut, bas, 0.5 + cote / 2);
+    cap.push([hx + r * 0.62, hy - r * hD], [hx, hy - r * ((hD + hG) / 2 + 0.08)], [hx - r * 0.62, hy - r * hG]);
   }
   pt.poly2(cap, hairCol, INK, 0.45);
   if (hs === 'bun') {
     c.beginPath();
-    c.arc(hx - fsx * r * 0.6, hy - r, r * 0.45, 0, Math.PI * 2);
+    c.arc(hx - fsx * r * 0.55, hy - r * 0.95, r * 0.42, 0, Math.PI * 2);
     pt.remplir(hairCol);
     pt.tracer(INK, 0.45);
   }
