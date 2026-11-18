@@ -74,6 +74,8 @@ export interface OptionsRendu {
 const INK = '#2b2724';
 const S = 40;
 const PAPIER = '#f7f2ed';
+/** Dessus des murs et cloisons. */
+const ARASE = '#514e4b';
 
 // ------------------------------------------------------------------ couleurs
 const cacheTeinte = new Map<string, string>();
@@ -761,8 +763,9 @@ function hauteurMur(w: Mur, p: Proj, sc: Scene, coupe: number[] | null): number 
 function dessinerMur(pt: Peintre, w: Mur, h: number, sc: Scene) {
   const [x0, y0, x1, y1] = w.r;
   const epais = Math.min(x1 - x0, y1 - y0) > 0.32;
-  const topCol = epais ? 'hatch' : '#2b2724';
-  const sw = w.k === 'int' ? 0.9 : 1.2;
+  // Arase des murs : aplat gris anthracite (moins lourd que le noir), traits fins.
+  const topCol = epais ? 'hatch' : ARASE;
+  const sw = w.k === 'int' ? 0.6 : 0.85;
   if (w.k === 'ext' && w.g) {
     // façade vitrée : allège, vitrage à montants fins, linteau si elle est au fond
     const avant = h <= sc.hauteurs.facadeAvant + 0.01;
@@ -789,7 +792,7 @@ function dessinerMur(pt: Peintre, w: Mur, h: number, sc: Scene) {
       c.beginPath();
       c.moveTo(p.x(A[0], A[1]), p.y(A[0], A[1], zv));
       c.lineTo(p.x(B[0], B[1]), p.y(B[0], B[1], zv));
-      pt.tracer('#2b2724', 2.2);
+      pt.tracer(ARASE, 1.3);
     } else {
       pt.boite(x0, y0, x1, y1, 2.62, w.h, '#f3ede7', sw, topCol, INK, COUL_MUR);
     }
