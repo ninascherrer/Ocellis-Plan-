@@ -69,11 +69,11 @@ export function lirePalette(): Palette {
     sol: v('--plan3d-floor', '#fdfcf9'),
     trait: v('--plan3d-ink', '#1a181a'),
     traitFin: v('--plan3d-ink-fine', '#3a3639'),
-    circulation: v('--plan3d-circulation', '#ece3e7'),
+    circulation: v('--plan3d-circulation', '#dfe3e3'),
     noyau: v('--plan3d-core', '#ebe6de'),
     vitre: v('--plan3d-glass', '#dce8ed'),
     traitVitre: v('--plan3d-glass-ink', '#58788a'),
-    marque: v('--brand', '#2b041a'),
+    marque: v('--brand', '#3d5c6e'),
   };
 }
 

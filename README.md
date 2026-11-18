@@ -106,7 +106,7 @@ lu à la fois par le dessin 2D et par la 3D.
   d'accessibilité). Chaque bloc est commenté avec le nom de l'espace concerné.
 - **Circulations** : colorées automatiquement à partir des zones de catégorie
   « circulations » de `espaces.json` ; modifier leur contour dans le mode
-  édition met aussi à jour la couleur aubergine du dessin.
+  édition met aussi à jour la couleur ardoise du dessin.
 - **Couleurs et épaisseurs** : variables `--plan-*` dans `src/styles/theme.css`.
 - **Contrôle de l'alignement** : ouvrez l'application avec `?calque` pour
   superposer le plan d'origine en transparence au dessin.
@@ -117,17 +117,18 @@ lu à la fois par le dessin 2D et par la 3D.
 
 ## Charte graphique
 
-Les variables de design sont dans `src/styles/theme.css` : palette réduite
-(aubergine de la charte Ocellis pour les circulations, la sélection et les
-actions ; blanc et beige très clair pour le fond ; anthracite pour les traits
-et le texte), typographies (Poppins pour les titres, Roboto pour le texte,
-EB Garamond pour l'exergue), tailles de texte, espacements, rayons, ombres et
-durées d'animation. Le logo (`src/assets/ocellis-logo.png`) est extrait tel
-quel de la charte.
+Les variables de design sont dans `src/styles/theme.css`. Couleurs : palette de
+la DA du lieu (variables `--da-*`) — lin et sable pour les fonds, bleu pétrole
+pour les actions, terracotta pour la sélection, ardoise pour les circulations,
+sauge, rose sable, brume et gris bleuté en accents. Aucun violet. Typographies
+de la charte Ocellis (Poppins pour les titres, Roboto pour le texte, EB Garamond
+pour l'exergue), tailles de texte, espacements, rayons, ombres et durées
+d'animation. Le logo (`src/assets/ocellis-logo.png`) est extrait tel quel de la
+charte.
 
-Les couleurs des catégories (`categories` dans `espaces.json`) sont des
-nuances d'aubergine, de rose poudré, de sable et de gris ; elles n'apparaissent
-que dans la légende, la liste et au survol ou au filtrage des zones.
+Les couleurs des catégories (`categories` dans `espaces.json`) reprennent la
+même palette : bleu pétrole, terracotta, sauge, rose sable, gris bleuté et
+ardoise.
 
 ## Modifier les noms et descriptions
 
