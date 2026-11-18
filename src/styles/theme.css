@@ -72,6 +72,7 @@
   --font-title: 'Poppins', 'Segoe UI', system-ui, sans-serif;
   --font-text: 'Roboto Variable', 'Roboto', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-accent: 'EB Garamond', Garamond, 'Times New Roman', serif;
+  --font-hand: 'Caveat', 'Segoe Print', 'Bradley Hand', cursive; /* bulles de nom */
 
   --fs-label: 11px;
   --fs-xs: 12px;

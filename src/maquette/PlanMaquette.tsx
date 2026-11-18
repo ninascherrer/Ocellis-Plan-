@@ -8,9 +8,10 @@
  * Gestes : glisser pour pivoter et incliner, molette ou pincement pour zoomer,
  * clic droit, Maj + glisser ou deux doigts pour déplacer.
  */
-import { useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState, type CSSProperties, type Ref } from 'react';
+import { useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState, type Ref } from 'react';
 import type { Insets } from '../hooks/usePanZoom';
-import { pointInPolygon } from '../lib/geometry';
+import { Bulle } from '../components/Bulle';
+import { labelPoint, pointInPolygon } from '../lib/geometry';
 import type { ZoneGeom } from '../lib/zones';
 import { AMENAGEMENT, ARCHITECTURE } from './aConfirmer';
 import { dessinerScene, emprise, preparer, projeter, solSousEcran, type Camera, type Preparee, type Scene, type ZoneRendu } from './rendu';
@@ -230,7 +231,11 @@ export default function PlanMaquette({
       couche.querySelectorAll<HTMLElement>('[data-x]').forEach((el) => {
         const [sx, sy] = projeter(cam, Number(el.dataset.x), Number(el.dataset.y), Number(el.dataset.z));
         el.style.visibility = sx > -20 && sx < w + 20 && sy > -20 && sy < h + 20 ? 'visible' : 'hidden';
-        el.style.transform = `translate(${sx}px, ${sy}px) translate(-50%, -100%)`;
+        if (el.classList.contains('bulle')) {
+          // La bulle part vers la droite, ou vers la gauche près du bord droit (fiche ouverte).
+          el.classList.toggle('is-gauche', sx > w - (rappels.current.getInsets().right + 260));
+          el.style.transform = `translate(${sx}px, ${sy}px)`;
+        } else el.style.transform = `translate(${sx}px, ${sy}px) translate(-50%, -100%)`;
       });
     };
 
@@ -264,7 +269,7 @@ export default function PlanMaquette({
         survolId: r.hoveredId !== r.selectedId ? r.hoveredId : null,
         choixId: r.selectedId,
         correspondances: r.matchIds,
-        libelles: true,
+        libelles: false, // les noms s'affichent dans une bulle au clic
         accent: ACCENT,
         papier: PAPIER,
       });
@@ -477,27 +482,13 @@ export default function PlanMaquette({
     [animer, cadrer, scene, vueGenerale],
   );
 
-  // --- Étiquettes HTML (nom de l'espace survolé ou choisi)
-  const zoneRendu = (id: string | null) => (id ? zonesRendu.find((z) => z.id === id) : undefined);
-  const etiquette = (id: string | null, classe: string) => {
-    const z = zoneRendu(id);
+  // --- Bulle du nom de l'espace choisi, ancrée au sol dans la pièce
+  const bulle = (id: string | null) => {
+    const z = id ? zonesRendu.find((r) => r.id === id) : undefined;
     const geom = id ? zones.find((g) => g.espace.id === id) : undefined;
     if (!z || !geom) return null;
-    const xs = z.contour.map((p) => p[0]),
-      ys = z.contour.map((p) => p[1]);
-    return (
-      <div
-        key={`${classe}-${id}`}
-        className={`zone-tag ${classe}`}
-        data-x={(Math.min(...xs) + Math.max(...xs)) / 2}
-        data-y={(Math.min(...ys) + Math.max(...ys)) / 2}
-        data-z={1.6}
-        style={{ '--zone-color': colorOf(geom) } as CSSProperties}
-      >
-        <span className="dot" />
-        <span className="tag-text">{geom.espace.nom}</span>
-      </div>
-    );
+    const [x, y] = labelPoint(z.contour);
+    return <Bulle key={id} nom={geom.espace.nom} data={{ x, y, z: 0.05 }} couleur={colorOf(geom)} />;
   };
 
   return (
@@ -509,8 +500,7 @@ export default function PlanMaquette({
           <canvas ref={canvasRef} role="img" aria-label="Maquette axonométrique illustrée du plateau, terrasse comprise" />
           {!scene && <p className="plan3d-chargement">Chargement de la maquette…</p>}
           <div className="plan3d-etiquettes" ref={etiquettesRef}>
-            {etiquette(selectedId, 'is-selected')}
-            {isDesktop && hoveredId !== selectedId && etiquette(hoveredId, '')}
+            {bulle(selectedId)}
           </div>
         </>
       )}

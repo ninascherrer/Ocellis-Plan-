@@ -5,6 +5,8 @@ import '@fontsource/poppins/500.css';
 import '@fontsource/poppins/600.css';
 import '@fontsource-variable/roboto';
 import '@fontsource/eb-garamond/400.css';
+// Écriture manuscrite des bulles de nom (style planche illustrée).
+import '@fontsource/caveat/600.css';
 import '@fontsource/eb-garamond/400-italic.css';
 import './styles/theme.css';
 import './styles/app.css';

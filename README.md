@@ -80,7 +80,10 @@ personnages et végétation. Boutons **Maquette / Dessin / Original** en bas à 
   les murs qui cachent l'espace sélectionné s'abaissent.
 - **Espaces** : les contours de `espaces.json` sont cliquables sur la maquette
   (survol, sélection, fiche, recherche, filtres, liens `#<identifiant>`) ; le
-  reste du plan s'estompe autour de l'espace choisi. Les noms s'affichent au sol.
+  reste du plan s'estompe autour de l'espace choisi. Au clic (ou via la
+  recherche), le nom apparaît dans une bulle ovale reliée à la pièce par un trait
+  courbe, en écriture manuscrite (Caveat) ; même bulle en vue Dessin
+  (`src/components/Bulle.tsx`).
 - **Rendu** : canvas 2D redessiné à chaque mouvement (`src/maquette/rendu.ts`),
   avec un tracé simplifié pendant le geste et une image complète à l'arrêt.
 - **Données** : `public/maquette/scene.json`, généré par
