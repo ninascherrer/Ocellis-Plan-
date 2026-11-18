@@ -1,0 +1,107 @@
+/*
+ * Variables de design — charte Ocellis, direction « dessin d'architecte ».
+ *
+ * Palette volontairement réduite :
+ *   - aubergine (#2B041A, charte) : circulations du plan, sélection, actions ;
+ *   - blanc et beige très clair : fond de plan et interface ;
+ *   - anthracite (#26282D, charte) : traits et texte.
+ * Les couleurs des catégories se règlent dans src/config/espaces.json.
+ */
+:root {
+  /* --- Couleurs de la charte */
+  --ocellis-aubergine: #2b041a;
+  --ocellis-anthracite: #26282d;
+  --ocellis-papier: #f1efeb;
+
+  /* --- Rôles */
+  --brand: var(--ocellis-aubergine);
+  --brand-hover: #44102f;
+  --brand-ink: #ffffff;
+  --brand-soft: #f3ebef; /* fond d'un élément sélectionné */
+
+  --canvas: #f5f1ea;
+  --grid-line: rgba(43, 4, 26, 0.035);
+  --surface: #ffffff;
+  --surface-raised: rgba(255, 255, 255, 0.95);
+  --surface-sunken: #faf8f4;
+  --surface-hover: #f6f2ec;
+
+  --ink: var(--ocellis-anthracite);
+  --ink-2: #5f5a5e;
+  --ink-3: #8f898d;
+  --line: #ebe5dc;
+  --line-strong: #d9d1c5;
+
+  --pending: #a8873a; /* « Informations à confirmer » : discret, jamais alarmant */
+  --danger: #a3403c;
+  --danger-soft: #f8ebea;
+
+  /* --- Dessin du plan */
+  --plan-floor: #fffdf9; /* sol des bureaux */
+  --plan-ink: #1d1a1c; /* murs et cloisons */
+  --plan-line: #3b3639; /* mobilier, portes */
+  --plan-furniture: #fffdf9; /* remplissage du mobilier */
+  --plan-volume: #ece5da; /* volumes pleins (ex. Espace 07) */
+  --plan-core: #efe9df; /* noyau technique non accessible */
+  --plan-circulation: #4a1537; /* circulations : aubergine */
+  --plan-on-circulation: rgba(255, 245, 250, 0.62); /* traits posés sur l'aubergine */
+  --plan-terrace: #efe7da;
+  --plan-terrace-line: #e2d6c4;
+  --plan-tree: #d8ccb9;
+  --plan-line-width: 0.55;
+
+  /* --- Aperçu 3D : dessin d'architecte, couleurs Ocellis réservées aux repères */
+  --plan3d-paper: #f6f4ef; /* fond blanc cassé */
+  --plan3d-floor: #fdfcf9; /* sols */
+  --plan3d-ink: #1a181a; /* arases et contours des murs */
+  --plan3d-ink-fine: #3a3639; /* portes, mobilier */
+  --plan3d-circulation: #ece3e7; /* repère des circulations, aubergine très pâle */
+  --plan3d-core: #ebe6de; /* noyau technique */
+  --plan3d-glass: #dce8ed; /* vitrages */
+  --plan3d-glass-ink: #58788a; /* cadres des vitrages */
+
+  /* --- Typographie */
+  --font-title: 'Poppins', 'Segoe UI', system-ui, sans-serif;
+  --font-text: 'Roboto Variable', 'Roboto', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-accent: 'EB Garamond', Garamond, 'Times New Roman', serif;
+
+  --fs-label: 11px;
+  --fs-xs: 12px;
+  --fs-sm: 13px;
+  --fs-md: 14px;
+  --fs-lg: 16px;
+  --fs-xl: 19px;
+  --fs-2xl: 26px;
+  --tracking-label: 0.09em;
+
+  /* --- Espacements (base 4) */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+  --sp-8: 32px;
+
+  /* --- Rayons : sobres */
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
+
+  /* --- Ombres : très légères, teintées de bleu nuit */
+  --shadow-1: 0 1px 2px rgba(1, 13, 45, 0.04);
+  --shadow-2: 0 1px 2px rgba(1, 13, 45, 0.04), 0 6px 20px rgba(1, 13, 45, 0.05);
+  --shadow-3: 0 2px 6px rgba(1, 13, 45, 0.05), 0 18px 40px rgba(1, 13, 45, 0.08);
+
+  /* --- Mouvement */
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-fast: 0.15s;
+  --dur: 0.25s;
+  --dur-slow: 0.45s;
+
+  /* --- Mise en page */
+  --panel-width: 360px;
+  --gutter: 16px;
+}

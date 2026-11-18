@@ -1,0 +1,98 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Configuration du plan interactif Ocellis",
+  "description": "Fichier central : noms, catégories, descriptions et contours des espaces.",
+  "type": "object",
+  "required": ["plan", "categories", "espaces"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "plan": {
+      "type": "object",
+      "description": "Image du plan et repère des coordonnées.",
+      "required": ["titre", "image", "largeur", "hauteur"],
+      "properties": {
+        "titre": { "type": "string", "description": "Titre affiché en haut du panneau." },
+        "sousTitre": { "type": "string", "description": "Sous-titre affiché sous le titre." },
+        "image": {
+          "type": "string",
+          "description": "Plan d'architecte d'origine, relatif au dossier public/, affiché via le bouton « Original » (le plan par défaut est le dessin vectoriel de src/plan/PlanDessin.tsx)."
+        },
+        "largeur": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "Largeur du repère des contours. Garder la valeur d'origine si l'image est remplacée par une version haute définition aux mêmes proportions."
+        },
+        "hauteur": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "Hauteur du repère des contours."
+        }
+      },
+      "additionalProperties": false
+    },
+    "categories": {
+      "type": "array",
+      "description": "Catégories proposées dans les filtres (ordre d'affichage).",
+      "items": {
+        "type": "object",
+        "required": ["id", "libelle", "couleur"],
+        "properties": {
+          "id": {
+            "enum": ["travail", "reunion", "collaboratif", "convivialite", "services", "circulations"],
+            "description": "Identifiant technique de la catégorie (ne pas modifier)."
+          },
+          "libelle": { "type": "string", "description": "Libellé affiché." },
+          "couleur": {
+            "type": "string",
+            "pattern": "^#[0-9A-Fa-f]{6}$",
+            "description": "Couleur d'accent au format #RRGGBB."
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "espaces": {
+      "type": "array",
+      "description": "Liste des espaces cliquables.",
+      "items": {
+        "type": "object",
+        "required": ["id", "nom", "categorie", "contour"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9-]+$",
+            "description": "Identifiant unique (minuscules, chiffres, tirets). Sert aux liens partagés : éviter de le changer une fois diffusé."
+          },
+          "nom": { "type": "string", "description": "Nom affiché de l'espace." },
+          "categorie": {
+            "enum": ["travail", "reunion", "collaboratif", "convivialite", "services", "circulations"],
+            "description": "Catégorie de l'espace (filtres et couleur)."
+          },
+          "description": { "type": "string", "description": "Fonction de l'espace, en une ou deux phrases." },
+          "infos": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Informations pratiques (une ligne par élément) : capacité, équipements, réservation…"
+          },
+          "aConfirmer": {
+            "type": "boolean",
+            "description": "true affiche la mention « À confirmer » tant que les informations n'ont pas été validées."
+          },
+          "contour": {
+            "type": "array",
+            "minItems": 3,
+            "description": "Sommets du polygone cliquable [x, y], dans le repère du plan. Utiliser le mode édition (?edition) pour les ajuster.",
+            "items": {
+              "type": "array",
+              "minItems": 2,
+              "maxItems": 2,
+              "items": { "type": "number" }
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

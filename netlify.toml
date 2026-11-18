@@ -1,0 +1,21 @@
+# Déploiement Netlify : site statique construit à chaque push.
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+  # Le PDF d'implantation (confidentiel) n'est pas publié. Mettre "1" pour l'inclure.
+  VITE_CALQUE_PDF = "0"
+
+# Les fichiers générés portent une empreinte : on peut les garder en cache longtemps.
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Le plan ne doit pas apparaître dans les moteurs de recherche.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
