@@ -191,13 +191,20 @@ des images affichées.
 
 ## Noms des espaces
 
-Les noms viennent de la liste des espaces fournie par Ocellis, associée à
-chaque zone d'après le mobilier dessiné sur le plan. Les zones dont
-l'association reste à valider affichent « Informations à confirmer »
-(`"aConfirmer": true` dans `espaces.json`). Deux zones n'ont pas de
-correspondance dans la liste et gardent un nom provisoire : **Espace 07**
-(volume annoté « Box autonome » au plan) et **Espace 09** (petit local de la
-colonne de services).
+Référence : **plan d'éclairage IPSO 861109-1a (indice 1a, 12/11/2026)**, qui
+reprend le plan d'implantation et porte le programme de chaque pièce (nom
+d'usage, surface, nombre de places). Les noms propres donnés par Ocellis
+(NOVA, ÉCHO, HALO, OREE, OCELLE, O'1, O'2, OSMOSE, Box A/B/C) sont conservés ;
+les fiches indiquent les places et surfaces du plan IPSO.
+
+Correspondances principales : Salle Lounge → NOVA, Salle Quatro 8,40 m² → ÉCHO,
+Salle Visio → HALO, Salle Silence → OREE, Salle Client/Mat → OCELLE, Office for
+a day → O'1, Salle de travail → O'2, Espace informel / Corner Pop Up évolutif →
+OSMOSE, Le Comptoir → les trois zones de la cafétéria.
+
+Points à confirmer (`"aConfirmer": true`) : le nombre de places d'OSMOSE est
+illisible sur le plan IPSO, et l'étiquette « Table Cowork » (5 places) ne
+correspond à aucun mobilier dessiné ; elle n'a pas de zone.
 
 ## Organisation du code
 

@@ -20,10 +20,11 @@
       "id": "espace-01",
       "nom": "NOVA",
       "categorie": "collaboratif",
-      "description": "Salle de créativité et de brainstorm, reconfigurable, avec canapé d'angle, poufs, fauteuil et banquette.",
+      "description": "Salle lounge de créativité et de brainstorm : canapé d'angle, poufs, fauteuil et banquette ; tableau blanc tactile Samsung et Yealink Teams Rooms.",
       "infos": [
-        "7 à 8 personnes",
-        "Mobilier reconfigurable"
+        "5 places",
+        "13,83 m²",
+        "Usage : réunion"
       ],
       "aConfirmer": false,
       "contour": [
@@ -37,9 +38,11 @@
       "id": "espace-02",
       "nom": "ÉCHO",
       "categorie": "reunion",
-      "description": "Salle de réunion de 4 personnes.",
+      "description": "Salle Quatro : salle de réunion de 4 personnes.",
       "infos": [
-        "4 personnes"
+        "4 places",
+        "8,40 m²",
+        "Usage : réunion"
       ],
       "aConfirmer": false,
       "contour": [
@@ -67,9 +70,11 @@
       "id": "espace-03",
       "nom": "HALO",
       "categorie": "reunion",
-      "description": "Salle de réunion visio de 3 personnes.",
+      "description": "Salle visio de 3 personnes.",
       "infos": [
-        "3 personnes"
+        "3 places",
+        "5,19 m²",
+        "Usage : réunion"
       ],
       "aConfirmer": false,
       "contour": [
@@ -83,8 +88,12 @@
       "id": "espace-04",
       "nom": "OREE",
       "categorie": "travail",
-      "description": "Salle de silence et de concentration, avec des places individuelles le long des parois.",
-      "infos": [],
+      "description": "Salle silence, pour le travail concentré.",
+      "infos": [
+        "5 places",
+        "14,55 m²",
+        "Usage : travail"
+      ],
       "aConfirmer": false,
       "contour": [
         [411, 3],
@@ -101,8 +110,12 @@
       "id": "espace-05",
       "nom": "Espace de travail ouvert",
       "categorie": "travail",
-      "description": "Espace de travail ouvert, deux grandes tables de six places.",
-      "infos": [],
+      "description": "Bench : deux grandes tables de six postes.",
+      "infos": [
+        "12 places",
+        "34,71 m²",
+        "Usage : travail"
+      ],
       "aConfirmer": false,
       "contour": [
         [32, 66],
@@ -115,9 +128,11 @@
       "id": "espace-06",
       "nom": "Postes en façade",
       "categorie": "travail",
-      "description": "Deux postes de travail le long de la façade.",
+      "description": "Deux postes de travail face à la façade (« Vue sur… » au plan).",
       "infos": [
-        "2 places"
+        "2 places",
+        "6,91 m²",
+        "Usage : travail"
       ],
       "aConfirmer": false,
       "contour": [
@@ -129,11 +144,15 @@
     },
     {
       "id": "espace-07",
-      "nom": "Espace 07",
-      "categorie": "travail",
-      "description": "Au plan : volume grisé annoté (texte illisible sur l'image fournie).",
-      "infos": [],
-      "aConfirmer": true,
+      "nom": "Box autonome",
+      "categorie": "collaboratif",
+      "description": "Salle Quatro en box autonome (modèle Interior ou Mute), pour une réunion à quatre.",
+      "infos": [
+        "4 places",
+        "2,58 m²",
+        "Usage : réunion"
+      ],
+      "aConfirmer": false,
       "contour": [
         [86, 257],
         [129, 257],
@@ -145,8 +164,12 @@
       "id": "espace-08",
       "nom": "Espace de travail ouvert",
       "categorie": "travail",
-      "description": "Espace de travail ouvert, îlot de six postes.",
-      "infos": [],
+      "description": "Bench : îlot de six postes en vis-à-vis.",
+      "infos": [
+        "6 places",
+        "16,32 m²",
+        "Usage : travail"
+      ],
       "aConfirmer": false,
       "contour": [
         [32, 343],
@@ -171,11 +194,15 @@
     },
     {
       "id": "espace-09",
-      "nom": "Espace 09",
-      "categorie": "services",
-      "description": "Au plan : petit local équipé, usage à préciser.",
-      "infos": [],
-      "aConfirmer": true,
+      "nom": "Touchdown",
+      "categorie": "travail",
+      "description": "Poste touchdown pour une personne, entre les casiers et le Box A.",
+      "infos": [
+        "1 place",
+        "1,94 m²",
+        "Usage : travail"
+      ],
+      "aConfirmer": false,
       "contour": [
         [163, 118],
         [199, 118],
@@ -187,11 +214,13 @@
       "id": "espace-10",
       "nom": "Box A",
       "categorie": "collaboratif",
-      "description": "Box avec poufs.",
+      "description": "Salle Quatro : box avec poufs et assises.",
       "infos": [
-        "3 poufs"
+        "4 places",
+        "2,81 m²",
+        "Usage : réunion"
       ],
-      "aConfirmer": true,
+      "aConfirmer": false,
       "contour": [
         [163, 146],
         [199, 146],
@@ -203,8 +232,12 @@
       "id": "espace-11",
       "nom": "Box B",
       "categorie": "collaboratif",
-      "description": "Box avec banquettes en vis-à-vis.",
-      "infos": [],
+      "description": "Salle Quatro : box avec banquettes en vis-à-vis.",
+      "infos": [
+        "4 places",
+        "2,81 m²",
+        "Usage : réunion"
+      ],
       "aConfirmer": false,
       "contour": [
         [163, 194],
@@ -245,9 +278,13 @@
       "id": "spix",
       "nom": "Box C",
       "categorie": "collaboratif",
-      "description": "Alcôve Nowystyl (annotée « SPIX » au plan).",
-      "infos": [],
-      "aConfirmer": true,
+      "description": "Salle Quatro : alcôve Nowystyl (modèle SPIX).",
+      "infos": [
+        "4 places",
+        "2,64 m²",
+        "Usage : réunion"
+      ],
+      "aConfirmer": false,
       "contour": [
         [167, 315],
         [198, 315],
@@ -259,11 +296,13 @@
       "id": "espace-12",
       "nom": "Petit espace individuel",
       "categorie": "travail",
-      "description": "Petit espace de travail individuel.",
+      "description": "Poste touchdown pour une personne.",
       "infos": [
-        "1 personne"
+        "1 place",
+        "2,11 m²",
+        "Usage : travail"
       ],
-      "aConfirmer": true,
+      "aConfirmer": false,
       "contour": [
         [163, 364],
         [199, 364],
@@ -320,13 +359,50 @@
       ]
     },
     {
+      "id": "fourniture",
+      "nom": "Fourniture",
+      "categorie": "services",
+      "description": "Local fourniture (support), avec armoire haute.",
+      "infos": [
+        "3,21 m²"
+      ],
+      "aConfirmer": false,
+      "contour": [
+        [269, 97],
+        [311, 97],
+        [311, 134],
+        [269, 134]
+      ]
+    },
+    {
+      "id": "serveur",
+      "nom": "Serveur",
+      "categorie": "services",
+      "description": "Local serveur (baie de brassage). Accès réservé.",
+      "infos": [
+        "3,21 m²"
+      ],
+      "aConfirmer": false,
+      "contour": [
+        [269, 135],
+        [311, 135],
+        [311, 178],
+        [269, 178]
+      ]
+    },
+    {
       "id": "materiautheque",
       "nom": "Matériauthèque",
       "categorie": "collaboratif",
-      "description": "Matériauthèque, en bordure de la salle OCELLE. Sa partie consultation se trouve en face, de l'autre côté du couloir.",
-      "infos": [],
-      "aConfirmer": true,
+      "description": "Matériauthèque : espace de présentation des matériaux, entre l'étagère de consultation et la salle OCELLE, bibliothèque comprise.",
+      "infos": [
+        "13,33 m²",
+        "Usage : présentation"
+      ],
+      "aConfirmer": false,
       "contour": [
+        [347, 97],
+        [398, 97],
         [398, 87],
         [446, 87],
         [449, 91],
@@ -340,31 +416,21 @@
         [419, 237],
         [408, 230],
         [401, 221],
-        [398, 210]
-      ]
-    },
-    {
-      "id": "materiautheque-consultation",
-      "nom": "Matériauthèque (consultation)",
-      "categorie": "collaboratif",
-      "description": "Partie de la matériauthèque située le long du couloir, face à la salle OCELLE : étagères et consultation des échantillons (« BIBLIO + CONSULT » au plan).",
-      "infos": [],
-      "aConfirmer": false,
-      "contour": [
-        [349, 100],
-        [368, 100],
-        [368, 266],
-        [349, 266]
+        [396, 224],
+        [390, 236],
+        [372, 248],
+        [347, 256]
       ]
     },
     {
       "id": "espace-13",
       "nom": "OCELLE",
       "categorie": "reunion",
-      "description": "Salle de réunion de 6 personnes, également utilisée pour la réception des clients, à proximité de la matériauthèque.",
+      "description": "Salle client et matériauthèque : réunions et présentation des matériaux aux clients, ouverte sur la matériauthèque.",
       "infos": [
-        "6 personnes",
-        "Réception client"
+        "10 places",
+        "22,75 m²",
+        "Usage : réunion et présentation"
       ],
       "aConfirmer": false,
       "contour": [
@@ -376,9 +442,9 @@
     },
     {
       "id": "vestiaires",
-      "nom": "Vestiaire / bagagerie",
+      "nom": "Vestiaires",
       "categorie": "services",
-      "description": "Vestiaire et bagagerie.",
+      "description": "Vestiaires, à l'entrée du Comptoir.",
       "infos": [],
       "aConfirmer": false,
       "contour": [
@@ -390,27 +456,51 @@
     },
     {
       "id": "espace-14",
-      "nom": "Cafétéria",
+      "nom": "Le Comptoir",
       "categorie": "convivialite",
-      "description": "Cafétéria : îlot entouré de tabourets hauts et linéaire équipé.",
-      "infos": [],
-      "aConfirmer": true,
+      "description": "Le Comptoir, partie cuisine : îlot avec tabourets hauts, linéaire café, fontaine, cave à vins, micro-ondes et réfrigérateurs.",
+      "infos": [
+        "38 places (Comptoir complet)",
+        "91,49 m² (Comptoir complet)",
+        "Usage : convivialité et présentation"
+      ],
+      "aConfirmer": false,
       "contour": [
-        [351, 331],
+        [386, 331],
         [384, 331],
         [384, 293],
         [432, 293],
         [432, 432],
-        [351, 432]
+        [351, 432],
+        [351, 405],
+        [386, 405]
+      ]
+    },
+    {
+      "id": "bagagerie",
+      "nom": "Bagagerie / vestiaires",
+      "categorie": "services",
+      "description": "Bagagerie et vestiaires, le long du linéaire du Comptoir.",
+      "infos": [],
+      "aConfirmer": false,
+      "contour": [
+        [351, 332],
+        [386, 332],
+        [386, 404],
+        [351, 404]
       ]
     },
     {
       "id": "espace-15",
-      "nom": "Cafétéria",
+      "nom": "Le Comptoir",
       "categorie": "convivialite",
-      "description": "Cafétéria : comptoir, banquette courbe, tables rondes et mange-debout.",
-      "infos": [],
-      "aConfirmer": true,
+      "description": "Le Comptoir : comptoir, banquette courbe, tables rondes et mange-debout.",
+      "infos": [
+        "38 places (Comptoir complet)",
+        "91,49 m² (Comptoir complet)",
+        "Usage : convivialité et présentation"
+      ],
+      "aConfirmer": false,
       "contour": [
         [412, 201],
         [497, 201],
@@ -426,9 +516,11 @@
       "id": "espace-16",
       "nom": "O'1",
       "categorie": "travail",
-      "description": "Bureau fermé à la journée, une place.",
+      "description": "Office for a day : bureau fermé à la journée, une place.",
       "infos": [
-        "1 personne"
+        "1 place",
+        "4,39 m²",
+        "Usage : travail"
       ],
       "aConfirmer": false,
       "contour": [
@@ -442,9 +534,11 @@
       "id": "espace-17",
       "nom": "O'2",
       "categorie": "travail",
-      "description": "Bureau fermé à la journée, deux places.",
+      "description": "Salle de travail : bureau fermé à la journée, deux places.",
       "infos": [
-        "2 personnes"
+        "2 places",
+        "6,52 m²",
+        "Usage : travail"
       ],
       "aConfirmer": false,
       "contour": [
@@ -458,9 +552,12 @@
       "id": "espace-18",
       "nom": "OSMOSE",
       "categorie": "reunion",
-      "description": "Salle de réunion pour les projets, avec deux types de postures : assis autour de la table ovale ou à la table haute.",
-      "infos": [],
-      "aConfirmer": false,
+      "description": "Espace informel / corner pop-up évolutif : table de réunion et deux postures (assis à la table ovale, debout à la table haute).",
+      "infos": [
+        "14,31 m²",
+        "Usage : réunion"
+      ],
+      "aConfirmer": true,
       "contour": [
         [54, 519],
         [176, 519],
@@ -485,17 +582,35 @@
       ]
     },
     {
-      "id": "espace-19",
-      "nom": "Reprographie",
+      "id": "menage",
+      "nom": "Ménage",
       "categorie": "services",
-      "description": "Local de reprographie.",
-      "infos": [],
-      "aConfirmer": true,
+      "description": "Local ménage (local technique).",
+      "infos": [
+        "2,69 m²"
+      ],
+      "aConfirmer": false,
       "contour": [
         [233, 489],
+        [260, 489],
+        [260, 538],
+        [233, 538]
+      ]
+    },
+    {
+      "id": "espace-19",
+      "nom": "Copie",
+      "categorie": "services",
+      "description": "Local copie et fournitures de bureau : imprimante, armoires hautes et papier.",
+      "infos": [
+        "Usage : support"
+      ],
+      "aConfirmer": false,
+      "contour": [
+        [261, 489],
         [318, 489],
         [318, 538],
-        [233, 538]
+        [261, 538]
       ]
     },
     {
@@ -516,11 +631,15 @@
     },
     {
       "id": "espace-20",
-      "nom": "Cafétéria",
+      "nom": "Le Comptoir",
       "categorie": "convivialite",
-      "description": "Cafétéria : table de huit places et banquettes avec assises.",
-      "infos": [],
-      "aConfirmer": true,
+      "description": "Le Comptoir : grande table de huit places et banquettes, écran avec Yealink.",
+      "infos": [
+        "38 places (Comptoir complet)",
+        "91,49 m² (Comptoir complet)",
+        "Usage : convivialité et présentation"
+      ],
+      "aConfirmer": false,
       "contour": [
         [373, 479],
         [497, 479],
@@ -557,23 +676,23 @@
         [430, 66],
         [430, 86],
         [396, 86],
-        [396, 274],
-        [460, 274],
-        [460, 445],
-        [497, 445],
-        [497, 478],
-        [400, 478],
-        [400, 445],
+        [396, 97],
+        [163, 97],
+        [163, 445],
         [432, 445],
         [432, 292],
         [384, 292],
         [384, 330],
         [347, 330],
-        [347, 97],
-        [163, 97],
-        [163, 445],
-        [400, 445],
-        [400, 478],
+        [347, 256],
+        [372, 248],
+        [390, 236],
+        [396, 224],
+        [396, 274],
+        [460, 274],
+        [460, 445],
+        [497, 445],
+        [497, 478],
         [372, 478],
         [372, 488],
         [196, 488],

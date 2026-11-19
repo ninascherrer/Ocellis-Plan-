@@ -47,16 +47,18 @@ describe('géométrie', () => {
 });
 
 describe('circulations', () => {
-  it('forment une boucle continue autour du noyau, sans le couvrir', async () => {
+  it('suivent le plan d\'éclairage IPSO : couloirs ouverts, matériauthèque et noyau exclus', async () => {
     const { configFichier } = await import('../config');
-    const contour = configFichier.espaces.find((e) => e.id === 'circulations')!.contour;
-    // Couloir est, traverse au-dessus de l'îlot, allée de la cafétéria, couloir sud.
-    for (const p of [[390, 200], [420, 282], [446, 360], [300, 460]] as Point[]) {
-      expect(pointInPolygon(p, contour)).toBe(true);
+    const zone = (id: string) => configFichier.espaces.find((e) => e.id === id)!.contour;
+    const circulations = zone('circulations');
+    // Couloir ouest, couloir nord, couloir est au sud de la matériauthèque, traverse, allée du Comptoir, couloir sud.
+    for (const p of [[150, 300], [300, 80], [360, 300], [420, 282], [446, 360], [300, 460]] as Point[]) {
+      expect(pointInPolygon(p, circulations), JSON.stringify(p)).toBe(true);
     }
-    // Noyau central, îlot, cuisine : hors circulation.
-    for (const p of [[270, 150], [410, 380], [370, 400]] as Point[]) {
-      expect(pointInPolygon(p, contour)).toBe(false);
+    // Noyau, îlot du Comptoir, matériauthèque : hors circulation.
+    for (const p of [[270, 150], [410, 380], [370, 200]] as Point[]) {
+      expect(pointInPolygon(p, circulations), JSON.stringify(p)).toBe(false);
     }
+    expect(pointInPolygon([370, 200], zone('materiautheque'))).toBe(true);
   });
 });
