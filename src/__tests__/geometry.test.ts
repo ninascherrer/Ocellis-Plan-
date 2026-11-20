@@ -47,18 +47,19 @@ describe('géométrie', () => {
 });
 
 describe('circulations', () => {
-  it('suivent le plan d\'éclairage IPSO : couloirs ouverts, matériauthèque et noyau exclus', async () => {
+  it('suivent le plan de zoning Ocellis (indice 10) : couloirs ouest, nord et sud', async () => {
     const { configFichier } = await import('../config');
     const zone = (id: string) => configFichier.espaces.find((e) => e.id === id)!.contour;
     const circulations = zone('circulations');
-    // Couloir ouest, couloir nord, couloir est au sud de la matériauthèque, traverse, allée du Comptoir, couloir sud.
-    for (const p of [[150, 300], [300, 80], [360, 300], [420, 282], [446, 360], [300, 460]] as Point[]) {
+    for (const p of [[150, 300], [300, 80], [300, 460]] as Point[]) {
       expect(pointInPolygon(p, circulations), JSON.stringify(p)).toBe(true);
     }
-    // Noyau, îlot du Comptoir, matériauthèque : hors circulation.
-    for (const p of [[270, 150], [410, 380], [370, 200]] as Point[]) {
+    // Noyau, matériauthèque, Le Loby et Bistro : hors circulation.
+    for (const p of [[270, 150], [370, 200], [420, 282], [446, 360], [420, 460]] as Point[]) {
       expect(pointInPolygon(p, circulations), JSON.stringify(p)).toBe(false);
     }
     expect(pointInPolygon([370, 200], zone('materiautheque'))).toBe(true);
+    expect(pointInPolygon([420, 282], zone('espace-15'))).toBe(true);
+    expect(pointInPolygon([420, 460], zone('espace-14'))).toBe(true);
   });
 });

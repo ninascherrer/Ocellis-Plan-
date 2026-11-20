@@ -191,20 +191,22 @@ des images affichées.
 
 ## Noms des espaces
 
-Référence : **plan d'éclairage IPSO 861109-1a (indice 1a, 12/11/2026)**, qui
-reprend le plan d'implantation et porte le programme de chaque pièce (nom
-d'usage, surface, nombre de places). Les noms propres donnés par Ocellis
-(NOVA, ÉCHO, HALO, OREE, OCELLE, O'1, O'2, OSMOSE, Box A/B/C) sont conservés ;
-les fiches indiquent les places et surfaces du plan IPSO.
+Référence : **plan de zoning Ocellis « OCELLIS X CDG », indice 10 du
+20/11/2026** (1/125). Il remplace le plan d'implantation et le plan d'éclairage
+IPSO pour les noms, surfaces, places et le découpage des zones. Les murs et le
+mobilier sont inchangés.
 
-Correspondances principales : Salle Lounge → NOVA, Salle Quatro 8,40 m² → ÉCHO,
-Salle Visio → HALO, Salle Silence → OREE, Salle Client/Mat → OCELLE, Office for
-a day → O'1, Salle de travail → O'2, Espace informel / Corner Pop Up évolutif →
-OSMOSE, Le Comptoir → les trois zones de la cafétéria.
+Principaux espaces : NOVA (salle créativité, 5 places), ECHO (salle de réunion,
+4), HALO (salle visio, 3), OREE (salle silence, 5), OCELLE (salle de réunion
+client, 10), OSMOSE (salle projet, 8), O'1 et O'2 (OFAD, 1 et 2), deux Bench
+(12 et 6), Vue sur CDG (2), deux Touchdown, Box A/B/C et Salle Quatro (box),
+Matériauthèque, **Le Loby** (entrée, 10 places) et **Bistro** (espace de vie,
+28 places). Box A, B et C gardent ces noms pour les distinguer (le plan les
+appelle « Box »).
 
-Points à confirmer (`"aConfirmer": true`) : le nombre de places d'OSMOSE est
-illisible sur le plan IPSO, et l'étiquette « Table Cowork » (5 places) ne
-correspond à aucun mobilier dessiné ; elle n'a pas de zone.
+Écarts du plan lui-même : le tableau récapitulatif indique 8 places pour la
+salle créativité et 6 pour la salle de réunion, alors que les étiquettes des
+pièces portent 5 et 4 places ; les fiches suivent les étiquettes.
 
 ## Organisation du code
 
