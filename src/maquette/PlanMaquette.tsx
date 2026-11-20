@@ -87,6 +87,12 @@ export default function PlanMaquette({
   const kAjuste = useRef(30);
   const anim = useRef<{ de: Etat; vers: Etat; debut: number; duree: number } | null>(null);
   const interaction = useRef(0);
+  /** Doigts ou boutons appuyés sur la maquette : tant qu'il y en a, le geste n'est pas fini. */
+  const appuis = useRef(0);
+  const cliche = useRef<{ canvas: HTMLCanvasElement; cam: Camera } | null>(null);
+  const basse = useRef<HTMLCanvasElement | null>(null);
+  /** Un état (sélection, filtre, survol) a changé : l'image en cache n'est plus valable. */
+  const etatChange = useRef(true);
   /** Cadrage demandé avant la fin du chargement (lien partagé #<identifiant>). */
   const enAttente = useRef<ZoneGeom | null>(null);
   const image = useRef(0);
@@ -258,6 +264,8 @@ export default function PlanMaquette({
     enAttente.current = null;
     if (attente) requestAnimationFrame(() => poignee.current?.focus(attente));
     let dpr = 1;
+    // Écran tactile : rendu en basse définition pendant les rotations.
+    const basseDef = window.matchMedia('(pointer: coarse)').matches;
     let rapidePrecedent = false;
     const redimensionner = () => {
       const w = conteneur.clientWidth,
@@ -266,6 +274,7 @@ export default function PlanMaquette({
       dpr = Math.min(window.devicePixelRatio || 1, 2);
       cv.width = Math.round(w * dpr);
       cv.height = Math.round(h * dpr);
+      cliche.current = null; // taille changée : le cache n'est plus utilisable
       invalider();
     };
     redimensionner();
@@ -304,7 +313,8 @@ export default function PlanMaquette({
         if (t >= 1) anim.current = null;
         sale.current = true;
       }
-      const enMouvement = !!anim.current || now - interaction.current < 140;
+      // Le geste dure tant qu'un doigt est posé, puis 180 ms après le dernier mouvement.
+      const enMouvement = !!anim.current || appuis.current > 0 || now - interaction.current < 180;
       // une image soignée dès que le mouvement s'arrête
       if (!enMouvement && rapidePrecedent) sale.current = true;
       if (!sale.current) return;
@@ -312,8 +322,9 @@ export default function PlanMaquette({
       rapidePrecedent = enMouvement;
       const r = rappels.current;
       const cam = camera(etat.current);
-      dessinerScene(ctx, scene, cam, conteneur.clientWidth, conteneur.clientHeight, dpr, {
-        rapide: enMouvement,
+      const w = conteneur.clientWidth,
+        h = conteneur.clientHeight;
+      const options = {
         zones: r.zonesRendu,
         survolId: r.hoveredId !== r.selectedId ? r.hoveredId : null,
         choixId: r.selectedId,
@@ -321,7 +332,42 @@ export default function PlanMaquette({
         libelles: false, // les noms s'affichent dans une bulle au clic
         accent: ACCENT,
         papier: PAPIER,
-      });
+      };
+      const c = cliche.current;
+      if (enMouvement && c && !etatChange.current && c.cam.az === cam.az && c.cam.el === cam.el) {
+        // Déplacement ou zoom pur : on réutilise la dernière image complète, simplement
+        // décalée et agrandie (l'image détaillée est redessinée à l'arrêt).
+        const f = cam.k / c.cam.k;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.fillStyle = PAPIER;
+        ctx.fillRect(0, 0, w, h);
+        ctx.imageSmoothingEnabled = true;
+        ctx.drawImage(c.canvas, cam.tx - c.cam.tx * f, cam.ty - c.cam.ty * f, (c.canvas.width / dpr) * f, (c.canvas.height / dpr) * f);
+      } else if (enMouvement && basseDef) {
+        // Rotation sur téléphone : rendu allégé en basse définition, agrandi à l'écran.
+        const lr = (basse.current ??= document.createElement('canvas'));
+        const ech = 0.6;
+        if (lr.width !== Math.round(w * ech) || lr.height !== Math.round(h * ech)) {
+          lr.width = Math.round(w * ech);
+          lr.height = Math.round(h * ech);
+        }
+        const lctx = lr.getContext('2d')!;
+        dessinerScene(lctx, scene, cam, w, h, ech, { ...options, rapide: true });
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.imageSmoothingEnabled = true;
+        ctx.drawImage(lr, 0, 0, cv.width, cv.height);
+      } else {
+        dessinerScene(ctx, scene, cam, w, h, dpr, { ...options, rapide: enMouvement });
+        if (!enMouvement) {
+          // Image complète gardée en cache pour les déplacements et zooms suivants.
+          const copie = cliche.current?.canvas ?? document.createElement('canvas');
+          copie.width = cv.width;
+          copie.height = cv.height;
+          copie.getContext('2d')!.drawImage(cv, 0, 0);
+          cliche.current = { canvas: copie, cam };
+          etatChange.current = false;
+        }
+      }
       placerEtiquettes(cam);
       const md = mesureDefilement(etat.current);
       const b = (v: number) => Math.min(1, Math.max(0, v));
@@ -336,7 +382,10 @@ export default function PlanMaquette({
     };
   }, [scene, camera, invalider, vueGenerale, mesureDefilement]);
 
-  useEffect(invalider, [selectedId, hoveredId, matchIds, zonesRendu, invalider]);
+  useEffect(() => {
+    etatChange.current = true;
+    invalider();
+  }, [selectedId, hoveredId, matchIds, zonesRendu, invalider]);
 
   // --- Gestes
   useEffect(() => {
@@ -398,6 +447,7 @@ export default function PlanMaquette({
       }
       const p = local(e);
       pointeurs.set(e.pointerId, p);
+      appuis.current = pointeurs.size;
       if (pointeurs.size === 1) {
         mode = e.button === 2 || e.shiftKey ? 'deplacer' : 'orbite';
         bouge = false;
@@ -445,6 +495,8 @@ export default function PlanMaquette({
     const haut = (e: PointerEvent) => {
       const p = pointeurs.get(e.pointerId);
       pointeurs.delete(e.pointerId);
+      appuis.current = pointeurs.size;
+      interaction.current = performance.now();
       if (pointeurs.size < 2) pincement = null;
       if (pointeurs.size === 0) {
         if (!bouge && p && e.type === 'pointerup' && e.button !== 2) {

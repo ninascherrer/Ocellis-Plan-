@@ -225,6 +225,8 @@ export default function App() {
     return () => window.removeEventListener('hashchange', openFromHash);
   }, [select, zonesById]);
 
+  const selectFly = useCallback((id: string) => select(id, 'fly'), [select]);
+
   const editor = usePlanEditor({
     store,
     active: editorOpen,
@@ -358,7 +360,7 @@ export default function App() {
           onToggleCategory={toggleCategory}
           onClearFilters={clearFilters}
           selectedId={selectedId}
-          onSelect={(id) => select(id, 'fly')}
+          onSelect={selectFly}
           onHover={setHoveredId}
           isDesktop={isDesktop}
           maquette={is3d}

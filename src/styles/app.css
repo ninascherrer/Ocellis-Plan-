@@ -2265,3 +2265,27 @@ kbd {
     display: none;
   }
 }
+
+/* Écrans tactiles : pas de flou d'arrière-plan sur les panneaux. Ce flou est
+   recalculé à chaque image de la maquette et ralentit fortement les téléphones. */
+@media (pointer: coarse), (max-width: 899.98px) {
+  .sidebar,
+  .details,
+  .editor,
+  .segmented,
+  .zoom-group,
+  .control-stack > .control-reset,
+  .editor-toggle,
+  .plan3d-legende,
+  .zone-tag {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  .segmented,
+  .zoom-group,
+  .control-stack > .control-reset,
+  .plan3d-legende {
+    background: var(--surface);
+  }
+}

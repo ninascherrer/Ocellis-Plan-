@@ -1,4 +1,4 @@
-import { useId, useRef, useState, type CSSProperties, type KeyboardEvent, type RefObject } from 'react';
+import { memo, useId, useRef, useState, type CSSProperties, type KeyboardEvent, type RefObject } from 'react';
 import logoUrl from '../assets/ocellis-logo.png';
 import type { Categorie, CategorieId, Espace, PlanInfo } from '../types';
 import { CheckIcon, ChevronIcon, CloseIcon, ListIcon, SearchIcon } from './Icons';
@@ -23,7 +23,7 @@ interface SidebarProps {
   maquette?: boolean;
 }
 
-export function Sidebar({
+function SidebarBrut({
   panelRef,
   plan,
   categories,
@@ -247,3 +247,6 @@ export function Sidebar({
     </aside>
   );
 }
+
+/** Le panneau ne dépend pas du cadrage du plan : pas de nouveau rendu pendant un déplacement. */
+export const Sidebar = memo(SidebarBrut);

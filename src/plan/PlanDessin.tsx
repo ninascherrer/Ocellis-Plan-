@@ -10,7 +10,7 @@
  * Les circulations sont colorées à partir des zones de la catégorie
  * « circulations » de espaces.json : dessin et zones restent alignés.
  */
-import type { ReactNode } from 'react';
+import { memo, type ReactNode } from 'react';
 import type { Point } from '../types';
 import { CADRE_SPIX, FACADE_TERRASSE_SVG, MURS, NOYAU, PORTES } from './structure';
 
@@ -128,7 +128,7 @@ interface PlanDessinProps {
 
 const pts = (points: Point[]) => points.map(([x, y]) => `${x},${y}`).join(' ');
 
-export function PlanDessin({ largeur, hauteur, circulations }: PlanDessinProps) {
+function PlanDessinBrut({ largeur, hauteur, circulations }: PlanDessinProps) {
   return (
     <g className="plan-dessin" aria-hidden="true">
       {/* Fond de l'étage (bureaux) et terrasse */}
@@ -419,3 +419,6 @@ export function PlanDessin({ largeur, hauteur, circulations }: PlanDessinProps) 
     </g>
   );
 }
+
+/** Dessin figé : il ne dépend pas du zoom ni du déplacement, inutile de le recalculer pendant un geste. */
+export const PlanDessin = memo(PlanDessinBrut);
