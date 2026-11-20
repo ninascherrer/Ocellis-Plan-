@@ -11,6 +11,7 @@
 import { useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState, type Ref } from 'react';
 import type { Insets } from '../hooks/usePanZoom';
 import { Bulle } from '../components/Bulle';
+import type { PositionDefilement } from '../components/BarresDefilement';
 import { labelPoint, pointInPolygon } from '../lib/geometry';
 import type { ZoneGeom } from '../lib/zones';
 import { AMENAGEMENT, ARCHITECTURE } from './aConfirmer';
@@ -23,10 +24,8 @@ export interface PlanMaquetteHandle {
   focus: (zone: ZoneGeom) => void;
   /** Quart de tour (sens = 1 : sens horaire vu de dessus). */
   rotate: (sens: 1 | -1) => void;
-  /** Place le plan verticalement : 0 = haut du plateau au centre de l'écran, 1 = bas. */
-  positionVerticale: (t: number) => void;
-  /** Fait défiler d'un pas vers le haut (−1) ou vers le bas (1). */
-  pasVertical: (sens: -1 | 1) => void;
+  /** Place le plan sur un axe : 0 = bord haut / gauche du plateau au bord de l'écran, 1 = bas / droite. */
+  positionner: (axe: 'x' | 'y', t: number) => void;
 }
 
 interface PlanMaquetteProps {
@@ -41,8 +40,8 @@ interface PlanMaquetteProps {
   onBackgroundClick: () => void;
   getInsets: () => Insets;
   isDesktop: boolean;
-  /** Position verticale courante (0 à 1), signalée à chaque image dessinée. */
-  onPositionVerticale?: (t: number) => void;
+  /** Position et partie visible du plan sur chaque axe, signalées à chaque image dessinée. */
+  onDefilement?: (p: PositionDefilement) => void;
 }
 
 /** État de la vue : azimut et inclinaison (radians), échelle (px / m), point du plan au centre de la zone libre. */
@@ -76,7 +75,7 @@ export default function PlanMaquette({
   onBackgroundClick,
   getInsets,
   isDesktop,
-  onPositionVerticale,
+  onDefilement,
 }: PlanMaquetteProps) {
   const conteneurRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -117,8 +116,8 @@ export default function PlanMaquette({
     });
   }, [scene, zones, colorOf]);
 
-  const rappels = useRef({ onZoneClick, onZoneHover, onBackgroundClick, getInsets, zones, zonesRendu, selectedId, hoveredId, matchIds, onPositionVerticale });
-  rappels.current = { onZoneClick, onZoneHover, onBackgroundClick, getInsets, zones, zonesRendu, selectedId, hoveredId, matchIds, onPositionVerticale };
+  const rappels = useRef({ onZoneClick, onZoneHover, onBackgroundClick, getInsets, zones, zonesRendu, selectedId, hoveredId, matchIds, onDefilement });
+  rappels.current = { onZoneClick, onZoneHover, onBackgroundClick, getInsets, zones, zonesRendu, selectedId, hoveredId, matchIds, onDefilement };
 
   // --- Chargement de la scène (fichier statique, généré par outils/maquette/export.py)
   useEffect(() => {
@@ -175,18 +174,35 @@ export default function PlanMaquette({
     [zoneLibre],
   );
 
-  /** Hauteur à l'écran du plateau et position de la zone libre dans cette hauteur (0 = haut, 1 = bas). */
-  const mesureVerticale = useCallback(
+  /**
+   * Pour chaque axe : course de défilement, bord de la zone libre et bord du plateau à l'écran.
+   * Vu en axonométrie, le plateau a une forme de losange : la course d'un axe est
+   * mesurée sur la bande d'écran visible de l'autre axe, pour ne jamais tomber sur du vide.
+   */
+  const mesureDefilement = useCallback(
     (e: Etat) => {
       if (!scene) return null;
-      const [, y0, , y1] = emprise(scene.scene, camera(e));
-      const { y, lh } = zoneLibre();
-      const h = Math.max(y1 - y0, 1);
-      // course : 0 = haut du plateau au haut de la zone libre, 1 = bas au bas
-      const course = h - lh;
-      const haut = y - lh / 2;
-      const t = course > 1 ? (haut - y0) / course : 0.5;
-      return { y0, course, haut, t };
+      const cam = camera(e);
+      const [bx0, by0, bx1, by1] = scene.scene.bornes;
+      const coins: number[][] = [];
+      for (const z of [0, 2.9])
+        for (const [X, Y] of [
+          [bx0, by0],
+          [bx1, by0],
+          [bx1, by1],
+          [bx0, by1],
+        ])
+          coins.push(projeter(cam, X, Y, z));
+      const poly = enveloppeConvexe(coins);
+      const { x, y, lw, lh } = zoneLibre();
+      const axe = (k: 0 | 1, centre: number, libre: number, autreCentre: number, autreLibre: number) => {
+        const [debut, fin] = etendueDansBande(poly, k, autreCentre - autreLibre / 2, autreCentre + autreLibre / 2);
+        const taille = Math.max(fin - debut, 1);
+        const course = taille - libre;
+        const bord = centre - libre / 2;
+        return { debut, course, bord, t: course > 1 ? (bord - debut) / course : 0.5, part: Math.min(1, libre / taille) };
+      };
+      return { x: axe(0, x, lw, y, lh), y: axe(1, y, lh, x, lw) };
     },
     [scene, camera, zoneLibre],
   );
@@ -307,8 +323,9 @@ export default function PlanMaquette({
         papier: PAPIER,
       });
       placerEtiquettes(cam);
-      const mv = mesureVerticale(etat.current);
-      if (mv) r.onPositionVerticale?.(Math.min(1, Math.max(0, mv.t)));
+      const md = mesureDefilement(etat.current);
+      const b = (v: number) => Math.min(1, Math.max(0, v));
+      if (md) r.onDefilement?.({ x: { t: b(md.x.t), part: md.x.part }, y: { t: b(md.y.t), part: md.y.part } });
     };
     image.current = requestAnimationFrame(boucle);
     // les libellés au sol utilisent Poppins : redessiner quand la police est prête
@@ -317,7 +334,7 @@ export default function PlanMaquette({
       cancelAnimationFrame(image.current);
       obs.disconnect();
     };
-  }, [scene, camera, invalider, vueGenerale, mesureVerticale]);
+  }, [scene, camera, invalider, vueGenerale, mesureDefilement]);
 
   useEffect(invalider, [selectedId, hoveredId, matchIds, zonesRendu, invalider]);
 
@@ -499,19 +516,16 @@ export default function PlanMaquette({
         const cible = (Math.round((s.az - AZ_DEPART) / pas) - sens * 2) * pas + AZ_DEPART;
         animer({ ...s, az: cible }, 600);
       },
-      positionVerticale: (t) => {
+      positionner: (axe, t) => {
         const s = etat.current;
-        const mv = mesureVerticale(s);
-        if (!mv) return;
-        if (mv.course <= 1) return; // plateau entièrement visible : rien à faire défiler
+        const md = mesureDefilement(s);
+        if (!md || md[axe].course <= 1) return; // plateau entièrement visible sur cet axe
+        const m = md[axe];
+        const d = m.bord - t * m.course - m.debut;
         anim.current = null;
-        etat.current = glisser(s, 0, mv.haut - t * mv.course - mv.y0);
+        etat.current = axe === 'x' ? glisser(s, d, 0) : glisser(s, 0, d);
         interaction.current = performance.now();
         invalider();
-      },
-      pasVertical: (sens) => {
-        const s = etat.current;
-        animer(glisser(s, 0, -sens * zoneLibre().lh * 0.3), 320);
       },
       focus: (zone) => {
         const sc = scene?.scene;
@@ -528,7 +542,7 @@ export default function PlanMaquette({
         animer(v);
       },
     }),
-    [animer, cadrer, scene, vueGenerale, mesureVerticale, zoneLibre, invalider],
+    [animer, cadrer, scene, vueGenerale, mesureDefilement, zoneLibre, invalider],
   );
 
   // --- Bulle du nom de l'espace choisi, ancrée au sol dans la pièce
@@ -586,4 +600,44 @@ export default function PlanMaquette({
       </details>
     </div>
   );
+}
+
+// ------------------------------------------------------------------ géométrie écran du défilement
+function enveloppeConvexe(pts: number[][]): number[][] {
+  const P = pts.slice().sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+  const cross = (o: number[], a: number[], b: number[]) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
+  const bas: number[][] = [];
+  for (const p of P) {
+    while (bas.length >= 2 && cross(bas[bas.length - 2], bas[bas.length - 1], p) <= 0) bas.pop();
+    bas.push(p);
+  }
+  const haut: number[][] = [];
+  for (let i = P.length - 1; i >= 0; i--) {
+    const p = P[i];
+    while (haut.length >= 2 && cross(haut[haut.length - 2], haut[haut.length - 1], p) <= 0) haut.pop();
+    haut.push(p);
+  }
+  return bas.slice(0, -1).concat(haut.slice(0, -1));
+}
+
+/**
+ * Étendue du polygone convexe sur l'axe `k` (0 = x, 1 = y), limitée à la bande
+ * où l'autre coordonnée est comprise entre `lo` et `hi`. Sans intersection : étendue totale.
+ */
+function etendueDansBande(poly: number[][], k: 0 | 1, lo: number, hi: number): [number, number] {
+  const autre = 1 - k;
+  const valeurs: number[] = [];
+  for (let i = 0; i < poly.length; i++) {
+    const a = poly[i],
+      b = poly[(i + 1) % poly.length];
+    if (a[autre] >= lo && a[autre] <= hi) valeurs.push(a[k]);
+    for (const lim of [lo, hi]) {
+      if ((a[autre] - lim) * (b[autre] - lim) < 0) {
+        const t = (lim - a[autre]) / (b[autre] - a[autre]);
+        valeurs.push(a[k] + (b[k] - a[k]) * t);
+      }
+    }
+  }
+  if (valeurs.length === 0) return [Math.min(...poly.map((p) => p[k])), Math.max(...poly.map((p) => p[k]))];
+  return [Math.min(...valeurs), Math.max(...valeurs)];
 }

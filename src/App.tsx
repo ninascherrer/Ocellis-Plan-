@@ -10,7 +10,7 @@ import {
 import { EditorLayer } from './components/editor/EditorLayer';
 import { EditorPanel } from './components/editor/EditorPanel';
 import { PenIcon } from './components/Icons';
-import { CurseurVertical } from './components/CurseurVertical';
+import { BarresDefilement, type PositionDefilement } from './components/BarresDefilement';
 import { MapControls } from './components/MapControls';
 import { PlanView, type PlanVariant } from './components/PlanView';
 import { Sidebar } from './components/Sidebar';
@@ -85,8 +85,8 @@ export default function App() {
   const detailsRef = useRef<HTMLElement>(null);
   const editorRef = useRef<HTMLElement>(null);
   const maquetteRef = useRef<PlanMaquetteHandle>(null);
-  /** Position verticale du plan, poussée au curseur sans re-rendre l'application. */
-  const curseurRef = useRef<((t: number) => void) | null>(null);
+  /** Position du plan, poussée aux barres de défilement sans re-rendre l'application. */
+  const defilRef = useRef<((p: PositionDefilement) => void) | null>(null);
   const is3d = variant === '3d' && !editorOpen;
 
   const categoriesById = useMemo(() => new Map(categories.map((c) => [c.id, c])), [categories]);
@@ -183,25 +183,29 @@ export default function App() {
   );
   const resetView = useCallback(() => (is3d ? maquetteRef.current?.reset() : fitAll()), [is3d, fitAll]);
 
-  // Curseur vertical, vue Dessin / Original : 0 = haut du plan au haut de la zone libre, 1 = bas au bas.
+  // Barres de défilement, vue Dessin / Original : 0 = bord haut / gauche du plan au bord de la zone libre.
   const mesure2d = () => {
     const m = getInsets();
-    const lh = size.height - m.top - m.bottom;
-    return { haut: m.top, course: plan.hauteur * panZoom.view.k - lh, lh };
-  };
-  const placerVertical = (t: number) => {
-    const { haut, course } = mesure2d();
-    if (course <= 1) return;
-    animateTo({ ...panZoom.view, y: haut - t * course }, 0);
-  };
-  const pasVertical2d = (sens: -1 | 1) => {
     const v = panZoom.view;
-    animateTo({ ...v, y: v.y - sens * mesure2d().lh * 0.3 }, 320);
+    const axe = (debutLibre: number, libre: number, taille: number, origine: number) => {
+      const course = taille - libre;
+      return { course, debutLibre, t: course > 1 ? (debutLibre - origine) / course : 0.5, part: Math.min(1, libre / Math.max(taille, 1)) };
+    };
+    return {
+      x: axe(m.left, size.width - m.left - m.right, plan.largeur * v.k, v.x),
+      y: axe(m.top, size.height - m.top - m.bottom, plan.hauteur * v.k, v.y),
+    };
+  };
+  const positionner2d = (axe: 'x' | 'y', t: number) => {
+    const m = mesure2d()[axe];
+    if (m.course <= 1) return;
+    animateTo({ ...panZoom.view, [axe]: m.debutLibre - t * m.course }, 0);
   };
   useEffect(() => {
     if (is3d || !size.height) return;
-    const { haut, course } = mesure2d();
-    curseurRef.current?.(course > 1 ? Math.min(1, Math.max(0, (haut - panZoom.view.y) / course)) : 0.5);
+    const { x, y } = mesure2d();
+    const b = (v: number) => Math.min(1, Math.max(0, v));
+    defilRef.current?.({ x: { t: b(x.t), part: x.part }, y: { t: b(y.t), part: y.part } });
   });
 
   // Lien partageable : #<identifiant>
@@ -325,7 +329,7 @@ export default function App() {
         {is3d && (
           <PlanMaquette
             ref={maquetteRef}
-            onPositionVerticale={(t) => curseurRef.current?.(t)}
+            onDefilement={(p) => defilRef.current?.(p)}
             zones={zones}
             colorOf={colorOf}
             selectedId={selectedId}
@@ -372,10 +376,9 @@ export default function App() {
       )}
 
       {!editorOpen && (
-        <CurseurVertical
-          abonnement={curseurRef}
-          onChange={(t) => (is3d ? maquetteRef.current?.positionVerticale(t) : placerVertical(t))}
-          onPas={(sens) => (is3d ? maquetteRef.current?.pasVertical(sens) : pasVertical2d(sens))}
+        <BarresDefilement
+          abonnement={defilRef}
+          onChange={(axe, t) => (is3d ? maquetteRef.current?.positionner(axe, t) : positionner2d(axe, t))}
         />
       )}
 

@@ -2177,110 +2177,86 @@ kbd {
 }
 
 /* =====================================================================
-   Curseur vertical : faire défiler le plan de haut en bas
+   Barres de défilement (à la manière d'un lecteur PDF)
    ===================================================================== */
 
-.curseur-vertical {
+.defil {
   position: absolute;
   z-index: 2;
-  top: 50%;
-  transform: translateY(-50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  width: 42px;
-  padding: 4px 0;
-  border: 1px solid var(--line);
   border-radius: var(--radius-pill);
-  background: var(--surface-raised);
-  box-shadow: var(--shadow-2);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-}
-
-.curseur-fleche {
-  display: grid;
-  place-items: center;
-  width: 34px;
-  height: 30px;
-  padding: 0;
-  border: 0;
-  border-radius: var(--radius-pill);
-  background: transparent;
-  color: var(--ink-2);
-  transition: background var(--dur-fast) ease, color var(--dur-fast) ease;
-}
-
-.curseur-fleche:hover {
-  background: var(--surface-hover);
-  color: var(--ink);
-}
-
-.curseur-rail {
-  position: relative;
-  width: 34px;
-  height: clamp(120px, 28vh, 240px);
-  cursor: ns-resize;
+  background: rgba(38, 40, 45, 0.06);
   touch-action: none;
-  outline: none;
-  border-radius: var(--radius-pill);
+  transition: background var(--dur-fast) ease, opacity var(--dur) ease;
 }
 
-.curseur-rail:focus-visible {
-  box-shadow: 0 0 0 2px var(--brand);
+.defil:hover,
+.defil:active {
+  background: rgba(38, 40, 45, 0.1);
 }
 
-.curseur-piste {
-  position: absolute;
-  left: 50%;
-  top: 8px;
-  bottom: 8px;
-  width: 3px;
-  margin-left: -1.5px;
-  border-radius: 3px;
-  background: var(--line-strong);
-}
-
-.curseur-pouce {
-  position: absolute;
-  left: 50%;
-  width: 18px;
-  height: 18px;
-  margin: -9px 0 0 -9px;
-  border-radius: 50%;
-  border: 2px solid var(--surface);
-  background: var(--brand);
-  box-shadow: var(--shadow-1);
+.defil.is-inutile {
+  opacity: 0;
   pointer-events: none;
 }
 
+.defil-y {
+  top: 12px;
+  bottom: 84px;
+  right: 4px;
+  width: 10px;
+}
+
+.defil-x {
+  left: 12px;
+  right: 24px;
+  bottom: 4px;
+  height: 10px;
+}
+
+.defil-curseur {
+  position: absolute;
+  border-radius: var(--radius-pill);
+  background: rgba(38, 40, 45, 0.38);
+  cursor: grab;
+  transition: background var(--dur-fast) ease;
+}
+
+.defil:hover .defil-curseur {
+  background: rgba(38, 40, 45, 0.55);
+}
+
+.defil:active .defil-curseur {
+  background: var(--brand);
+  cursor: grabbing;
+}
+
+.defil-y .defil-curseur {
+  left: 2px;
+  right: 2px;
+}
+
+.defil-x .defil-curseur {
+  top: 2px;
+  bottom: 2px;
+}
+
 @media (min-width: 900px) {
-  .curseur-vertical {
-    right: var(--gutter);
+  .defil-x {
+    left: calc(var(--panel-width) + var(--gutter) * 2);
   }
 
-  /* Fiche ouverte à droite : le curseur se place à sa gauche. */
-  .has-details .curseur-vertical {
-    right: calc(var(--panel-width) + var(--gutter) * 2);
-  }
-
-  .is-editing .curseur-vertical {
+  .is-editing .defil {
     display: none;
   }
 }
 
 @media (max-width: 899.98px) {
-  .curseur-vertical {
-    left: max(12px, env(safe-area-inset-left));
-    top: 58%;
+  .defil-y {
+    top: 45%;
+    bottom: 140px;
   }
 
-  .curseur-rail {
-    height: clamp(100px, 22vh, 180px);
-  }
-
-  .has-details .curseur-vertical {
-    top: 40%;
+  .has-details .defil {
+    display: none;
   }
 }
