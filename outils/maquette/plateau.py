@@ -403,7 +403,6 @@ zone(939, 554, 996, 606, '#d4d3cf')
 
 # ====================================================================== EST : CONSULTATION, CAFÉTÉRIA
 bookshelf(*Pt(1078, 210), *Pt(1097, 447), 1.25, 4, faces='e')
-stool(*Pt(1110, 300), 0.62, SAGE_D)
 cxb, cyb, rb = X(1150), Y(513), m(23.5)
 bar_pts = [(cxb + rb * math.cos(math.radians(a)), cyb + rb * math.sin(math.radians(a))) for a in range(180, 361, 15)]
 bar_pts += [(X(1173), Y(553)), (X(1126), Y(553))]
