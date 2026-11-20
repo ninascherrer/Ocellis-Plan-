@@ -27,6 +27,10 @@ export interface Espace {
   description?: string;
   /** Informations pratiques, affichées sous forme de liste. */
   infos?: string[];
+  /** Concept d'aménagement en quelques mots (ex. « Calme et concentration, cocon »). */
+  concept?: string;
+  /** Conception de l'espace, par thème : acoustique, mobilier, matériaux… */
+  conception?: { theme: string; texte: string }[];
   /** `true` tant que le nom, la fonction ou la catégorie n'ont pas été validés. */
   aConfirmer?: boolean;
   /** Contour cliquable, dans le repère du plan (pixels de l'image d'origine). */

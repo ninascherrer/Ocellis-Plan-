@@ -18,6 +18,10 @@ export function serializeConfig(config: PlanConfig): string {
         categorie: e.categorie,
         description: e.description ?? '',
         infos: (e.infos ?? []).filter((info) => info.trim() !== ''),
+        ...(e.concept?.trim() ? { concept: e.concept.trim() } : {}),
+        ...(e.conception?.some((c) => c.texte.trim())
+          ? { conception: e.conception.filter((c) => c.texte.trim()).map(({ theme, texte }) => ({ theme, texte })) }
+          : {}),
         aConfirmer: Boolean(e.aConfirmer),
         contour: e.contour.map(([x, y]) => [roundCoord(x), roundCoord(y)]),
       }),
@@ -32,7 +36,9 @@ export function serializeConfig(config: PlanConfig): string {
       .replace(
         /\{\s+"id": "([^"\\]+)",\s+"libelle": "([^"\\]*)",\s+"couleur": "([^"\\]+)"\s+\}/g,
         '{ "id": "$1", "libelle": "$2", "couleur": "$3" }',
-      ) + '\n'
+      )
+      // Une ligne de conception par ligne
+      .replace(/\{\s+"theme": "((?:[^"\\]|\\.)*)",\s+"texte": "((?:[^"\\]|\\.)*)"\s+\}/g, '{ "theme": "$1", "texte": "$2" }') + '\n'
   );
 }
 

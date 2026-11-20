@@ -219,6 +219,36 @@ export function EditorPanel({ panelRef, store, editor, onSelect, onClose }: Edit
               />
             </label>
 
+            <label className="field">
+              <span>Concept</span>
+              <input
+                value={zone.concept ?? ''}
+                onFocus={checkpoint}
+                onChange={(e) => editor.updateSelected((z) => ({ ...z, concept: e.target.value }), { record: false })}
+              />
+            </label>
+
+            <label className="field">
+              <span>Conception (une ligne « Thème : texte »)</span>
+              <textarea
+                rows={4}
+                value={(zone.conception ?? []).map((c) => `${c.theme} : ${c.texte}`).join('\n')}
+                onFocus={checkpoint}
+                onChange={(e) =>
+                  editor.updateSelected(
+                    (z) => ({
+                      ...z,
+                      conception: e.target.value.split('\n').map((ligne) => {
+                        const i = ligne.indexOf(':');
+                        return i < 0 ? { theme: '', texte: ligne.trim() } : { theme: ligne.slice(0, i).trim(), texte: ligne.slice(i + 1).trim() };
+                      }),
+                    }),
+                    { record: false },
+                  )
+                }
+              />
+            </label>
+
             <label className="checkbox">
               <input
                 type="checkbox"

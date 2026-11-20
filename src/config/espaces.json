@@ -26,6 +26,14 @@
         "14,01 m²",
         "Usage : réunion"
       ],
+      "concept": "Énergie et mouvement",
+      "conception": [
+        { "theme": "Technique", "texte": "Acoustique au plafond" },
+        { "theme": "Mobilier", "texte": "Mobilier reconfigurable" },
+        { "theme": "Matériaux", "texte": "PET" },
+        { "theme": "Bas carbone", "texte": "PET" },
+        { "theme": "Audiovisuel", "texte": "Écran tactile de réemploi, visio" }
+      ],
       "aConfirmer": false,
       "contour": [
         [32, 3],
@@ -43,6 +51,14 @@
         "4 places",
         "8,61 m²",
         "Usage : réunion"
+      ],
+      "concept": "Un geste englobant et acoustique",
+      "conception": [
+        { "theme": "Technique", "texte": "Acoustique murale et au plafond" },
+        { "theme": "Mobilier", "texte": "Agencement sur mesure, mobilier de réemploi du site R6 Neuilly" },
+        { "theme": "Matériaux", "texte": "PET, stratifié, Orac" },
+        { "theme": "Bas carbone", "texte": "PET, mobilier de réemploi, moquette Composyle" },
+        { "theme": "Audiovisuel", "texte": "Écran et visio" }
       ],
       "aConfirmer": false,
       "contour": [
@@ -76,6 +92,15 @@
         "6,27 m²",
         "Usage : réunion"
       ],
+      "concept": "Expérience hybride",
+      "conception": [
+        { "theme": "Technique", "texte": "Acoustique murale, luminaire" },
+        { "theme": "Mobilier", "texte": "Banquette face à l'écran" },
+        { "theme": "Matériaux", "texte": "PET, Orac, luminaire végétalisé" },
+        { "theme": "Bas carbone", "texte": "PET" },
+        { "theme": "Accessibilité", "texte": "Salle de repli" },
+        { "theme": "Audiovisuel", "texte": "Écran et visio" }
+      ],
       "aConfirmer": false,
       "contour": [
         [350, 3],
@@ -93,6 +118,14 @@
         "5 places",
         "13,65 m²",
         "Usage : travail"
+      ],
+      "concept": "Calme et concentration, un cocon",
+      "conception": [
+        { "theme": "Technique", "texte": "Acoustique murale" },
+        { "theme": "Mobilier", "texte": "Plusieurs postures de travail" },
+        { "theme": "Matériaux", "texte": "Pierre Plume, PET" },
+        { "theme": "Bas carbone", "texte": "Pierre Plume, PET" },
+        { "theme": "Audiovisuel", "texte": "Low-tech" }
       ],
       "aConfirmer": false,
       "contour": [
@@ -115,6 +148,13 @@
         "12 places",
         "32,89 m²",
         "Usage : travail"
+      ],
+      "concept": "Activity based working et nouvelles façons de travailler",
+      "conception": [
+        { "theme": "Technique", "texte": "Moquette et faux plafond" },
+        { "theme": "Mobilier", "texte": "Mobilier de réemploi et neuf ; plusieurs solutions présentées (box Mute…)" },
+        { "theme": "Bas carbone", "texte": "Moquette de réemploi de l'espace existant" },
+        { "theme": "Accessibilité", "texte": "Marquage au sol autour du noyau central" }
       ],
       "aConfirmer": false,
       "contour": [
@@ -169,6 +209,13 @@
         "6 places",
         "21,95 m²",
         "Usage : travail"
+      ],
+      "concept": "Activity based working et nouvelles façons de travailler",
+      "conception": [
+        { "theme": "Technique", "texte": "Moquette et faux plafond" },
+        { "theme": "Mobilier", "texte": "Mobilier de réemploi et neuf ; plusieurs solutions présentées (box Mute…)" },
+        { "theme": "Bas carbone", "texte": "Moquette de réemploi de l'espace existant" },
+        { "theme": "Accessibilité", "texte": "Marquage au sol autour du noyau central" }
       ],
       "aConfirmer": false,
       "contour": [
@@ -412,9 +459,17 @@
       "categorie": "reunion",
       "description": "Salle de réunion client, ouverte sur la matériauthèque : réunions et présentation des matériaux.",
       "infos": [
-        "10 places",
+        "6 places en réunion, jusqu'à 10 personnes",
         "19,69 m²",
         "Usage : réunion client"
+      ],
+      "concept": "Réception, présentation de projets et atelier matériaux",
+      "conception": [
+        { "theme": "Technique", "texte": "Rideaux et faux plafond Color All" },
+        { "theme": "Mobilier", "texte": "Table réglable en hauteur" },
+        { "theme": "Matériaux", "texte": "Plafond Color All" },
+        { "theme": "Bas carbone", "texte": "Luminaires en plastique recyclé imprimé en 3D" },
+        { "theme": "Audiovisuel", "texte": "Écran et visio" }
       ],
       "aConfirmer": false,
       "contour": [
@@ -447,6 +502,13 @@
         "28 places",
         "58,02 m²",
         "Usage : espace de vie, détente, tisanerie"
+      ],
+      "concept": "Lobby et cœur de vie : cafétéria et work café",
+      "conception": [
+        { "theme": "Mobilier", "texte": "Plusieurs types de mobilier présentés" },
+        { "theme": "Matériaux", "texte": "Résine, stratifié, PVC, tapis" },
+        { "theme": "Bas carbone", "texte": "Certains meubles en matière recyclée" },
+        { "theme": "Audiovisuel", "texte": "Écran et enceinte audio" }
       ],
       "aConfirmer": false,
       "contour": [
@@ -510,6 +572,14 @@
         "4,52 m²",
         "Usage : travail"
       ],
+      "concept": "Concentration, une bulle colorée",
+      "conception": [
+        { "theme": "Technique", "texte": "Acoustique murale" },
+        { "theme": "Mobilier", "texte": "Mobilier upcyclé : piètement de réemploi, plateau recyclé Tizu" },
+        { "theme": "Matériaux", "texte": "Acoustique en coton" },
+        { "theme": "Bas carbone", "texte": "Acoustique en coton recyclé, plateaux Tizu recyclés, piètements de réemploi" },
+        { "theme": "Accessibilité", "texte": "Bureau réglable en hauteur" }
+      ],
       "aConfirmer": false,
       "contour": [
         [54, 451],
@@ -528,6 +598,14 @@
         "5,07 m²",
         "Usage : travail"
       ],
+      "concept": "Focus à deux, une bulle colorée",
+      "conception": [
+        { "theme": "Technique", "texte": "Acoustique murale" },
+        { "theme": "Mobilier", "texte": "Mobilier upcyclé : piètement de réemploi, plateau recyclé Tizu" },
+        { "theme": "Matériaux", "texte": "Acoustique en coton" },
+        { "theme": "Bas carbone", "texte": "Acoustique en coton recyclé, plateaux Tizu recyclés, piètements de réemploi" },
+        { "theme": "Accessibilité", "texte": "Bureau réglable en hauteur" }
+      ],
       "aConfirmer": false,
       "contour": [
         [94, 451],
@@ -545,6 +623,12 @@
         "8 places",
         "20,14 m²",
         "Usage : réunion"
+      ],
+      "concept": "Pratique et efficace",
+      "conception": [
+        { "theme": "Technique", "texte": "Plafond organique" },
+        { "theme": "Mobilier", "texte": "Table à double hauteur" },
+        { "theme": "Audiovisuel", "texte": "Écran" }
       ],
       "aConfirmer": false,
       "contour": [

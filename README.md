@@ -209,6 +209,19 @@ appelle « Box »).
 salle créativité et 6 pour la salle de réunion, alors que les étiquettes des
 pièces portent 5 et 4 places ; les fiches suivent les étiquettes.
 
+## Concept et conception des espaces
+
+Source : **« New Neuilly – Parcours visiteur – Argumentaire » (18/11/2026)**,
+document de travail à compléter. Pour NOVA, ECHO, HALO, OREE, OCELLE, O'1, O'2,
+OSMOSE, Bistro et les deux Bench, chaque fiche affiche :
+
+- le **concept** (champ `concept` de `espaces.json`), sous le nom de l'espace ;
+- la **conception** par thème (champ `conception`) : technique (acoustique,
+  éclairage), mobilier, matériaux, bas carbone, accessibilité, audiovisuel.
+
+Ces champs se modifient dans `espaces.json` ou dans le mode édition, et sont
+pris en compte par la recherche (« acoustique », « réemploi »…).
+
 ## Organisation du code
 
 ```

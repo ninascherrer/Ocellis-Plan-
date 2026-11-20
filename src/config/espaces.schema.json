@@ -74,6 +74,23 @@
             "items": { "type": "string" },
             "description": "Informations pratiques (une ligne par élément) : capacité, équipements, réservation…"
           },
+          "concept": {
+            "type": "string",
+            "description": "Concept d'aménagement en quelques mots, affiché sous le nom (ex. « Calme et concentration, cocon »)."
+          },
+          "conception": {
+            "type": "array",
+            "description": "Conception de l'espace par thème (acoustique, mobilier, matériaux, bas carbone, accessibilité, audiovisuel…).",
+            "items": {
+              "type": "object",
+              "required": ["theme", "texte"],
+              "properties": {
+                "theme": { "type": "string", "description": "Thème, ex. « Acoustique »." },
+                "texte": { "type": "string", "description": "Ce qui a été mis en place." }
+              },
+              "additionalProperties": false
+            }
+          },
           "aConfirmer": {
             "type": "boolean",
             "description": "true affiche la mention « À confirmer » tant que les informations n'ont pas été validées."

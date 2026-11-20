@@ -13,6 +13,7 @@ interface ZoneDetailsProps {
 export function ZoneDetails({ panelRef, espace, categorie, onClose, onFocus }: ZoneDetailsProps) {
   const [copied, setCopied] = useState(false);
   const infos = (espace.infos ?? []).filter((info) => info.trim() !== '');
+  const conception = (espace.conception ?? []).filter((c) => c.texte.trim() !== '');
 
   const copyLink = async () => {
     try {
@@ -56,6 +57,8 @@ export function ZoneDetails({ panelRef, espace, categorie, onClose, onFocus }: Z
         </p>
       )}
 
+      {espace.concept && <p className="details-concept">{espace.concept}</p>}
+
       {espace.description && <p className="details-description">{espace.description}</p>}
 
       {infos.length > 0 && (
@@ -66,6 +69,20 @@ export function ZoneDetails({ panelRef, espace, categorie, onClose, onFocus }: Z
               <li key={i}>{info}</li>
             ))}
           </ul>
+        </div>
+      )}
+
+      {conception.length > 0 && (
+        <div className="details-infos-block">
+          <h3 className="label">Conception</h3>
+          <dl className="details-conception">
+            {conception.map((c, i) => (
+              <div key={i}>
+                <dt>{c.theme}</dt>
+                <dd>{c.texte}</dd>
+              </div>
+            ))}
+          </dl>
         </div>
       )}
 

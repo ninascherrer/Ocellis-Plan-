@@ -31,3 +31,10 @@ describe('noms des salles', () => {
     expect(ids('silence')).toContain('espace-04');
   });
 });
+
+describe('conception des espaces', () => {
+  it('retrouve un espace par un élément de sa conception', () => {
+    expect(ids('pierre plume')).toContain('espace-04');
+    expect(ids('réemploi')).toEqual(expect.arrayContaining(['espace-02', 'espace-16']));
+  });
+});

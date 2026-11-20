@@ -28,6 +28,7 @@ export function searchEspaces(espaces: Espace[], categories: Categorie[], query:
       { text: libelles.get(espace.categorie) ?? '', weight: 4 },
       { text: normalize(espace.description ?? ''), weight: 2 },
       { text: normalize((espace.infos ?? []).join(' ')), weight: 1 },
+      { text: normalize([espace.concept ?? '', ...(espace.conception ?? []).map((c) => `${c.theme} ${c.texte}`)].join(' ')), weight: 1 },
     ];
     let score = 0;
     let allFound = true;
