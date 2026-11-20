@@ -12,7 +12,8 @@ ascenseurs et mobilier principal reprennent les positions relevées sur le plan
 d'architecte, sans rien déplacer ni ajouter. Les cotes, trames, hachures et
 annotations techniques sont omises. Les zones interactives sont des polygones
 SVG transparents superposés au dessin. Le bouton **Dessin / Original** (en bas
-à droite) affiche le plan d'architecte d'origine (`public/plan/plan-ocellis.png`).
+à droite) affiche le plan de zoning Ocellis, indice 10 du 20/11/2026
+(`public/plan/plan-zoning.jpg`, recadré sur le repère du plan).
 
 ## Démarrer
 
