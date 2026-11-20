@@ -1,5 +1,6 @@
 import {
   useMemo,
+  useState,
   useRef,
   type CSSProperties,
   type KeyboardEvent,
@@ -58,6 +59,9 @@ export function PlanView({
   children,
 }: PlanViewProps) {
   const selected = zones.find((z) => z.espace.id === selectedId) ?? null;
+  // Une fois affichée, l'image d'origine reste en place (pas de nouveau téléchargement).
+  const [afficherOriginal, setAfficherOriginal] = useState(variant === 'original' || calque);
+  if (!afficherOriginal && (variant === 'original' || calque)) setAfficherOriginal(true);
   const circulations = useMemo(
     () => zones.filter((z) => z.espace.categorie === 'circulations').map((z) => z.espace.contour),
     [zones],
@@ -96,7 +100,8 @@ export function PlanView({
         </g>
         <g className={`plan-layer${variant === 'original' || calque ? ' is-visible' : ''}${calque ? ' is-calque' : ''}`}>
           <rect className="plan-original-sheet" x={0} y={0} width={plan.largeur} height={plan.hauteur} />
-          <image
+          {/* Image lourde (plan PDF) : chargée seulement quand la vue Original est demandée. */}
+          {afficherOriginal && <image
             href={imageUrl(plan.image)}
             x={0}
             y={0}
@@ -104,7 +109,7 @@ export function PlanView({
             height={plan.hauteur}
             preserveAspectRatio="none"
             className="plan-image"
-          />
+          />}
         </g>
 
         <g className="zones" role="list" aria-label="Espaces du plan">
