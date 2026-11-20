@@ -1101,13 +1101,6 @@ export function dessinerScene(
 
   // sol
   pt.dessiner(sc.sol);
-  if (opt.correspondances) {
-    for (const z of opt.zones) {
-      if (!opt.correspondances.has(z.id)) continue;
-      cheminZone(pt, z.contour);
-      pt.remplir(z.couleur, 0.16);
-    }
-  }
   pt.dessiner(sc.seuils);
   if (!opt.rapide) pt.dessiner(sc.ombres);
   pt.dessiner(sc.marquages);
@@ -1161,14 +1154,33 @@ export function dessinerScene(
     };
     for (const el of ordre) if (!el.mur && dedans(el)) el.dessin(pt);
   }
-  // résultats de recherche ou de filtre : teinte et contour par-dessus le mobilier
+  // Résultats de recherche ou de filtre : le reste du plan s'estompe, les espaces
+  // retenus gardent leur dessin, avec une teinte franche et un contour épais à la couleur de leur catégorie.
   if (opt.correspondances && !zoneChoix) {
-    for (const z of opt.zones) {
-      if (!opt.correspondances.has(z.id)) continue;
+    const retenues = opt.zones.filter((z) => opt.correspondances!.has(z.id));
+    ctx.fillStyle = opt.papier;
+    ctx.globalAlpha = 0.62;
+    ctx.fillRect(0, 0, largeur, hauteur);
+    ctx.globalAlpha = 1;
+    for (const z of retenues) {
+      ctx.save();
+      cheminZone(pt, z.contour, 0);
+      ctx.clip();
+      pt.dessiner(sc.sol);
+      ctx.restore();
       cheminZone(pt, z.contour);
-      pt.remplir(z.couleur, 0.16);
+      pt.remplir(z.couleur, 0.38);
+    }
+    for (const el of ordre)
+      if (!el.mur && retenues.some((z) => dansPolygone((el.b[0] + el.b[2]) / 2, (el.b[1] + el.b[3]) / 2, z.contour)))
+        el.dessin(pt);
+    for (const z of retenues) {
+      cheminZone(pt, z.contour);
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 5;
+      ctx.stroke();
       ctx.strokeStyle = z.couleur;
-      ctx.lineWidth = 1.6;
+      ctx.lineWidth = 2.6;
       ctx.stroke();
     }
   }

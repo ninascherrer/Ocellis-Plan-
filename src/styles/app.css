@@ -354,15 +354,20 @@ h3 {
 }
 
 .is-filtering .zone.is-match {
-  fill-opacity: 0.2;
-  stroke-opacity: 0.7;
+  fill-opacity: 0.42;
+  stroke-opacity: 1;
+  stroke-width: 2.6;
   pointer-events: auto;
 }
 
 .is-filtering .zone.is-match:hover,
 .is-filtering .zone.is-match.is-hovered {
-  fill-opacity: 0.3;
-  stroke-opacity: 1;
+  fill-opacity: 0.55;
+}
+
+/* Filtre actif : le reste du plan s'estompe derrière les espaces retenus. */
+.is-filtering .plan-layer.is-visible {
+  opacity: 0.5;
 }
 
 .zone.is-selected,
