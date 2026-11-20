@@ -23,6 +23,10 @@ export interface PlanMaquetteHandle {
   focus: (zone: ZoneGeom) => void;
   /** Quart de tour (sens = 1 : sens horaire vu de dessus). */
   rotate: (sens: 1 | -1) => void;
+  /** Place le plan verticalement : 0 = haut du plateau au centre de l'écran, 1 = bas. */
+  positionVerticale: (t: number) => void;
+  /** Fait défiler d'un pas vers le haut (−1) ou vers le bas (1). */
+  pasVertical: (sens: -1 | 1) => void;
 }
 
 interface PlanMaquetteProps {
@@ -37,6 +41,8 @@ interface PlanMaquetteProps {
   onBackgroundClick: () => void;
   getInsets: () => Insets;
   isDesktop: boolean;
+  /** Position verticale courante (0 à 1), signalée à chaque image dessinée. */
+  onPositionVerticale?: (t: number) => void;
 }
 
 /** État de la vue : azimut et inclinaison (radians), échelle (px / m), point du plan au centre de la zone libre. */
@@ -70,6 +76,7 @@ export default function PlanMaquette({
   onBackgroundClick,
   getInsets,
   isDesktop,
+  onPositionVerticale,
 }: PlanMaquetteProps) {
   const conteneurRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -110,8 +117,8 @@ export default function PlanMaquette({
     });
   }, [scene, zones, colorOf]);
 
-  const rappels = useRef({ onZoneClick, onZoneHover, onBackgroundClick, getInsets, zones, zonesRendu, selectedId, hoveredId, matchIds });
-  rappels.current = { onZoneClick, onZoneHover, onBackgroundClick, getInsets, zones, zonesRendu, selectedId, hoveredId, matchIds };
+  const rappels = useRef({ onZoneClick, onZoneHover, onBackgroundClick, getInsets, zones, zonesRendu, selectedId, hoveredId, matchIds, onPositionVerticale });
+  rappels.current = { onZoneClick, onZoneHover, onBackgroundClick, getInsets, zones, zonesRendu, selectedId, hoveredId, matchIds, onPositionVerticale };
 
   // --- Chargement de la scène (fichier statique, généré par outils/maquette/export.py)
   useEffect(() => {
@@ -167,6 +174,32 @@ export default function PlanMaquette({
     },
     [zoneLibre],
   );
+
+  /** Hauteur à l'écran du plateau et position de la zone libre dans cette hauteur (0 = haut, 1 = bas). */
+  const mesureVerticale = useCallback(
+    (e: Etat) => {
+      if (!scene) return null;
+      const [, y0, , y1] = emprise(scene.scene, camera(e));
+      const { y, lh } = zoneLibre();
+      const h = Math.max(y1 - y0, 1);
+      // course : 0 = haut du plateau au haut de la zone libre, 1 = bas au bas
+      const course = h - lh;
+      const haut = y - lh / 2;
+      const t = course > 1 ? (haut - y0) / course : 0.5;
+      return { y0, course, haut, t };
+    },
+    [scene, camera, zoneLibre],
+  );
+
+  /** Décale la vue : le contenu glisse de (dx, dy) pixels à l'écran. */
+  const glisser = (e: Etat, dx: number, dy: number): Etat => {
+    const sa = Math.sin(e.az),
+      ca = Math.cos(e.az),
+      se = Math.sin(e.el);
+    const a = dx / e.k,
+      b = dy / (e.k * se);
+    return { ...e, px: e.px - (a * sa + b * ca), py: e.py - (-a * ca + b * sa) };
+  };
 
   const invalider = useCallback(() => {
     sale.current = true;
@@ -274,6 +307,8 @@ export default function PlanMaquette({
         papier: PAPIER,
       });
       placerEtiquettes(cam);
+      const mv = mesureVerticale(etat.current);
+      if (mv) r.onPositionVerticale?.(Math.min(1, Math.max(0, mv.t)));
     };
     image.current = requestAnimationFrame(boucle);
     // les libellés au sol utilisent Poppins : redessiner quand la police est prête
@@ -282,7 +317,7 @@ export default function PlanMaquette({
       cancelAnimationFrame(image.current);
       obs.disconnect();
     };
-  }, [scene, camera, invalider, vueGenerale]);
+  }, [scene, camera, invalider, vueGenerale, mesureVerticale]);
 
   useEffect(invalider, [selectedId, hoveredId, matchIds, zonesRendu, invalider]);
 
@@ -464,6 +499,20 @@ export default function PlanMaquette({
         const cible = (Math.round((s.az - AZ_DEPART) / pas) - sens * 2) * pas + AZ_DEPART;
         animer({ ...s, az: cible }, 600);
       },
+      positionVerticale: (t) => {
+        const s = etat.current;
+        const mv = mesureVerticale(s);
+        if (!mv) return;
+        if (mv.course <= 1) return; // plateau entièrement visible : rien à faire défiler
+        anim.current = null;
+        etat.current = glisser(s, 0, mv.haut - t * mv.course - mv.y0);
+        interaction.current = performance.now();
+        invalider();
+      },
+      pasVertical: (sens) => {
+        const s = etat.current;
+        animer(glisser(s, 0, -sens * zoneLibre().lh * 0.3), 320);
+      },
       focus: (zone) => {
         const sc = scene?.scene;
         if (!sc) {
@@ -479,7 +528,7 @@ export default function PlanMaquette({
         animer(v);
       },
     }),
-    [animer, cadrer, scene, vueGenerale],
+    [animer, cadrer, scene, vueGenerale, mesureVerticale, zoneLibre, invalider],
   );
 
   // --- Bulle du nom de l'espace choisi, ancrée au sol dans la pièce

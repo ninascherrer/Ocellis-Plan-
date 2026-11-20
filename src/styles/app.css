@@ -2175,3 +2175,112 @@ kbd {
     padding: 5px 16px 6px;
   }
 }
+
+/* =====================================================================
+   Curseur vertical : faire défiler le plan de haut en bas
+   ===================================================================== */
+
+.curseur-vertical {
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 42px;
+  padding: 4px 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  background: var(--surface-raised);
+  box-shadow: var(--shadow-2);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.curseur-fleche {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--ink-2);
+  transition: background var(--dur-fast) ease, color var(--dur-fast) ease;
+}
+
+.curseur-fleche:hover {
+  background: var(--surface-hover);
+  color: var(--ink);
+}
+
+.curseur-rail {
+  position: relative;
+  width: 34px;
+  height: clamp(120px, 28vh, 240px);
+  cursor: ns-resize;
+  touch-action: none;
+  outline: none;
+  border-radius: var(--radius-pill);
+}
+
+.curseur-rail:focus-visible {
+  box-shadow: 0 0 0 2px var(--brand);
+}
+
+.curseur-piste {
+  position: absolute;
+  left: 50%;
+  top: 8px;
+  bottom: 8px;
+  width: 3px;
+  margin-left: -1.5px;
+  border-radius: 3px;
+  background: var(--line-strong);
+}
+
+.curseur-pouce {
+  position: absolute;
+  left: 50%;
+  width: 18px;
+  height: 18px;
+  margin: -9px 0 0 -9px;
+  border-radius: 50%;
+  border: 2px solid var(--surface);
+  background: var(--brand);
+  box-shadow: var(--shadow-1);
+  pointer-events: none;
+}
+
+@media (min-width: 900px) {
+  .curseur-vertical {
+    right: var(--gutter);
+  }
+
+  /* Fiche ouverte à droite : le curseur se place à sa gauche. */
+  .has-details .curseur-vertical {
+    right: calc(var(--panel-width) + var(--gutter) * 2);
+  }
+
+  .is-editing .curseur-vertical {
+    display: none;
+  }
+}
+
+@media (max-width: 899.98px) {
+  .curseur-vertical {
+    left: max(12px, env(safe-area-inset-left));
+    top: 58%;
+  }
+
+  .curseur-rail {
+    height: clamp(100px, 22vh, 180px);
+  }
+
+  .has-details .curseur-vertical {
+    top: 40%;
+  }
+}

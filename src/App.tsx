@@ -10,6 +10,7 @@ import {
 import { EditorLayer } from './components/editor/EditorLayer';
 import { EditorPanel } from './components/editor/EditorPanel';
 import { PenIcon } from './components/Icons';
+import { CurseurVertical } from './components/CurseurVertical';
 import { MapControls } from './components/MapControls';
 import { PlanView, type PlanVariant } from './components/PlanView';
 import { Sidebar } from './components/Sidebar';
@@ -84,6 +85,8 @@ export default function App() {
   const detailsRef = useRef<HTMLElement>(null);
   const editorRef = useRef<HTMLElement>(null);
   const maquetteRef = useRef<PlanMaquetteHandle>(null);
+  /** Position verticale du plan, poussée au curseur sans re-rendre l'application. */
+  const curseurRef = useRef<((t: number) => void) | null>(null);
   const is3d = variant === '3d' && !editorOpen;
 
   const categoriesById = useMemo(() => new Map(categories.map((c) => [c.id, c])), [categories]);
@@ -150,7 +153,7 @@ export default function App() {
   }, [editorOpen, isDesktop, selectedId]);
 
   const panZoom = usePanZoom(mapRef, { contentWidth: plan.largeur, contentHeight: plan.hauteur, getInsets });
-  const { focusBox, reveal, fitAll, zoomBy, size } = panZoom;
+  const { focusBox, reveal, fitAll, zoomBy, size, animateTo } = panZoom;
 
   // --- Sélection ----------------------------------------------------------------------
 
@@ -179,6 +182,27 @@ export default function App() {
     [is3d, zoomBy],
   );
   const resetView = useCallback(() => (is3d ? maquetteRef.current?.reset() : fitAll()), [is3d, fitAll]);
+
+  // Curseur vertical, vue Dessin / Original : 0 = haut du plan au haut de la zone libre, 1 = bas au bas.
+  const mesure2d = () => {
+    const m = getInsets();
+    const lh = size.height - m.top - m.bottom;
+    return { haut: m.top, course: plan.hauteur * panZoom.view.k - lh, lh };
+  };
+  const placerVertical = (t: number) => {
+    const { haut, course } = mesure2d();
+    if (course <= 1) return;
+    animateTo({ ...panZoom.view, y: haut - t * course }, 0);
+  };
+  const pasVertical2d = (sens: -1 | 1) => {
+    const v = panZoom.view;
+    animateTo({ ...v, y: v.y - sens * mesure2d().lh * 0.3 }, 320);
+  };
+  useEffect(() => {
+    if (is3d || !size.height) return;
+    const { haut, course } = mesure2d();
+    curseurRef.current?.(course > 1 ? Math.min(1, Math.max(0, (haut - panZoom.view.y) / course)) : 0.5);
+  });
 
   // Lien partageable : #<identifiant>
   useEffect(() => {
@@ -301,6 +325,7 @@ export default function App() {
         {is3d && (
           <PlanMaquette
             ref={maquetteRef}
+            onPositionVerticale={(t) => curseurRef.current?.(t)}
             zones={zones}
             colorOf={colorOf}
             selectedId={selectedId}
@@ -343,6 +368,14 @@ export default function App() {
           categorie={categoriesById.get(selected.espace.categorie)}
           onClose={() => select(null)}
           onFocus={() => (is3d ? maquetteRef.current?.focus(selected) : focusBox(selected.box))}
+        />
+      )}
+
+      {!editorOpen && (
+        <CurseurVertical
+          abonnement={curseurRef}
+          onChange={(t) => (is3d ? maquetteRef.current?.positionVerticale(t) : placerVertical(t))}
+          onPas={(sens) => (is3d ? maquetteRef.current?.pasVertical(sens) : pasVertical2d(sens))}
         />
       )}
 
