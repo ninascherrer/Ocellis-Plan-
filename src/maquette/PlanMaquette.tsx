@@ -5,8 +5,9 @@
  * chaque mouvement sur un canvas 2D : rotation libre, inclinaison, zoom et déplacement.
  * Les espaces de espaces.json sont cliquables directement sur la maquette.
  *
- * Gestes : glisser pour pivoter et incliner, molette ou pincement pour zoomer,
- * clic droit, Maj + glisser ou deux doigts pour déplacer.
+ * Gestes : à la souris, glisser pour pivoter et incliner, molette pour zoomer,
+ * clic droit ou Maj + glisser pour déplacer ; au doigt, un doigt déplace,
+ * deux doigts zooment, la rotation passe par les boutons ↺ ↻.
  */
 import { useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState, type Ref } from 'react';
 import type { Insets } from '../hooks/usePanZoom';
@@ -449,7 +450,8 @@ export default function PlanMaquette({
       pointeurs.set(e.pointerId, p);
       appuis.current = pointeurs.size;
       if (pointeurs.size === 1) {
-        mode = e.button === 2 || e.shiftKey ? 'deplacer' : 'orbite';
+        // Sur écran tactile, un doigt déplace le plan (comme une carte) ; la rotation passe par les boutons ↺ ↻.
+        mode = e.pointerType === 'touch' || e.button === 2 || e.shiftKey ? 'deplacer' : 'orbite';
         bouge = false;
         depart = p;
       } else if (pointeurs.size === 2) {
@@ -647,7 +649,7 @@ export default function PlanMaquette({
         <p className="plan3d-aide">
           {isDesktop
             ? 'Glisser : pivoter et incliner · Molette : zoomer · Clic droit ou Maj + glisser : déplacer · Double-clic : zoomer'
-            : 'Un doigt : pivoter et incliner · Deux doigts : zoomer et déplacer'}
+            : 'Un doigt : déplacer · Deux doigts : zoomer · ↺ ↻ : faire pivoter'}
         </p>
       </details>
     </div>

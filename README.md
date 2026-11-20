@@ -72,7 +72,7 @@ Le site s'ouvre sur une **maquette axonométrique illustrée** du plateau, terra
 comprise : dessin d'architecte à l'encre rehaussé d'aplats doux, mobilier,
 personnages et végétation. Boutons **Maquette / Dessin / Original** en bas à droite.
 
-- **Navigation** : glisser pour pivoter et incliner (rotation libre), molette ou
+- **Navigation** : à la souris, glisser pour pivoter et incliner (rotation libre) ; sur téléphone, un doigt déplace le plan et la rotation passe par les boutons ↺ ↻, molette ou
   pincement pour zoomer, clic droit, `Maj` + glisser ou deux doigts pour déplacer,
   double-clic pour zoomer ; boutons de quart de tour à côté du zoom ;
   **Vue générale** (touche `0`) revient à la vue de trois quarts depuis le sud-est.
