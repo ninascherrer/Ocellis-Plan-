@@ -160,6 +160,8 @@ function PlanDessinBrut({ largeur, hauteur, circulations }: PlanDessinProps) {
           <M x={34} y={40} w={14} h={13} r={2} />
         </g>
         <M x={55} y={58} w={63} h={6} r={3} />
+        {/* NOVA : écran TV sur le mur, au-dessus de la console */}
+        <rect className="d-wall" x={78} y={61.3} width={35} height={2} rx={0.6} />
 
         {/* Espace 02 : table, quatre chaises, siège rond */}
         <M x={163} y={18} w={74} h={28} />

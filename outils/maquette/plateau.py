@@ -172,6 +172,7 @@ column(*Pt(1278, 718), 0.42, 2.0)
 # ====================================================================== BANDEAU NORD
 # --- NOVA (Salle Lounge)
 W(612, 159, 740, 162)   # façade de NOVA : mur plein jusqu'au vitrage près de la porte
+# grand écran TV côté salle, au-dessus de la console (posé une fois wall_screen défini, plus bas)
 Gl(740, 159, 767, 162)
 T(767, 158, 798, 163); D(798, 161, 31, -90)
 W(798, 68, 803, 161, H_CUT)
@@ -217,6 +218,7 @@ def wall_screen(x, y, ang, z0=1.0, w=1.1, hgt=0.65, tag=None):
     Pp = rect_pts(x, y, 0.04, w, ang)
     return add(bb2(Pp, z0, z0 + hgt), PR(Pp, z0, z0 + hgt, '#c9c5bf', 0.5, face=[r(f[0]), r(f[1]), '#4d535b']), tag=tag)
 wall_screen(X(805), Y(114), 0)
+wall_screen(X(704), Y(159.75) - 0.025, -90, 1.05, 1.5, 0.84, tag='ecran')   # NOVA : écran TV sur le mur de façade
 
 # --- Escalier nord + sas
 W(916, 157, 965, 162)

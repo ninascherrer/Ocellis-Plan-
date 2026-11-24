@@ -1153,10 +1153,24 @@ export function dessinerScene(
     vus.push(el);
   }
   // Un écran mural disparaît avec son mur quand celui-ci est bas ou passe en transparence.
-  const visibles = vus.filter(
-    (el) => !el.support || (!voiles.has(el.support) && (hauteurs.get(el.support) ?? el.support.b[5]) >= el.b[5] - 0.01),
+  // Il est aussi masqué quand on regarde le mur par l'autre face (l'écran est alors derrière le mur).
+  const devant = (e: number[], m: number[]) =>
+    m[2] - m[0] >= m[3] - m[1]
+      ? ((e[1] + e[3]) / 2 - (m[1] + m[3]) / 2) * p.sa > 0
+      : ((e[0] + e[2]) / 2 - (m[0] + m[2]) / 2) * p.ca > 0;
+  const ecrans = vus.filter(
+    (el) =>
+      el.support &&
+      !voiles.has(el.support) &&
+      (hauteurs.get(el.support) ?? el.support.b[5]) >= el.b[5] - 0.01 &&
+      devant(el.b, el.support.b),
   );
-  const ordre = trier(visibles, p.ca, p.sa);
+  // Les écrans ne passent pas par le tri : collés au mur, ils sont dessinés juste après lui.
+  const ordre = trier(
+    vus.filter((el) => !el.support),
+    p.ca,
+    p.sa,
+  ).flatMap((el) => (el.mur ? [el, ...ecrans.filter((e) => e.support === el)] : [el]));
   for (const el of ordre) el.dessin(pt);
 
   // mise en évidence de l'espace choisi : le reste s'estompe
