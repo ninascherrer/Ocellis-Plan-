@@ -19,6 +19,7 @@ def Pt(gx, gy): return (X(gx), Y(gy))
 H_BACK = 2.9      # façades : pleine hauteur quand elles sont au fond
 H_PART = 2.35     # cloisons conservées pour le relief
 H_CUT = 1.0       # cloisons coupées là où elles masquent les pièces
+H_PORTE = 2.1     # cabines SPIX : tous les panneaux à la hauteur des portes
 H_FRONT = 0.42    # façades coupées bas au premier plan
 
 def W(a, b, c, d, h=H_PART, kind='int', **kw):
@@ -356,8 +357,8 @@ D(807, 313, 24, 180); D(807, 372, 24, 180)
 W(808, 289, 858, 292, H_CUT); W(808, 347, 858, 350, H_CUT); W(808, 417, 858, 420, H_CUT)
 sofa(*Pt(832, 294), *Pt(856, 345), back='e', col=SAGE, arms=False, pillows=2, persons=[(0.5, 'sit_phone')])
 # Box B : même configuration que la Box C (cabine SPIX noire, banquettes face à face, table)
-for (a, b, c, d, h) in ((810, 350, 856, 354, 2.15), (852, 354, 856, 417, 2.15), (810, 354, 814, 372, 2.15),
-                        (810, 396, 814, 413, 2.15), (810, 413, 856, 417, 1.1)):
+for (a, b, c, d, h) in ((810, 350, 856, 354, H_PORTE), (852, 354, 856, 417, H_PORTE), (810, 354, 814, 372, H_PORTE),
+                        (810, 396, 814, 413, H_PORTE), (810, 413, 856, 417, H_PORTE)):
     Box(a, b, c, d, 0, h, CHAR, 0.8, '#2b2724')
 sofa(*Pt(814, 354), *Pt(852, 368), back='n', col=TERRA, arms=False, modules=2, persons=[(0.5, 'sit_talk')])
 sofa(*Pt(814, 399), *Pt(852, 413), back='s', col=TERRA, arms=False, modules=2)
@@ -365,8 +366,8 @@ desk(*Pt(832, 373), *Pt(851, 394), h=0.74, top=GREYM, leg=CHAR, items=[lambda z:
 lockers(*Pt(806, 420), *Pt(856, 437), 1.35, 4, 3, WOOD)
 lockers(*Pt(808, 505), *Pt(857, 522), 1.35, 4, 3, WOOD)
 # Box C : SPIX (cabine duo, noire)
-for (a, b, c, d, h) in ((810, 523, 856, 527, 2.15), (852, 527, 856, 596, 2.15), (810, 527, 814, 547, 2.15),
-                        (810, 577, 814, 596, 2.15), (810, 596, 856, 600, 1.1)):
+for (a, b, c, d, h) in ((810, 523, 856, 527, H_PORTE), (852, 527, 856, 596, H_PORTE), (810, 527, 814, 547, H_PORTE),
+                        (810, 577, 814, 596, H_PORTE), (810, 596, 856, 600, H_PORTE)):
     Box(a, b, c, d, 0, h, CHAR, 0.8, '#2b2724')
 T(808, 547, 816, 577)
 D(812, 577, 28, 180, 'glass')
@@ -374,8 +375,8 @@ sofa(*Pt(814, 527), *Pt(852, 543), back='n', col=TERRA, arms=False, modules=2, p
 sofa(*Pt(814, 580), *Pt(852, 596), back='s', col=TERRA, arms=False, modules=2)
 desk(*Pt(832, 551), *Pt(851, 573), h=0.74, top=GREYM, leg=CHAR, items=[lambda z: laptop(X(841), Y(556), 90, z)])
 # Touchdown : alcôve SPIX version une place (même style que la Box C)
-for (a, b, c, d, h) in ((810, 601, 856, 605, 2.15), (852, 605, 856, 650, 2.15), (810, 605, 814, 615, 2.15),
-                        (810, 639, 814, 650, 2.15), (810, 650, 856, 654, 1.1)):
+for (a, b, c, d, h) in ((810, 601, 856, 605, H_PORTE), (852, 605, 856, 650, H_PORTE), (810, 605, 814, 615, H_PORTE),
+                        (810, 639, 814, 650, H_PORTE), (810, 650, 856, 654, H_PORTE)):
     Box(a, b, c, d, 0, h, CHAR, 0.8, '#2b2724')
 T(808, 615, 816, 639)
 D(812, 639, 22, 180, 'glass')
