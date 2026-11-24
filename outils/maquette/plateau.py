@@ -336,9 +336,17 @@ seatsB = bench(617, 338, 755, 394, [WOOD])
 seatsC = bench(618, 587, 757, 643, [WHITE])
 occ = {('A', 3): 'sit_type', ('A', 4): 'sit_phone', ('B', 1): 'sit_type', ('B', 4): 'sit_type',
        ('C', 0): 'sit_type', ('C', 2): 'sit_talk'}
+SIEGE_MARCHEUR = {}   # poste libre où vient s'asseoir le personnage animé (bench C, rangée nord)
 for tag, seats in (('A', seatsA), ('B', seatsB), ('C', seatsC)):
     for i, (sx, sy, a) in enumerate(seats):
         pose = occ.get((tag, i))
+        if (tag, i) == ('C', 4):
+            # Le fauteuil est dessiné par l'animation (vide, puis occupé) : il sort de la scène fixe.
+            col = meubles.R.choice([CHAR, '#77726c', SAGE_D, '#77726c'])   # même tirage que task_chair
+            o = task_chair(sx, sy, a, col)
+            eng.OBJS.remove(o)
+            SIEGE_MARCHEUR.update(x=sx, y=sy, a=a, col=col, vide=o)
+            continue
         task_chair(sx, sy, a, None, pose, ST() if pose else None)
 
 
@@ -658,14 +666,21 @@ plant(*Pt(1325, 735), 'grass', 0.2, 0.45, 0.85)
 # ====================================================================== PERSONNES EN MOUVEMENT
 person(X(905), Y(184), 180, 'walk', ST(top=PETROLE_M))
 # Personnage animé de la vue Maquette (rejoué par src/maquette/marcheur.ts) : il remplace la
-# silhouette fixe qui marchait ici. Parcours au sol, en mètres : il remonte le couloir ouest,
-# entre les bureaux et la colonne de services, tourne dans le couloir nord et s'arrête devant
-# la porte d'ÉCHO. pauses[i] : arrêt (s) au point i ; regard : orientation (°) pendant le dernier arrêt.
+# silhouette fixe qui marchait dans le couloir ouest. Il arrive du couloir nord, descend le couloir
+# ouest entre les bureaux et la colonne de services, tourne dans l'allée du bench C et va s'asseoir
+# au poste libre (SIEGE_MARCHEUR). Parcours au sol en mètres ; pauses[i] : arrêt (s) au point i ;
+# regard : orientation (°) au dernier arrêt, face au bureau.
+_st = ST()
+_sg = SIEGE_MARCHEUR
+_occupe = task_chair(_sg['x'], _sg['y'], _sg['a'], _sg['col'], 'sit_type', _st)
+eng.OBJS.remove(_occupe)
+eng.SHADOW[-1:] = []   # ombre déjà donnée par le fauteuil vide
 MARCHEURS.append({
-    'st': (lambda st: [st['skin'], st['hair'], st['top'], st['pants'], st['hs'], 1 if st['skirt'] else 0, st['shoes']])(ST()),
-    'chemin': [[r(X(772)), r(Y(560))], [r(X(772)), r(Y(186))], [r(X(884)), r(Y(177))]],
-    'pauses': [1.6, 1.0, 3.2],
-    'regard': -90,
+    'st': [_st['skin'], _st['hair'], _st['top'], _st['pants'], _st['hs'], 1 if _st['skirt'] else 0, _st['shoes']],
+    'chemin': [[r(X(772)), r(Y(186))], [r(X(772)), r(Y(556))], [r(_sg['x']), r(Y(556))]],
+    'pauses': [1.2, 1.0, 0.8],
+    'regard': _sg['a'],
+    'siege': {'x': r(_sg['x']), 'y': r(_sg['y']), 'b': _occupe['b'], 'vide': _sg['vide']['p'], 'occupe': _occupe['p']},
 })
 person(X(1000), Y(733), 0, 'tablet', ST())
 person(X(1325), Y(570), 20, 'cup', ST())

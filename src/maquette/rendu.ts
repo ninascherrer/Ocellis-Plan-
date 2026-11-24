@@ -48,6 +48,16 @@ export interface Marcheur {
   chemin: [number, number][];
   pauses: number[];
   regard?: number;
+  /** Poste où il vient s'asseoir : fauteuil vide et fauteuil occupé (primitives), position (m). */
+  siege?: Siege;
+}
+
+export interface Siege {
+  x: number;
+  y: number;
+  b: number[];
+  vide: Prim[];
+  occupe: Prim[];
 }
 
 /** Position d'un personnage animé à un instant : au sol (m), orientation (°), cycle de marche, opacité. */
@@ -60,6 +70,9 @@ export interface EtatMarcheur {
   amp: number;
   alpha: number;
   st: unknown[];
+  /** Fondu de la personne assise au poste (0 : fauteuil vide, 1 : assise). */
+  assis?: number;
+  siege?: Siege;
 }
 
 /** Point de vue : azimut (direction vers l'observateur, en radians), inclinaison, échelle (px CSS / m), translation (px CSS). */
@@ -978,12 +991,43 @@ function volumeMarcheur(m: EtatMarcheur): Volume {
   };
 }
 
-/** Rectangle d'écran (px CSS) couvert par un personnage animé, marges comprises. */
+/** Fauteuil du poste : toujours dessiné, avec la personne assise en fondu selon `assis`. */
+function volumeSiege(m: EtatMarcheur, sg: Siege): Volume {
+  return {
+    b: sg.b.slice(),
+    m: 0,
+    e: [0, 0, 0, 0],
+    prof: 0,
+    dessin: (pt: Peintre) => {
+      const a = m.assis ?? 0;
+      if (a < 0.99) pt.groupes(sg.vide);
+      if (a > 0.01) {
+        const c = pt.ctx;
+        c.save();
+        c.globalAlpha = a;
+        pt.groupes(sg.occupe);
+        c.restore();
+      }
+    },
+  };
+}
+
+/** Volumes d'un personnage animé : la silhouette qui marche et, s'il en a un, son fauteuil. */
+function volumesMarcheur(m: EtatMarcheur): Volume[] {
+  return m.siege ? [volumeMarcheur(m), volumeSiege(m, m.siege)] : [volumeMarcheur(m)];
+}
+
+/** Rectangle d'écran (px CSS) couvert par un personnage animé (et son fauteuil), marges comprises. */
 export function ecranMarcheur(cam: Camera, m: EtatMarcheur): [number, number, number, number] {
   const p = new Proj(cam);
   const out = [0, 0, 0, 0];
   bboxEcran(p, boiteMarcheur(m), 6, out);
-  return [out[0] - 3, out[1] - 3, out[2] + 3, out[3] + 3];
+  let r: [number, number, number, number] = [out[0], out[1], out[2], out[3]];
+  if (m.siege) {
+    bboxEcran(p, m.siege.b, 6, out);
+    r = [Math.min(r[0], out[0]), Math.min(r[1], out[1]), Math.max(r[2], out[2]), Math.max(r[3], out[3])];
+  }
+  return [r[0] - 3, r[1] - 3, r[2] + 3, r[3] + 3];
 }
 
 function bboxEcran(p: Proj, b: number[], m: number, out: number[]) {
@@ -1405,7 +1449,7 @@ function dessinerSceneDans(
   const vus: Volume[] = [];
   const marge = 40;
   const hors = (e: number[]) => e[2] < rx0 - marge || e[0] > rx1 + marge || e[3] < ry0 - marge || e[1] > ry1 + marge;
-  const marcheurs = (opt.marcheurs ?? []).map(volumeMarcheur);
+  const marcheurs = (opt.marcheurs ?? []).flatMap(volumesMarcheur);
   for (const el of [...prep.elements, ...marcheurs]) {
     bboxEcran(p, el.b, el.m, el.e);
     if (hors(el.e)) continue;

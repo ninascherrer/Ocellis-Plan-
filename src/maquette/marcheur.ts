@@ -3,8 +3,8 @@
  *
  * Le parcours (en mètres, repère de la maquette) vient de scene.json (outils/maquette/plateau.py).
  * Déroulé d'une boucle : apparition en douceur au point de départ, marche d'un point à l'autre
- * avec un arrêt à chaque point, dernier arrêt tourné vers `regard`, puis disparition en fondu
- * et retour discret au départ.
+ * avec un arrêt à chaque point, dernier arrêt tourné vers `regard`. S'il a un siège, il s'y
+ * assoit et y reste un moment ; puis il s'efface en fondu et revient discrètement au départ.
  */
 import type { EtatMarcheur, Marcheur } from './rendu';
 
@@ -16,9 +16,12 @@ const FOULEE = 1.25;
 const ELAN = 0.45;
 const FONDU = 1.2;
 const ABSENCE = 1.4;
+/** Le temps de s'asseoir, puis de rester assis au poste (s). */
+const ASSEOIR = 1.0;
+const ASSIS = 9;
 
 type Etape =
-  | { type: 'apparition' | 'disparition' | 'absence'; duree: number }
+  | { type: 'apparition' | 'disparition' | 'absence' | 'asseoir' | 'assis'; duree: number }
   | { type: 'arret'; duree: number; point: number }
   | { type: 'marche'; duree: number; seg: number; longueur: number };
 
@@ -37,6 +40,7 @@ export interface Boucle {
 
 export function boucleMarcheur(m: Marcheur): Boucle {
   const ch = m.chemin;
+  const sg = m.siege;
   const caps = ch.slice(1).map((b, i) => angle(ch[i][0], ch[i][1], b[0], b[1]));
   const longueurs = ch.slice(1).map((b, i) => Math.hypot(b[0] - ch[i][0], b[1] - ch[i][1]));
   // Distance parcourue au début de chaque segment : la phase du pas suit la distance.
@@ -48,14 +52,16 @@ export function boucleMarcheur(m: Marcheur): Boucle {
     etapes.push({ type: 'arret', duree: m.pauses[i] ?? 0.8, point: i });
     if (i < longueurs.length) etapes.push({ type: 'marche', duree: longueurs[i] / VITESSE, seg: i, longueur: longueurs[i] });
   });
+  if (sg) etapes.push({ type: 'asseoir', duree: ASSEOIR }, { type: 'assis', duree: ASSIS });
   etapes.push({ type: 'disparition', duree: FONDU }, { type: 'absence', duree: ABSENCE });
   const duree = etapes.reduce((s, e) => s + e.duree, 0);
 
   const dernier = ch.length - 1;
   const capArret = (i: number) => (i < caps.length ? caps[i] : (m.regard ?? caps[caps.length - 1]));
   const capDernier = capArret(dernier);
-  const pose = (x: number, y: number, ang: number, phase: number, amp: number, alpha: number): EtatMarcheur => ({
-    x, y, ang, phase, amp, alpha, st: m.st,
+  const [fx, fy] = sg ? [sg.x, sg.y] : ch[dernier];
+  const pose = (x: number, y: number, ang: number, phase: number, amp: number, alpha: number, assis = 0): EtatMarcheur => ({
+    x, y, ang, phase, amp, alpha, assis, st: m.st, siege: sg,
   });
 
   const etat = (tBoucle: number): EtatMarcheur => {
@@ -71,10 +77,18 @@ export function boucleMarcheur(m: Marcheur): Boucle {
           return pose(ch[0][0], ch[0][1], caps[0], 0, 0, doux(u));
         case 'absence':
           return pose(ch[0][0], ch[0][1], caps[0], 0, 0, 0);
+        case 'asseoir': {
+          // Il avance jusqu'au fauteuil et s'y installe : la silhouette debout laisse place à la
+          // personne assise, en fondu enchaîné.
+          const k = doux(u);
+          return pose(ch[dernier][0] + (fx - ch[dernier][0]) * k, ch[dernier][1] + (fy - ch[dernier][1]) * k, capDernier, 0, 0, 1 - k, k);
+        }
+        case 'assis':
+          return pose(fx, fy, capDernier, 0, 0, 0, 1);
         case 'disparition':
-          return pose(ch[dernier][0], ch[dernier][1], capDernier, 0, 0, 1 - doux(u));
+          return sg ? pose(fx, fy, capDernier, 0, 0, 0, 1 - doux(u)) : pose(fx, fy, capDernier, 0, 0, 1 - doux(u));
         case 'arret': {
-          // À chaque arrêt, il se tourne posément vers la suite du parcours (au dernier, vers la porte).
+          // À chaque arrêt, il se tourne posément vers la suite du parcours (au dernier, vers `regard`).
           const i = e.point;
           const ang = i > 0 ? melangeAngle(caps[i - 1], capArret(i), doux(Math.min(1, u * 1.6))) : capArret(i);
           return pose(ch[i][0], ch[i][1], ang, 0, 0, 1);
@@ -85,10 +99,9 @@ export function boucleMarcheur(m: Marcheur): Boucle {
           const [ax, ay] = ch[i],
             [bx, by] = ch[i + 1];
           const k = Math.min(1, d / e.longueur);
-          const ang = caps[i];
           const amp = Math.min(1, t / ELAN, (e.duree - t) / ELAN);
           const phase = ((cumul[i] + d) / FOULEE) * Math.PI * 2;
-          return pose(ax + (bx - ax) * k, ay + (by - ay) * k, ang, phase, Math.max(0, amp), 1);
+          return pose(ax + (bx - ax) * k, ay + (by - ay) * k, caps[i], phase, Math.max(0, amp), 1);
         }
       }
     }

@@ -86,9 +86,11 @@ personnages et végétation. Boutons **Maquette / Dessin / Original** en bas à 
 - **Murs** : les cloisons des salles gardent leur hauteur quel que soit l'angle ;
   seules les façades tournées vers la caméra sont coupées bas. Un mur qui cache
   l'espace sélectionné passe en transparence.
-- **Personnage animé** (premier essai) : une personne remonte le couloir ouest,
-  longe le couloir nord et s'arrête devant la porte d'ÉCHO, avec des pauses, puis
-  s'efface et revient discrètement au départ (boucle d'environ 28 s). Elle est
+- **Personnage animé** (premier essai) : une personne arrive du couloir nord,
+  descend le couloir ouest, tourne dans l'allée du bench et va s'asseoir à un
+  poste libre de l'open space ; elle y travaille un moment, puis s'efface et
+  revient discrètement au départ (boucle d'environ 33 s). Le fauteuil de ce poste
+  est dessiné par l'animation (vide, puis occupé). Elle est
   triée avec le reste de la maquette : les cloisons placées devant la masquent, et
   elle reste alignée au sol quand on zoome ou pivote. Bouton **Mettre les
   animations en pause** à côté de la rotation (choix mémorisé ; pause par défaut
