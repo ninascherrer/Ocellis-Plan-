@@ -1,4 +1,5 @@
-import { rmSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { readFileSync, rmSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { defineConfig, loadEnv, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
@@ -17,6 +18,26 @@ function retirerPlanPdf(actif: boolean): Plugin {
   };
 }
 
+/**
+ * Version des données de la maquette (empreinte de scene.json) : ajoutée à son adresse
+ * (`scene.json?v=…`) pour que chaque mise en ligne soit vue tout de suite, sans attendre
+ * l'expiration du cache du navigateur.
+ */
+function versionScene(): string {
+  try {
+    return createHash('sha1').update(readFileSync(resolve(__dirname, 'public/maquette/scene.json'))).digest('hex').slice(0, 10);
+  } catch {
+    return '0';
+  }
+}
+
+function adresseScene(version: string): Plugin {
+  return {
+    name: 'adresse-scene',
+    transformIndexHtml: (html) => html.replace('./maquette/scene.json"', `./maquette/scene.json?v=${version}"`),
+  };
+}
+
 // `base: './'` permet de déployer l'application dans n'importe quel
 // sous-dossier (intranet, SharePoint, Netlify, GitHub Pages…) sans reconfiguration.
 export default defineConfig(({ mode }) => {
@@ -24,9 +45,11 @@ export default defineConfig(({ mode }) => {
   // Copie hors ligne (npm run build:hors-ligne) : un seul fichier JS, polices et images
   // intégrées ; outils/copie-hors-ligne.mjs assemble ensuite un unique fichier HTML.
   const horsLigne = mode === 'hors-ligne';
+  const scene = versionScene();
   return {
     base: './',
-    plugins: [react(), retirerPlanPdf(env.VITE_CALQUE_PDF === '1')],
+    plugins: [react(), retirerPlanPdf(env.VITE_CALQUE_PDF === '1'), adresseScene(scene)],
+    define: { 'import.meta.env.VITE_SCENE_VERSION': JSON.stringify(scene) },
     build: horsLigne
       ? {
           outDir: 'dist-hors-ligne',

@@ -143,7 +143,7 @@ export default function PlanMaquette({
       setScene(preparer(integree));
       return;
     }
-    fetch(`${import.meta.env.BASE_URL}maquette/scene.json`)
+    fetch(`${import.meta.env.BASE_URL}maquette/scene.json?v=${import.meta.env.VITE_SCENE_VERSION ?? ''}`)
       .then((r) => {
         if (!r.ok) throw new Error(String(r.status));
         return r.json() as Promise<Scene>;
