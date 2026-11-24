@@ -28,6 +28,7 @@ def W(a, b, c, d, h=H_PART, kind='int', **kw):
 def Gl(a, b, c, d, h=2.45, post=1.2):
     return glass(X(a), Y(b), X(c), Y(d), h, post)
 
+# Portes vitrées intérieures dessinées fermées (on voit déjà à travers) ; portes-fenêtres de la terrasse ouvertes.
 def D(hgx, hgy, wgx, ang, kind='wood', h=2.1):
     return door(X(hgx), Y(hgy), m(wgx), ang, h, kind)
 
@@ -203,7 +204,7 @@ frame(680, 700, 1.45, 1.85, PETROLE_L)
 
 # --- ÉCHO (Quatro fermée)
 Gl(803, 159, 877, 162)
-T(877, 158, 908, 163); D(877, 161, 31, -90, 'glass')
+T(877, 158, 908, 163); D(877, 161, 31, 0, 'glass')
 W(908, 58, 916, 162, H_CUT)
 desk(*Pt(803, 96), *Pt(872, 132), h=0.74, top=WHITE, leg=CHAR,
      items=[lambda z: laptop(X(830), Y(104), 90, z), lambda z: laptop(X(858), Y(124), -90, z),
@@ -232,7 +233,7 @@ W(1072, 58, 1078, 164)
 
 # --- HALO (Visio) — mur végétal « Salle Canopée » (piste d'ambiance)
 W(1078, 160, 1087, 164)
-T(1087, 159, 1117, 165); D(1087, 162, 30, -90, 'glass')
+T(1087, 159, 1117, 165); D(1087, 162, 30, 0, 'glass')
 Gl(1117, 160, 1162, 164)
 W(1162, 58, 1167, 164, H_CUT)
 sofa(*Pt(1132, 76), *Pt(1160, 156), back='e', col=PETROLE_L, arms=True, pillows=2, persons=[(0.28, 'sit_talk'), (0.62, 'sit_relax')])
@@ -288,7 +289,7 @@ def curved_shelf(cx, cy, r0, r1, a0, a1, h, n=6):
 curved_shelf(X(1193), Y(362), m(33), m(46), 90, 180, 1.25)
 W(1160, 203, 1298, 207, H_CUT)
 Gl(1160, 207, 1164, 328)
-T(1158, 328, 1166, 360); D(1162, 330, 30, 0, 'glass')
+T(1158, 328, 1166, 360); D(1162, 330, 30, 90, 'glass')
 cx_, cy_, rr_ = X(1193), Y(360), m(31)
 arc_ = [(cx_ + rr_ * math.cos(math.radians(a)), cy_ + rr_ * math.sin(math.radians(a))) for a in (180, 150, 120, 90)]
 for i in range(3):
@@ -342,7 +343,7 @@ for tag, seats in (('A', seatsA), ('B', seatsB), ('C', seatsC)):
 
 # Box autonome (Interior ou Mute)
 Gl(617, 452, 747, 455); Gl(617, 524, 747, 527); Gl(744, 455, 747, 472); Gl(744, 503, 747, 524)
-T(742, 472, 750, 503); D(747, 503, 31, 0, 'glass')
+T(742, 472, 750, 503); D(747, 503, 31, -90, 'glass')
 Gl(690, 455, 693, 524)
 desk(*Pt(624, 458), *Pt(650, 522), h=0.74, top=WOOD, leg=CHAR, frame='trestle_y',
      items=[lambda z: laptop(X(640), Y(470), 180, z), lambda z: desk_lamp(X(630), Y(495), 0, z), lambda z: mug(X(642), Y(508), z)])
@@ -372,7 +373,7 @@ for (a, b, c, d, h) in ((810, 523, 856, 527, H_PORTE), (852, 527, 856, 596, H_PO
                         (810, 577, 814, 596, H_PORTE), (810, 596, 856, 600, H_PORTE)):
     Box(a, b, c, d, 0, h, CHAR, 0.8, '#2b2724')
 T(808, 547, 816, 577)
-D(812, 577, 28, 180, 'glass')
+D(812, 577, 28, -90, 'glass')
 sofa(*Pt(814, 527), *Pt(852, 543), back='n', col=TERRA, arms=False, modules=2, persons=[(0.5, 'sit_phone')])
 sofa(*Pt(814, 580), *Pt(852, 596), back='s', col=TERRA, arms=False, modules=2)
 desk(*Pt(832, 551), *Pt(851, 573), h=0.74, top=GREYM, leg=CHAR, items=[lambda z: laptop(X(841), Y(556), 90, z)])
@@ -381,7 +382,7 @@ for (a, b, c, d, h) in ((810, 601, 856, 605, H_PORTE), (852, 605, 856, 650, H_PO
                         (810, 639, 814, 650, H_PORTE), (810, 650, 856, 654, H_PORTE)):
     Box(a, b, c, d, 0, h, CHAR, 0.8, '#2b2724')
 T(808, 615, 816, 639)
-D(812, 639, 22, 180, 'glass')
+D(812, 639, 22, -90, 'glass')
 desk(*Pt(816, 605), *Pt(850, 618), h=0.74, top=GREYM, leg=CHAR,
      items=[lambda z: laptop(X(833), Y(610), 90, z), lambda z: desk_lamp(X(846), Y(609), 90, z)])
 sofa(*Pt(820, 634), *Pt(846, 650), back='s', col=TERRA, arms=False, modules=1, persons=[(0.5, 'sit_type')])
@@ -497,10 +498,10 @@ plant(*Pt(1122, 760), 'leafy', 0.24, 0.5, 1.2)
 
 # ====================================================================== SUD-OUEST : O'1, O'2, OSMOSE
 Gl(640, 716, 668, 719)
-T(668, 715, 700, 721); D(700, 718, 32, 90, 'glass')
+T(668, 715, 700, 721); D(700, 718, 32, 180, 'glass')
 Gl(700, 719, 705, 780); W(703, 780, 707, 815, H_CUT)
 Gl(705, 716, 740, 719)
-T(740, 715, 772, 721); D(772, 718, 32, 90, 'glass')
+T(740, 715, 772, 721); D(772, 718, 32, 180, 'glass')
 Gl(772, 719, 775, 787)
 W(640, 815, 775, 819, H_CUT)
 desk(*Pt(647, 788), *Pt(701, 813), h=0.74, top=WOOD, leg=PETROLE_L, frame='trestle',
@@ -510,7 +511,7 @@ desk(*Pt(707, 788), *Pt(771, 813), h=0.74, top=WOOD, leg=PETROLE_L, frame='trest
      items=[lambda z: monitor(X(722), Y(805), -90, z), lambda z: monitor(X(755), Y(805), -90, z), lambda z: notebook(X(740), Y(796), 0, z)])
 task_chair(*Pt(722, 777), 90, None, 'sit_type', ST())
 task_chair(*Pt(755, 777), 90)
-T(775, 784, 808, 790); D(775, 787, 33, 90, 'glass')
+T(775, 784, 808, 790); D(775, 787, 33, 0, 'glass')
 Gl(808, 785, 823, 789)
 # OSMOSE : mur plein côté sanitaires, avec un grand écran TV face à la table
 W(823, 785, 843, 937)
