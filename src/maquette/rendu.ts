@@ -182,13 +182,25 @@ class Peintre {
   dy: number;
   rapide: boolean;
   hachure: CanvasPattern | null;
-  constructor(ctx: CanvasRenderingContext2D, p: Proj, rapide: boolean, hachure: CanvasPattern | null) {
+  /** Textures de matière (null en rendu rapide) et matière du volume en cours de dessin. */
+  textures: Textures | null;
+  matiere: Matiere | null = null;
+  constructor(ctx: CanvasRenderingContext2D, p: Proj, rapide: boolean, hachure: CanvasPattern | null, textures: Textures | null = null) {
     this.ctx = ctx;
     this.p = p;
     this.dx = p.ca;
     this.dy = p.sa;
     this.rapide = rapide;
     this.hachure = hachure;
+    this.textures = rapide ? null : textures;
+  }
+
+  /** Dessine `f` avec la texture de la matière de `col` (bois, tissu…) posée sur les aplats. */
+  avecMatiere(col: unknown, f: () => void) {
+    const avant = this.matiere;
+    this.matiere = this.textures ? matiereDe(col) : null;
+    f();
+    this.matiere = avant;
   }
 
   remplir(fill: string | 0 | null, op = 1) {
@@ -209,6 +221,10 @@ class Peintre {
       c.fill();
       c.globalAlpha = 1;
     } else c.fill();
+    if (this.matiere && this.textures && op === 1) {
+      c.fillStyle = this.textures[this.matiere];
+      c.fill();
+    }
   }
 
   tracer(stroke: string | null, sw: number, sop = 1, dash?: number[]) {
@@ -403,10 +419,10 @@ class Peintre {
         return;
       }
       case 'B':
-        this.boite(q[1], q[2], q[3], q[4], q[5], q[6], q[7], q[8], q[9] || 0, q[10] || INK);
+        this.avecMatiere(q[7], () => this.boite(q[1], q[2], q[3], q[4], q[5], q[6], q[7], q[8], q[9] || 0, q[10] || INK));
         return;
       case 'R':
-        this.prisme(q[1], q[2], q[3], q[4], q[5], q[6], q[7] || 0, q[8] || 0, q[9] || INK);
+        this.avecMatiere(q[4], () => this.prisme(q[1], q[2], q[3], q[4], q[5], q[6], q[7] || 0, q[8] || 0, q[9] || INK));
         return;
       case 'C': {
         const o = q[9];
@@ -988,6 +1004,135 @@ function trier(els: Volume[], dx: number, dy: number): Volume[] {
   return out;
 }
 
+// ------------------------------------------------------------------ matières
+type Matiere = 'bois' | 'tissu' | 'sol';
+type Textures = Record<Matiere | 'grain', CanvasPattern>;
+
+/** Couleurs de la DA rattachées à une matière (les teintes voisines suivent la plus proche). */
+const PALETTE_MATIERES: [string, Matiere][] = [
+  ['#e2cdb8', 'bois'], ['#d3b9a0', 'bois'], ['#b08f74', 'bois'], ['#8b7258', 'bois'], ['#d7c7ac', 'bois'],
+  ['#ceab97', 'tissu'], ['#b98f7c', 'tissu'], ['#bf7b69', 'tissu'], ['#ae6542', 'tissu'], ['#a1a58c', 'tissu'],
+  ['#708b72', 'tissu'], ['#5f7a8a', 'tissu'], ['#9fb1ba', 'tissu'], ['#3d5c6e', 'tissu'], ['#c9ccb9', 'tissu'],
+  ['#d6dee0', 'tissu'], ['#5f7570', 'tissu'], ['#bec8c9', 'tissu'], ['#e6d2c3', 'tissu'],
+  ['#ecdccf', 'sol'], ['#e3ded5', 'sol'], ['#efe8e1', 'sol'], ['#e2ddd7', 'sol'], ['#f2ebe4', 'sol'],
+];
+const rgb = (h: string) => {
+  const n = parseInt(h.slice(1), 16);
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+};
+const PALETTE_RGB = PALETTE_MATIERES.map(([h, m]) => [rgb(h), m] as const);
+const cacheMatiere = new Map<string, Matiere | null>();
+function matiereDe(col: unknown): Matiere | null {
+  if (typeof col !== 'string' || col[0] !== '#' || col.length !== 7) return null;
+  let m = cacheMatiere.get(col);
+  if (m !== undefined) return m;
+  const [r, g, b] = rgb(col);
+  let meilleur = 26 * 26;
+  m = null;
+  for (const [[R, G, B], mat] of PALETTE_RGB) {
+    const d = (r - R) ** 2 + (g - G) ** 2 + (b - B) ** 2;
+    if (d < meilleur) {
+      meilleur = d;
+      m = mat;
+    }
+  }
+  cacheMatiere.set(col, m);
+  return m;
+}
+
+/** Générateur pseudo-aléatoire fixe : la texture ne change pas d'une image à l'autre. */
+function hasard(graine: number) {
+  let s = graine >>> 0;
+  return () => {
+    s = (s * 1664525 + 1013904223) >>> 0;
+    return s / 4294967296;
+  };
+}
+
+const cacheTextures = new Map<number, Record<Matiere | 'grain', HTMLCanvasElement>>();
+function tuiles(dpr: number) {
+  const cle = Math.round(dpr * 100);
+  const deja = cacheTextures.get(cle);
+  if (deja) return deja;
+  const tuile = (w: number, h: number, dessin: (c: CanvasRenderingContext2D, w: number, h: number) => void) => {
+    const cv = document.createElement('canvas');
+    cv.width = Math.round(w * dpr);
+    cv.height = Math.round(h * dpr);
+    const c = cv.getContext('2d')!;
+    c.scale(cv.width / w, cv.height / h);
+    dessin(c, w, h);
+    return cv;
+  };
+  const alea = hasard(7);
+  const t = {
+    // veinage : fils ondulés irréguliers, quelques nœuds
+    bois: tuile(96, 28, (c, w, h) => {
+      for (let i = 0; i < 9; i++) {
+        const y0 = (i + alea()) * (h / 9),
+          a = 0.6 + alea() * 1.4,
+          f = (Math.PI * 2 * (1 + Math.floor(alea() * 2))) / w,
+          ph = alea() * 6;
+        c.strokeStyle = `rgba(110,72,40,${0.07 + alea() * 0.09})`;
+        c.lineWidth = 0.4 + alea() * 0.5;
+        c.beginPath();
+        for (let x = 0; x <= w; x += 2) {
+          const y = y0 + Math.sin(x * f + ph) * a;
+          if (x === 0) c.moveTo(x, y);
+          else c.lineTo(x, y);
+        }
+        c.stroke();
+      }
+    }),
+    // tissu : trame croisée fine et chiné
+    tissu: tuile(24, 24, (c, w, h) => {
+      for (let y = 0; y < h; y += 2)
+        for (let x = 0; x < w; x += 2) {
+          const sombre = (x + y) % 4 === 0;
+          c.fillStyle = sombre ? `rgba(40,30,25,${0.05 + alea() * 0.05})` : `rgba(255,255,255,${0.04 + alea() * 0.06})`;
+          c.fillRect(x, y, 1, 1);
+        }
+    }),
+    // sol : lames de parquet très discrètes
+    sol: tuile(120, 40, (c, w, h) => {
+      for (let y = 0; y < h; y += 10) {
+        c.fillStyle = `rgba(120,90,60,${0.015 + alea() * 0.03})`;
+        c.fillRect(0, y, w, 10);
+        c.fillStyle = 'rgba(110,80,55,0.07)';
+        c.fillRect(0, y, w, 0.5);
+        const j = alea() * w;
+        c.fillRect(j, y, 0.5, 10);
+      }
+    }),
+    // grain d'ensemble, comme une impression sur papier
+    grain: tuile(128, 128, (c, w, h) => {
+      for (let i = 0; i < w * h * 0.22; i++) {
+        const x = alea() * w,
+          y = alea() * h,
+          clair = alea() < 0.35;
+        c.fillStyle = clair ? `rgba(255,255,255,${0.12 + alea() * 0.12})` : `rgba(60,45,35,${0.05 + alea() * 0.07})`;
+        c.fillRect(x, y, 0.6 + alea() * 0.6, 0.6 + alea() * 0.6);
+      }
+    }),
+  };
+  cacheTextures.set(cle, t);
+  return t;
+}
+
+/** Motifs ancrés sur le plan : ils suivent le déplacement au lieu de glisser dessus. */
+function textures(ctx: CanvasRenderingContext2D, dpr: number, p: Proj): Textures | null {
+  if (typeof document === 'undefined') return null;
+  const t = tuiles(dpr);
+  const m = new DOMMatrix().translateSelf(p.tx, p.ty).scaleSelf(1 / dpr, 1 / dpr);
+  const out = {} as Textures;
+  for (const k of Object.keys(t) as (Matiere | 'grain')[]) {
+    const pat = ctx.createPattern(t[k], 'repeat');
+    if (!pat) return null;
+    pat.setTransform(m);
+    out[k] = pat;
+  }
+  return out;
+}
+
 function hachure(ctx: CanvasRenderingContext2D, dpr: number): CanvasPattern | null {
   const t = Math.max(3, Math.round(3.4 * dpr));
   const cv = document.createElement('canvas');
@@ -1101,7 +1246,12 @@ export function dessinerScene(
   ctx.lineJoin = 'round';
   ctx.lineCap = 'round';
   const motif = hachure(ctx, dpr);
-  const pt = new Peintre(ctx, p, opt.rapide, motif);
+  const tex = opt.rapide ? null : textures(ctx, dpr, p);
+  const pt = new Peintre(ctx, p, opt.rapide, motif, tex);
+  // Sol : aplats texturés selon leur couleur (parquet, tapis).
+  const sol = () => {
+    for (const q of sc.sol) pt.avecMatiere(q[0] === 'P' ? q[2] : null, () => pt.un(q));
+  };
 
   const zoneChoix = opt.choixId ? opt.zones.find((z) => z.id === opt.choixId) : undefined;
   const zoneSurvol = opt.survolId ? opt.zones.find((z) => z.id === opt.survolId) : undefined;
@@ -1113,7 +1263,7 @@ export function dessinerScene(
   }
 
   // sol
-  pt.dessiner(sc.sol);
+  sol();
   pt.dessiner(sc.seuils);
   if (!opt.rapide) pt.dessiner(sc.ombres);
   pt.dessiner(sc.marquages);
@@ -1182,7 +1332,7 @@ export function dessinerScene(
     ctx.save();
     cheminZone(pt, zoneChoix.contour, 0);
     ctx.clip();
-    pt.dessiner(sc.sol);
+    sol();
     pt.dessiner(sc.seuils);
     ctx.restore();
     cheminZone(pt, zoneChoix.contour);
@@ -1206,7 +1356,7 @@ export function dessinerScene(
       ctx.save();
       cheminZone(pt, z.contour, 0);
       ctx.clip();
-      pt.dessiner(sc.sol);
+      sol();
       ctx.restore();
       cheminZone(pt, z.contour);
       pt.remplir(z.couleur, 0.38);
@@ -1223,6 +1373,13 @@ export function dessinerScene(
       ctx.lineWidth = 2.6;
       ctx.stroke();
     }
+  }
+  // grain d'ensemble : le rendu perd son aspect lisse
+  if (tex) {
+    ctx.globalAlpha = 0.6;
+    ctx.fillStyle = tex.grain;
+    ctx.fillRect(0, 0, largeur, hauteur);
+    ctx.globalAlpha = 1;
   }
   for (const z of [zoneSurvol, zoneChoix]) {
     if (!z) continue;
