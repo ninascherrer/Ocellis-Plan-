@@ -355,13 +355,16 @@ W(805, 289, 808, 313, 2.1); T(803, 313, 810, 337); W(805, 337, 808, 372, 2.1); T
 D(807, 313, 24, 180); D(807, 372, 24, 180)
 W(808, 289, 858, 292, H_CUT); W(808, 347, 858, 350, H_CUT); W(808, 417, 858, 420, H_CUT)
 sofa(*Pt(832, 294), *Pt(856, 345), back='e', col=SAGE, arms=False, pillows=2, persons=[(0.5, 'sit_phone')])
-for (cx, cy, c) in ((818, 362, PETROLE_M), (845, 400, PETROLE_L)):
-    Pc = circle_pts(X(cx), Y(cy), 0.23, 20)
-    add(bb2(Pc, 0, 0.42), PR(Pc, 0, 0.42, c, FINE, smooth=True))
-table_round(*Pt(836, 372), 0.2, h=0.4, top=CHAR, items=[lambda z: mug(X(836), Y(372), z)])
+# Box B : même configuration que la Box C (cabine SPIX noire, banquettes face à face, table)
+for (a, b, c, d, h) in ((810, 350, 856, 354, 2.15), (852, 354, 856, 417, 2.15), (810, 354, 814, 372, 2.15),
+                        (810, 396, 814, 413, 2.15), (810, 413, 856, 417, 1.1)):
+    Box(a, b, c, d, 0, h, CHAR, 0.8, '#2b2724')
+sofa(*Pt(814, 354), *Pt(852, 368), back='n', col=TERRA, arms=False, modules=2, persons=[(0.5, 'sit_talk')])
+sofa(*Pt(814, 399), *Pt(852, 413), back='s', col=TERRA, arms=False, modules=2)
+desk(*Pt(832, 373), *Pt(851, 394), h=0.74, top=GREYM, leg=CHAR, items=[lambda z: laptop(X(841), Y(378), 90, z)])
 lockers(*Pt(806, 420), *Pt(856, 437), 1.35, 4, 3, WOOD)
 lockers(*Pt(808, 505), *Pt(857, 522), 1.35, 4, 3, WOOD)
-# SPIX (cabine duo, noire)
+# Box C : SPIX (cabine duo, noire)
 for (a, b, c, d, h) in ((810, 523, 856, 527, 2.15), (852, 527, 856, 596, 2.15), (810, 527, 814, 547, 2.15),
                         (810, 577, 814, 596, 2.15), (810, 596, 856, 600, 1.1)):
     Box(a, b, c, d, 0, h, CHAR, 0.8, '#2b2724')

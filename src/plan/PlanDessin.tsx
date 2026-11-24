@@ -227,8 +227,11 @@ function PlanDessinBrut({ largeur, hauteur, circulations }: PlanDessinProps) {
           <M x={171} y={177} w={8} h={14} r={3} />
         </g>
         <circle className="d-furniture" cx={185} cy={185} r={5} />
-        <M x={165} y={197} w={32} h={11} r={2} />
-        <M x={165} y={229} w={32} h={12} r={2} />
+        {/* Box B : même configuration que la Box C (cabine SPIX, banquettes face à face, table) */}
+        <rect className="d-wall-frame" x={167} y={196} width={31} height={46} />
+        <M x={169} y={198} w={27} h={9} r={2} />
+        <M x={169} y={231} w={27} h={9} r={2} />
+        <M x={178} y={211} w={13} h={16} />
         <Casiers x={163} y={245} w={35} h={13} n={4} />
         <Casiers x={163} y={300} w={35} h={13} n={4} />
         <M x={171} y={318} w={24} h={12} r={1.5} />

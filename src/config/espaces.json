@@ -269,7 +269,7 @@
       "id": "espace-11",
       "nom": "Box B",
       "categorie": "collaboratif",
-      "description": "Box avec banquettes en vis-à-vis.",
+      "description": "Box : alcôve Nowystyl (modèle SPIX), banquettes face à face et table, même configuration que la Box C.",
       "infos": [
         "4 places",
         "Usage : réunion"
@@ -314,7 +314,7 @@
       "id": "spix",
       "nom": "Box C",
       "categorie": "collaboratif",
-      "description": "Box : alcôve Nowystyl (modèle SPIX).",
+      "description": "Box : alcôve Nowystyl (modèle SPIX), banquettes face à face et table.",
       "infos": [
         "4 places",
         "Usage : réunion"
