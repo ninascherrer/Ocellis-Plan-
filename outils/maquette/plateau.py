@@ -463,7 +463,17 @@ desk(*Pt(1079, 669), *Pt(1103, 690), h=0.9, top=BEIGE_D, leg=WHITE, frame='trest
      items=[lambda z: BOX(X(1082), Y(672), X(1100), Y(686), z, z + 0.3, '#e9e6e0', 0.45)])
 cabinet(*Pt(1103, 669), *Pt(1126, 690), 1.8, '#eceae5', 1)
 cabinet(*Pt(1126, 669), *Pt(1150, 690), 1.8, '#eceae5', 1)
-person(X(1186), Y(600), 180, 'cup', ST())
+# Personne du café (animée, rejouée par src/maquette/marcheur.ts) : elle arrive du palier des
+# ascenseurs par la porte d'entrée, traverse Le Loby en contournant l'îlot et ses tabourets,
+# puis s'arrête au linéaire café, une tasse à la main, avant de s'effacer.
+_st_cafe = ST()
+MARCHEURS.append({
+    'st': [_st_cafe['skin'], _st_cafe['hair'], _st_cafe['top'], _st_cafe['pants'], _st_cafe['hs'], 1 if _st_cafe['skirt'] else 0, _st_cafe['shoes']],
+    'chemin': [[r(X(1052)), r(Y(470))], [r(X(1200)), r(Y(468))], [r(X(1200)), r(Y(600))], [r(X(1186)), r(Y(600))]],
+    'pauses': [0.6, 0.5, 0.3, 8.0],
+    'regard': 180,
+    'poseFin': 'cup',
+})
 
 # convivialité nord-est
 cabinet(*Pt(1192, 394), *Pt(1223, 415), 1.8, WOOD, 2)

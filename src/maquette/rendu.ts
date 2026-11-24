@@ -50,6 +50,8 @@ export interface Marcheur {
   regard?: number;
   /** Poste où il vient s'asseoir : fauteuil vide et fauteuil occupé (primitives), position (m). */
   siege?: Siege;
+  /** Attitude au dernier arrêt (par exemple « cup » : une tasse à la main). */
+  poseFin?: string;
 }
 
 export interface Siege {
@@ -72,6 +74,8 @@ export interface EtatMarcheur {
   st: unknown[];
   /** Fondu de la personne assise au poste (0 : fauteuil vide, 1 : assise). */
   assis?: number;
+  /** Attitude à l'arrêt (sinon : en marche, ou debout au repos). */
+  pose?: string;
   siege?: Siege;
 }
 
@@ -985,7 +989,10 @@ function volumeMarcheur(m: EtatMarcheur): Volume {
       c.ellipse(p.x(m.x + 0.04, m.y + 0.04), p.y(m.x + 0.04, m.y + 0.04, 0), 0.24 * p.k, 0.24 * p.k * p.se, 0, 0, Math.PI * 2);
       c.fillStyle = 'rgba(43,39,36,0.08)';
       c.fill();
-      personnage(pt, ['M', m.x, m.y, m.ang, 'walk', 0.46, 0, m.st, m.phase, m.amp] as unknown as Prim);
+      personnage(
+        pt,
+        (m.pose ? ['M', m.x, m.y, m.ang, m.pose, 0.46, 0, m.st] : ['M', m.x, m.y, m.ang, 'walk', 0.46, 0, m.st, m.phase, m.amp]) as unknown as Prim,
+      );
       c.restore();
     },
   };

@@ -90,7 +90,10 @@ personnages et végétation. Boutons **Maquette / Dessin / Original** en bas à 
   descend le couloir ouest, tourne dans l'allée du bench et va s'asseoir à un
   poste libre de l'open space ; elle y travaille un moment, puis s'efface et
   revient discrètement au départ (boucle d'environ 33 s). Le fauteuil de ce poste
-  est dessiné par l'animation (vide, puis occupé). Elle est
+  est dessiné par l'animation (vide, puis occupé).
+  Une seconde personne arrive du palier des ascenseurs par la porte d'entrée,
+  traverse Le Loby en contournant l'îlot et s'arrête au linéaire café, une tasse
+  à la main (boucle d'environ 25 s). Elle est
   triée avec le reste de la maquette : les cloisons placées devant la masquent, et
   elle reste alignée au sol quand on zoome ou pivote. Bouton **Mettre les
   animations en pause** à côté de la rotation (choix mémorisé ; pause par défaut

@@ -3,8 +3,9 @@
  *
  * Le parcours (en mètres, repère de la maquette) vient de scene.json (outils/maquette/plateau.py).
  * Déroulé d'une boucle : apparition en douceur au point de départ, marche d'un point à l'autre
- * avec un arrêt à chaque point, dernier arrêt tourné vers `regard`. S'il a un siège, il s'y
- * assoit et y reste un moment ; puis il s'efface en fondu et revient discrètement au départ.
+ * avec un arrêt à chaque point, dernier arrêt tourné vers `regard` (avec l'attitude `poseFin`,
+ * par exemple une tasse à la main). S'il a un siège, il s'y assoit et y reste un moment ;
+ * puis il s'efface en fondu et revient discrètement au départ.
  */
 import type { EtatMarcheur, Marcheur } from './rendu';
 
@@ -60,8 +61,8 @@ export function boucleMarcheur(m: Marcheur): Boucle {
   const capArret = (i: number) => (i < caps.length ? caps[i] : (m.regard ?? caps[caps.length - 1]));
   const capDernier = capArret(dernier);
   const [fx, fy] = sg ? [sg.x, sg.y] : ch[dernier];
-  const pose = (x: number, y: number, ang: number, phase: number, amp: number, alpha: number, assis = 0): EtatMarcheur => ({
-    x, y, ang, phase, amp, alpha, assis, st: m.st, siege: sg,
+  const pose = (x: number, y: number, ang: number, phase: number, amp: number, alpha: number, assis = 0, attitude?: string): EtatMarcheur => ({
+    x, y, ang, phase, amp, alpha, assis, st: m.st, siege: sg, pose: attitude,
   });
 
   const etat = (tBoucle: number): EtatMarcheur => {
@@ -86,12 +87,14 @@ export function boucleMarcheur(m: Marcheur): Boucle {
         case 'assis':
           return pose(fx, fy, capDernier, 0, 0, 0, 1);
         case 'disparition':
-          return sg ? pose(fx, fy, capDernier, 0, 0, 0, 1 - doux(u)) : pose(fx, fy, capDernier, 0, 0, 1 - doux(u));
+          return sg ? pose(fx, fy, capDernier, 0, 0, 0, 1 - doux(u)) : pose(fx, fy, capDernier, 0, 0, 1 - doux(u), 0, m.poseFin);
         case 'arret': {
           // À chaque arrêt, il se tourne posément vers la suite du parcours (au dernier, vers `regard`).
           const i = e.point;
           const ang = i > 0 ? melangeAngle(caps[i - 1], capArret(i), doux(Math.min(1, u * 1.6))) : capArret(i);
-          return pose(ch[i][0], ch[i][1], ang, 0, 0, 1);
+          // Au dernier arrêt, une fois tournée, elle prend son attitude (tasse à la main…).
+          const attitude = i === dernier && !sg && e.duree * u > 0.7 ? m.poseFin : undefined;
+          return pose(ch[i][0], ch[i][1], ang, 0, 0, 1, 0, attitude);
         }
         case 'marche': {
           const i = e.seg;
