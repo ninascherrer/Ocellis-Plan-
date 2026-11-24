@@ -373,10 +373,15 @@ D(812, 577, 28, 180, 'glass')
 sofa(*Pt(814, 527), *Pt(852, 543), back='n', col=TERRA, arms=False, modules=2, persons=[(0.5, 'sit_phone')])
 sofa(*Pt(814, 580), *Pt(852, 596), back='s', col=TERRA, arms=False, modules=2)
 desk(*Pt(832, 551), *Pt(851, 573), h=0.74, top=GREYM, leg=CHAR, items=[lambda z: laptop(X(841), Y(556), 90, z)])
-desk(*Pt(808, 601), *Pt(858, 624), h=0.74, top=WHITE, leg=CHAR,
-     items=[lambda z: monitor(X(833), Y(608), 90, z), lambda z: desk_lamp(X(852), Y(606), 90, z)])
-desk(*Pt(848, 624), *Pt(858, 650), h=0.74, top=WHITE, leg=CHAR)
-shell_chair(*Pt(830, 637), -90, PETROLE_M)
+# Touchdown : alcôve SPIX version une place (même style que la Box C)
+for (a, b, c, d, h) in ((810, 601, 856, 605, 2.15), (852, 605, 856, 650, 2.15), (810, 605, 814, 615, 2.15),
+                        (810, 639, 814, 650, 2.15), (810, 650, 856, 654, 1.1)):
+    Box(a, b, c, d, 0, h, CHAR, 0.8, '#2b2724')
+T(808, 615, 816, 639)
+D(812, 639, 22, 180, 'glass')
+desk(*Pt(816, 605), *Pt(850, 618), h=0.74, top=GREYM, leg=CHAR,
+     items=[lambda z: laptop(X(833), Y(610), 90, z), lambda z: desk_lamp(X(846), Y(609), 90, z)])
+sofa(*Pt(820, 634), *Pt(846, 650), back='s', col=TERRA, arms=False, modules=1, persons=[(0.5, 'sit_type')])
 lockers(*Pt(811, 657), *Pt(857, 674), 1.35, 3, 3, WOOD)
 
 # ====================================================================== NOYAU (simplifié)

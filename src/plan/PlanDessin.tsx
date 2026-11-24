@@ -235,9 +235,10 @@ function PlanDessinBrut({ largeur, hauteur, circulations }: PlanDessinProps) {
         <Casiers x={163} y={245} w={35} h={13} n={4} />
         <Casiers x={163} y={300} w={35} h={13} n={4} />
         <M x={171} y={318} w={24} h={12} r={1.5} />
-        <M x={165} y={364} w={33} h={11} />
-        <M x={189} y={375} w={9} h={28} />
-        <Chaise x={177} y={386} a={0} />
+        {/* Touchdown : alcôve SPIX version une place (même style que la Box C) */}
+        <rect className="d-wall-frame" x={167} y={365} width={31} height={37} />
+        <M x={171} y={367} w={23} h={9} r={1.5} />
+        <M x={176} y={390} w={17} h={10} r={2} />
         <Casiers x={166} y={406} w={32} h={14} n={4} />
 
         {/* Matériauthèque, côté couloir : étagères et consultation (« BIBLIO + CONSULT » au plan) */}
