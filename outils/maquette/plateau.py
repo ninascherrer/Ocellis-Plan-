@@ -525,16 +525,47 @@ for (gx_, gy_, a, pose) in ((702, 852, 90, 'sit_type'), (735, 852, 90, None), (7
 plant(*Pt(655, 832), 'olive', 0.22, 0.45, 0.85)
 
 # ====================================================================== SANITAIRES, REPROGRAPHIE
-W(843, 770, 858, 774); T(858, 769, 890, 775); D(858, 772, 31, 90); W(890, 770, 905, 774)
+PICTO = '#3b1631'   # pastille de la signalétique Ocellis (aubergine), pictogramme blanc
+
+def picto(porte, gx0, gx1, gy, kind):
+    """Pastille de signalétique sur la face couloir (nord) d'une porte fermée, dans le plan y = gy."""
+    xc, yf, zc, R, k = X((gx0 + gx1) / 2), Y(gy) - 0.026, 1.5, 0.19, 1.25
+    n = [0, -1]
+    # repère local : u vers la droite de qui regarde la porte depuis le couloir (−x), v vers le haut
+    q = lambda u, v: (xc - u * k, yf, zc + v * k)
+    cercle = lambda cu, cv, rr, k=18: [q(cu + rr * math.cos(2 * math.pi * i / k), cv + rr * math.sin(2 * math.pi * i / k)) for i in range(k + 1)]
+    s = P(cercle(0, 0, R / k, 28)[:-1], PICTO, INK, 0.35, n=n)
+    trait = lambda pts: L(pts, '#ffffff', 0.7, n=n)
+    if kind in ('H', 'F'):
+        u0 = -0.05
+        s += trait(cercle(u0, 0.075, 0.018, 12))
+        if kind == 'H':
+            s += trait([q(u0 - 0.022, 0.045), q(u0 - 0.022, -0.09), q(u0 + 0.022, -0.09), q(u0 + 0.022, 0.045), q(u0 - 0.022, 0.045)])
+        else:
+            s += trait([q(u0 - 0.014, 0.045), q(u0 - 0.032, -0.04), q(u0 + 0.032, -0.04), q(u0 + 0.014, 0.045), q(u0 - 0.014, 0.045)])
+            s += trait([q(u0 - 0.01, -0.04), q(u0 - 0.01, -0.09)]) + trait([q(u0 + 0.01, -0.04), q(u0 + 0.01, -0.09)])
+        u1 = 0.05
+        s += trait(cercle(u1, 0.07, 0.016, 12))
+        s += trait([q(u1 - 0.012, 0.035), q(u1 - 0.012, -0.02), q(u1 + 0.03, -0.02), q(u1 + 0.045, -0.07), q(u1 + 0.06, -0.07)])
+        s += trait(cercle(u1, -0.05, 0.042, 20))
+    else:   # local ménage : manche en crosse, balai, seau
+        s += trait([q(-0.035, -0.08), q(-0.035, 0.06)] + [q(-0.005 + 0.03 * math.cos(math.pi * (1 - i / 10)), 0.06 + 0.03 * math.sin(math.pi * (1 - i / 10))) for i in range(11)] + [q(0.025, 0.0)])
+        s += trait([q(-0.035, -0.06), q(-0.075, -0.095)]) + trait([q(-0.035, -0.06), q(-0.05, -0.1)]) + trait([q(-0.035, -0.06), q(-0.02, -0.1)])
+        s += trait([q(-0.005, -0.065), q(0.0, -0.1), q(0.045, -0.1), q(0.05, -0.065), q(-0.005, -0.065)])
+        s += trait([q(0.022, 0.0), q(0.022, 0.02)]) + trait([q(0.028, 0.0), q(0.028, 0.02)])
+    porte['p'] += s
+
+# Portes des sanitaires et du local ménage : fermées, avec leur pictogramme côté couloir
+W(843, 770, 858, 774); T(858, 769, 890, 775); picto(D(858, 772, 31, 0), 858, 889, 772, 'H'); W(890, 770, 905, 774)
 W(843, 774, 847, 937)
 W(902, 774, 905, 850, H_CUT); W(902, 877, 905, 890, H_CUT); W(902, 920, 905, 937, H_CUT)
 T(900, 850, 907, 877); T(900, 890, 907, 920)
-W(905, 770, 908, 774); T(908, 769, 938, 775); D(938, 772, 30, 90); W(938, 770, 1037, 774)
+W(905, 770, 908, 774); T(908, 769, 938, 775); picto(D(938, 772, 30, 180), 908, 938, 772, 'menage'); W(938, 770, 1037, 774)
 W(905, 843, 1035, 847, H_CUT)
 W(1032, 774, 1037, 843, H_CUT)
 W(1035, 847, 1040, 850, H_CUT); W(1035, 877, 1040, 890, H_CUT); W(1035, 920, 1040, 937, H_CUT)
 T(1033, 850, 1042, 877); T(1033, 890, 1042, 920)
-W(1037, 770, 1047, 774); T(1047, 769, 1078, 775); D(1078, 772, 31, 90); W(1078, 770, 1095, 774)
+W(1037, 770, 1047, 774); T(1047, 769, 1078, 775); picto(D(1078, 772, 31, 180), 1047, 1078, 772, 'F'); W(1078, 770, 1095, 774)
 W(1092, 774, 1095, 937)
 W(905, 878, 957, 882, H_CUT); W(983, 878, 1035, 882, H_CUT)
 W(957, 847, 983, 937)
