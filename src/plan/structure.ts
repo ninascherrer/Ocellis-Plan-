@@ -70,7 +70,8 @@ export const MURS: Mur[] = [
   vw(497, 476, 604, 5, 'mur'),
 
   // Rangée haute : salles et escalier
-  hw(33, 134, 64, 1.5, 'vitree'),
+  hw(33, 120, 64, 1.5),
+  hw(120, 134, 64, 1.5, 'vitree'),
   vw(157, 0, 66, 3),
   hw(160, 212, 64, 1.5, 'vitree'),
   vw(238, 0, 66, 3),
