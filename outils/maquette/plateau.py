@@ -18,7 +18,7 @@ def Pt(gx, gy): return (X(gx), Y(gy))
 
 H_BACK = 2.9      # façades : pleine hauteur quand elles sont au fond
 H_PART = 2.35     # cloisons conservées pour le relief
-H_CUT = 1.0       # cloisons coupées là où elles masquent les pièces
+H_CUT = H_PART    # plus de cloisons coupées : toutes les salles gardent leurs murs à pleine hauteur
 H_PORTE = 2.1     # cabines SPIX : tous les panneaux à la hauteur des portes
 H_FRONT = 0.42    # façades coupées bas au premier plan
 
@@ -386,7 +386,7 @@ sofa(*Pt(820, 634), *Pt(846, 650), back='s', col=TERRA, arms=False, modules=1, p
 lockers(*Pt(811, 657), *Pt(857, 674), 1.35, 3, 3, WOOD)
 
 # ====================================================================== NOYAU (simplifié)
-HC = 1.4
+HC = H_PART
 W(858, 203, 863, 452, HC); W(858, 492, 863, 690, HC)
 T(856, 452, 865, 492); D(860, 452, 20, 0); D(860, 492, 20, 0)
 W(858, 203, 1078, 208, HC)
@@ -511,9 +511,7 @@ task_chair(*Pt(755, 777), 90)
 T(775, 784, 808, 790); D(775, 787, 33, 90, 'glass')
 Gl(808, 785, 823, 789)
 # OSMOSE : mur plein côté sanitaires, avec un grand écran TV face à la table
-# Vu depuis l'est, le mur est abaissé pour laisser voir la salle (l'écran disparaît avec lui) ;
-# vu depuis la salle, il monte à 2 m avec l'écran.
-W(823, 785, 843, 937, H_CUT)['h2'] = 2.0
+W(823, 785, 843, 937)
 wall_screen(X(823) - 0.03, Y(879), 180, 0.95, 1.75, 0.98, tag='ecran')
 table_shape(stadium_pts(X(733), Y(879), m(119), m(42), 0, 12), h=0.74, top=WHITE,
             ped=[(X(700), Y(879), 0.1, 0.7), (X(770), Y(879), 0.1, 0.7)], leg=CHAR,
@@ -528,7 +526,7 @@ plant(*Pt(655, 832), 'olive', 0.22, 0.45, 0.85)
 
 # ====================================================================== SANITAIRES, REPROGRAPHIE
 W(843, 770, 858, 774); T(858, 769, 890, 775); D(858, 772, 31, 90); W(890, 770, 905, 774)
-W(843, 774, 847, 937, 2.0)
+W(843, 774, 847, 937)
 W(902, 774, 905, 850, H_CUT); W(902, 877, 905, 890, H_CUT); W(902, 920, 905, 937, H_CUT)
 T(900, 850, 907, 877); T(900, 890, 907, 920)
 W(905, 770, 908, 774); T(908, 769, 938, 775); D(938, 772, 30, 90); W(938, 770, 1037, 774)
@@ -537,9 +535,9 @@ W(1032, 774, 1037, 843, H_CUT)
 W(1035, 847, 1040, 850, H_CUT); W(1035, 877, 1040, 890, H_CUT); W(1035, 920, 1040, 937, H_CUT)
 T(1033, 850, 1042, 877); T(1033, 890, 1042, 920)
 W(1037, 770, 1047, 774); T(1047, 769, 1078, 775); D(1078, 772, 31, 90); W(1078, 770, 1095, 774)
-W(1092, 774, 1095, 937, 2.0)
+W(1092, 774, 1095, 937)
 W(905, 878, 957, 882, H_CUT); W(983, 878, 1035, 882, H_CUT)
-W(957, 847, 983, 937, 1.2)
+W(957, 847, 983, 937)
 def wc(x, y, ang):
     fa = math.radians(ang); f = (math.cos(fa), math.sin(fa))
     cx, cy = x - f[0] * 0.27, y - f[1] * 0.27

@@ -783,27 +783,29 @@ export function preparer(scene: Scene): Preparee {
 
 const COUL_MUR = { e: teinte('#f3ede7', 0.94), s: '#f3ede7', w: teinte('#f3ede7', 1.0), n: teinte('#f3ede7', 0.97) };
 
-function hauteurMur(w: Mur, p: Proj, sc: Scene, coupe: number[] | null): number {
+/** Le mur se trouve-t-il entre la caméra et l'espace sélectionné ? Il est alors dessiné en transparence, sans être coupé. */
+function masque(w: Mur, p: Proj, coupe: number[] | null): boolean {
+  if (!coupe || w.k !== 'int') return false;
   const [x0, y0, x1, y1] = w.r;
+  const bande =
+    x1 - x0 >= y1 - y0
+      ? p.sa >= 0
+        ? [x0, y0 - 1.6, x1, y0]
+        : [x0, y1, x1, y1 + 1.6]
+      : p.ca >= 0
+        ? [x0 - 1.6, y0, x0, y1]
+        : [x1, y0, x1 + 1.6, y1];
+  return bande[0] < coupe[2] && bande[2] > coupe[0] && bande[1] < coupe[3] && bande[3] > coupe[1];
+}
+
+function hauteurMur(w: Mur, p: Proj, sc: Scene): number {
   if (w.k === 'ext') {
     const o = w.o ?? [0, 0];
     return o[0] * p.ca + o[1] * p.sa > 0.02 ? sc.hauteurs.facadeAvant : w.h;
   }
-  const horiz = x1 - x0 >= y1 - y0;
-  let h: number;
-  let bande: number[];
-  if (horiz) {
-    const nord = p.sa >= 0;
-    h = nord ? w.h : (w.h2 ?? w.h);
-    bande = nord ? [x0, y0 - 1.6, x1, y0] : [x0, y1, x1, y1 + 1.6];
-  } else {
-    const ouest = p.ca >= 0;
-    h = ouest ? w.h : (w.h2 ?? w.h);
-    bande = ouest ? [x0 - 1.6, y0, x0, y1] : [x1, y0, x1 + 1.6, y1];
-  }
-  // Un mur qui masque l'espace sélectionné est abaissé.
-  if (coupe && bande[0] < coupe[2] && bande[2] > coupe[0] && bande[1] < coupe[3] && bande[3] > coupe[1]) h = Math.min(h, 0.45);
-  return h;
+  const [x0, y0, x1, y1] = w.r;
+  const fond = x1 - x0 >= y1 - y0 ? p.sa >= 0 : p.ca >= 0;
+  return fond ? w.h : (w.h2 ?? w.h);
 }
 
 /** Épaisseur dessinée des murs fins : réduite autour de l'axe pour un trait plus léger. */
@@ -1131,17 +1133,29 @@ export function dessinerScene(
     vus.push(el);
   }
   const hauteurs = new Map<Volume, number>();
+  const voiles = new Set<Volume>();
   for (const el of prep.murs) {
-    const h = hauteurMur(el.mur!, p, sc, coupe);
+    const h = hauteurMur(el.mur!, p, sc);
     hauteurs.set(el, h);
     el.b[5] = h;
     bboxEcran(p, el.b, 0, el.e);
     if (el.e[2] < -marge || el.e[0] > largeur + marge || el.e[3] < -marge || el.e[1] > hauteur + marge) continue;
     el.prof = p.prof((el.b[0] + el.b[2]) / 2, (el.b[1] + el.b[3]) / 2, el.b[4] + el.b[5]);
-    el.dessin = (q: Peintre) => dessinerMur(q, el.mur!, hauteurs.get(el)!, sc);
+    const voile = masque(el.mur!, p, coupe);
+    if (voile) voiles.add(el);
+    el.dessin = (q: Peintre) => {
+      if (!voile) return dessinerMur(q, el.mur!, hauteurs.get(el)!, sc);
+      q.ctx.save();
+      q.ctx.globalAlpha = 0.3;
+      dessinerMur(q, el.mur!, hauteurs.get(el)!, sc);
+      q.ctx.restore();
+    };
     vus.push(el);
   }
-  const visibles = vus.filter((el) => !el.support || (hauteurs.get(el.support) ?? el.support.b[5]) >= el.b[5] - 0.01);
+  // Un écran mural disparaît avec son mur quand celui-ci est bas ou passe en transparence.
+  const visibles = vus.filter(
+    (el) => !el.support || (!voiles.has(el.support) && (hauteurs.get(el.support) ?? el.support.b[5]) >= el.b[5] - 0.01),
+  );
   const ordre = trier(visibles, p.ca, p.sa);
   for (const el of ordre) el.dessin(pt);
 

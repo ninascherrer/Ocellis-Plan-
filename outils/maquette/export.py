@@ -24,8 +24,7 @@ def hauteur_auto(w):
     haut = w['h'] if w['h'] > pl.H_CUT + 0.01 else pl.H_PART
     w['h2'] = eng.r(min(haut, pl.H_CUT) if occupe else haut)
 
-for w in eng.WALLS:
-    hauteur_auto(w)
+# Les murs intérieurs gardent leur hauteur quel que soit le point de vue (plus de coupe automatique).
 
 xs = [p[0] for p in pl.INTERIEUR + pl.TERRASSE]; ys = [p[1] for p in pl.INTERIEUR + pl.TERRASSE]
 scene = {
