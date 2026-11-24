@@ -39,6 +39,27 @@ export interface Scene {
   marquages: Prim[];
   murs: Mur[];
   objets: Objet[];
+  /** Personnages animés : style, parcours au sol (m), pauses (s) à chaque point, regard (°) au dernier arrêt. */
+  marcheurs?: Marcheur[];
+}
+
+export interface Marcheur {
+  st: unknown[];
+  chemin: [number, number][];
+  pauses: number[];
+  regard?: number;
+}
+
+/** Position d'un personnage animé à un instant : au sol (m), orientation (°), cycle de marche, opacité. */
+export interface EtatMarcheur {
+  x: number;
+  y: number;
+  ang: number;
+  /** Phase du pas (radians) et amplitude du balancement (0 à l'arrêt, 1 en marche). */
+  phase: number;
+  amp: number;
+  alpha: number;
+  st: unknown[];
 }
 
 /** Point de vue : azimut (direction vers l'observateur, en radians), inclinaison, échelle (px CSS / m), translation (px CSS). */
@@ -69,6 +90,10 @@ export interface OptionsRendu {
   libelles: boolean;
   accent: string;
   papier: string;
+  /** Personnages animés, dessinés et masqués par les cloisons comme le reste de la maquette. */
+  marcheurs?: EtatMarcheur[];
+  /** Ne redessiner que ce rectangle de l'écran (px CSS) : image suivante d'une animation. */
+  region?: [number, number, number, number];
 }
 
 const INK = '#2b2724';
@@ -538,7 +563,18 @@ function personnage(pt: Peintre, q: Prim) {
     }
   } else {
     const hz = 0.93;
-    if (pose === 'walk') {
+    if (pose === 'walk' && typeof q[8] === 'number') {
+      // Marche animée : jambes et bras balancent en opposition, le pied qui avance se lève un peu.
+      const ph = q[8] as number,
+        amp = (q[9] as number) ?? 1;
+      const sw = Math.sin(ph) * amp,
+        lev = Math.max(0, Math.cos(ph)) * amp,
+        levR = Math.max(0, -Math.cos(ph)) * amp;
+      footL = J(0.01 + 0.26 * sw, 0.09, 0.04 + 0.07 * lev);
+      footR = J(0.01 - 0.26 * sw, -0.09, 0.04 + 0.07 * levR);
+      kneeL = J(0.01 + 0.14 * sw + 0.05 * lev, 0.09, 0.5 + 0.02 * lev);
+      kneeR = J(0.01 - 0.14 * sw + 0.05 * levR, -0.09, 0.5 + 0.02 * levR);
+    } else if (pose === 'walk') {
       footL = J(0.27, 0.09, 0.05); footR = J(-0.24, -0.09, 0.09);
       kneeL = J(0.15, 0.09, 0.5); kneeR = J(-0.08, -0.09, 0.49);
     } else {
@@ -549,7 +585,11 @@ function personnage(pt: Peintre, q: Prim) {
     shL = J(0, 0.185, 1.4); shR = J(0, -0.185, 1.4);
     neck = J(0.01, 0, 1.48); head = J(0.02, 0, 1.6);
     chest = J(0, 0, 1.3); pelvis = J(0, 0, 0.95);
-    if (pose === 'walk') {
+    if (pose === 'walk' && typeof q[8] === 'number') {
+      const sw = Math.sin(q[8] as number) * ((q[9] as number) ?? 1);
+      elL = J(-0.11 * sw, 0.225, 1.1); elR = J(0.11 * sw, -0.225, 1.1);
+      haL = J(0.03 - 0.22 * sw, 0.215, 0.84 + 0.04 * Math.abs(sw)); haR = J(0.03 + 0.22 * sw, -0.215, 0.84 + 0.04 * Math.abs(sw));
+    } else if (pose === 'walk') {
       elL = J(-0.12, 0.22, 1.1); elR = J(0.12, -0.22, 1.1);
       haL = J(-0.22, 0.22, 0.84); haR = J(0.24, -0.2, 0.86);
     } else if (pose === 'cup') {
@@ -880,6 +920,41 @@ function dessinerMur(pt: Peintre, w: Mur, h: number, sc: Scene) {
     return;
   }
   pt.boite(x0, y0, x1, y1, w.z0, h, '#f3ede7', sw, topCol, INK, COUL_MUR);
+}
+
+/** Boîte au sol d'un personnage animé (m), avec la hauteur d'une personne debout. */
+const boiteMarcheur = (m: EtatMarcheur) => [m.x - 0.3, m.y - 0.3, m.x + 0.3, m.y + 0.3, 0, 1.78];
+
+/** Volume trié avec la maquette : les cloisons placées devant le masquent. */
+function volumeMarcheur(m: EtatMarcheur): Volume {
+  return {
+    b: boiteMarcheur(m),
+    m: 6,
+    e: [0, 0, 0, 0],
+    prof: 0,
+    dessin: (pt: Peintre) => {
+      if (m.alpha <= 0.01) return;
+      const c = pt.ctx,
+        p = pt.p;
+      c.save();
+      c.globalAlpha = m.alpha;
+      // ombre portée douce au sol
+      c.beginPath();
+      c.ellipse(p.x(m.x + 0.04, m.y + 0.04), p.y(m.x + 0.04, m.y + 0.04, 0), 0.24 * p.k, 0.24 * p.k * p.se, 0, 0, Math.PI * 2);
+      c.fillStyle = 'rgba(43,39,36,0.08)';
+      c.fill();
+      personnage(pt, ['M', m.x, m.y, m.ang, 'walk', 0.46, 0, m.st, m.phase, m.amp] as unknown as Prim);
+      c.restore();
+    },
+  };
+}
+
+/** Rectangle d'écran (px CSS) couvert par un personnage animé, marges comprises. */
+export function ecranMarcheur(cam: Camera, m: EtatMarcheur): [number, number, number, number] {
+  const p = new Proj(cam);
+  const out = [0, 0, 0, 0];
+  bboxEcran(p, boiteMarcheur(m), 6, out);
+  return [out[0] - 3, out[1] - 3, out[2] + 3, out[3] + 3];
 }
 
 function bboxEcran(p: Proj, b: number[], m: number, out: number[]) {
@@ -1238,9 +1313,33 @@ export function dessinerScene(
   dpr: number,
   opt: OptionsRendu,
 ) {
+  ctx.save();
+  try {
+    dessinerSceneDans(ctx, prep, cam, largeur, hauteur, dpr, opt);
+  } finally {
+    ctx.restore();
+  }
+}
+
+function dessinerSceneDans(
+  ctx: CanvasRenderingContext2D,
+  prep: Preparee,
+  cam: Camera,
+  largeur: number,
+  hauteur: number,
+  dpr: number,
+  opt: OptionsRendu,
+) {
   const p = new Proj(cam);
   const sc = prep.scene;
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  // Image suivante d'une animation : seul le rectangle touché est redessiné, à l'identique.
+  const [rx0, ry0, rx1, ry1] = opt.region ?? [0, 0, largeur, hauteur];
+  if (opt.region) {
+    ctx.beginPath();
+    ctx.rect(rx0, ry0, rx1 - rx0, ry1 - ry0);
+    ctx.clip();
+  }
   ctx.fillStyle = opt.papier;
   ctx.fillRect(0, 0, largeur, hauteur);
   ctx.lineJoin = 'round';
@@ -1276,9 +1375,11 @@ export function dessinerScene(
   // volumes
   const vus: Volume[] = [];
   const marge = 40;
-  for (const el of prep.elements) {
+  const hors = (e: number[]) => e[2] < rx0 - marge || e[0] > rx1 + marge || e[3] < ry0 - marge || e[1] > ry1 + marge;
+  const marcheurs = (opt.marcheurs ?? []).map(volumeMarcheur);
+  for (const el of [...prep.elements, ...marcheurs]) {
     bboxEcran(p, el.b, el.m, el.e);
-    if (el.e[2] < -marge || el.e[0] > largeur + marge || el.e[3] < -marge || el.e[1] > hauteur + marge) continue;
+    if (hors(el.e)) continue;
     el.prof = p.prof((el.b[0] + el.b[2]) / 2, (el.b[1] + el.b[3]) / 2, el.b[4] + el.b[5]);
     vus.push(el);
   }
@@ -1289,7 +1390,7 @@ export function dessinerScene(
     hauteurs.set(el, h);
     el.b[5] = h;
     bboxEcran(p, el.b, 0, el.e);
-    if (el.e[2] < -marge || el.e[0] > largeur + marge || el.e[3] < -marge || el.e[1] > hauteur + marge) continue;
+    if (hors(el.e)) continue;
     el.prof = p.prof((el.b[0] + el.b[2]) / 2, (el.b[1] + el.b[3]) / 2, el.b[4] + el.b[5]);
     const voile = masque(el.mur!, p, coupe);
     if (voile) voiles.add(el);

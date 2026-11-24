@@ -1,5 +1,5 @@
 import type { PlanVariant } from './PlanView';
-import { FitIcon, MinusIcon, PlusIcon, RotateLeftIcon, RotateRightIcon } from './Icons';
+import { FitIcon, MinusIcon, PauseIcon, PlayIcon, PlusIcon, RotateLeftIcon, RotateRightIcon } from './Icons';
 
 interface MapControlsProps {
   onZoomIn: () => void;
@@ -12,6 +12,8 @@ interface MapControlsProps {
   onVariantChange?: (variant: PlanVariant) => void;
   /** Propose la maquette (masquée pendant l'édition des contours). */
   allow3d?: boolean;
+  /** Animations de la maquette (personnage qui marche) : présent seulement en vue Maquette. */
+  animations?: { enPause: boolean; onToggle: () => void };
 }
 
 const VARIANTES: { value: PlanVariant; label: string; title: string }[] = [
@@ -20,7 +22,7 @@ const VARIANTES: { value: PlanVariant; label: string; title: string }[] = [
   { value: 'original', label: 'Original', title: "Plan d'architecte d'origine" },
 ];
 
-export function MapControls({ onZoomIn, onZoomOut, onReset, onRotate, variant, onVariantChange, allow3d = true }: MapControlsProps) {
+export function MapControls({ onZoomIn, onZoomOut, onReset, onRotate, variant, onVariantChange, allow3d = true, animations }: MapControlsProps) {
   return (
     <div className="map-controls" data-no-pan>
       {variant && onVariantChange && (
@@ -41,6 +43,19 @@ export function MapControls({ onZoomIn, onZoomOut, onReset, onRotate, variant, o
         </div>
       )}
       <div className="control-stack">
+        {animations && (
+          <div className="zoom-group" role="group" aria-label="Animations">
+            <button
+              type="button"
+              className="control-button"
+              aria-label={animations.enPause ? 'Reprendre les animations' : 'Mettre les animations en pause'}
+              title={animations.enPause ? 'Reprendre les animations' : 'Mettre les animations en pause'}
+              onClick={animations.onToggle}
+            >
+              {animations.enPause ? <PlayIcon /> : <PauseIcon />}
+            </button>
+          </div>
+        )}
         {onRotate && (
           <div className="zoom-group" role="group" aria-label="Rotation">
             <button type="button" className="control-button" aria-label="Pivoter vers la gauche" title="Pivoter d'un quart de tour" onClick={() => onRotate(-1)}>

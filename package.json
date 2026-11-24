@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:hors-ligne": "tsc -b && vite build --mode hors-ligne && node outils/copie-hors-ligne.mjs",
     "preview": "vite preview",
     "typecheck": "tsc -b",
     "test": "vitest run"

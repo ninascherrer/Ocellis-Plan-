@@ -40,6 +40,7 @@ scene = {
     'marquages': eng.LAB,
     'murs': eng.WALLS,
     'objets': eng.OBJS,
+    'marcheurs': pl.MARCHEURS,
 }
 dest = os.path.join(os.path.dirname(__file__), '..', '..', 'public', 'maquette', 'scene.json')
 os.makedirs(os.path.dirname(dest), exist_ok=True)

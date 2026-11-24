@@ -1,5 +1,6 @@
 node_modules
 dist
+dist-hors-ligne
 *.local
 .DS_Store
 .vite

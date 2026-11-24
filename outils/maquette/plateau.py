@@ -40,6 +40,7 @@ def Box(a, b, c, d, z0, z1, col, sw=FINE, top=None):
     return add((min(x0, x1), min(y0, y1), max(x0, x1), max(y0, y1), z0, z1), BOX(x0, y0, x1, y1, z0, z1, col, sw, top))
 
 rng = random.Random(11)
+MARCHEURS = []   # personnages animés (voir « PERSONNES EN MOUVEMENT »)
 def ST(**kw):
     s = meubles.style(rng)
     s.update(kw)
@@ -656,7 +657,16 @@ plant(*Pt(1325, 735), 'grass', 0.2, 0.45, 0.85)
 
 # ====================================================================== PERSONNES EN MOUVEMENT
 person(X(905), Y(184), 180, 'walk', ST(top=PETROLE_M))
-person(X(782), Y(560), -90, 'walk', ST())
+# Personnage animé de la vue Maquette (rejoué par src/maquette/marcheur.ts) : il remplace la
+# silhouette fixe qui marchait ici. Parcours au sol, en mètres : il remonte le couloir ouest,
+# entre les bureaux et la colonne de services, tourne dans le couloir nord et s'arrête devant
+# la porte d'ÉCHO. pauses[i] : arrêt (s) au point i ; regard : orientation (°) pendant le dernier arrêt.
+MARCHEURS.append({
+    'st': (lambda st: [st['skin'], st['hair'], st['top'], st['pants'], st['hs'], 1 if st['skirt'] else 0, st['shoes']])(ST()),
+    'chemin': [[r(X(772)), r(Y(560))], [r(X(772)), r(Y(186))], [r(X(884)), r(Y(177))]],
+    'pauses': [1.6, 1.0, 3.2],
+    'regard': -90,
+})
 person(X(1000), Y(733), 0, 'tablet', ST())
 person(X(1325), Y(570), 20, 'cup', ST())
 

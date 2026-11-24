@@ -29,6 +29,10 @@ jobs:
         env:
           # Le PDF d'implantation (confidentiel) n'est pas publié.
           VITE_CALQUE_PDF: '0'
+      # Copie hors ligne (fichier HTML unique), téléchargeable depuis le site.
+      - run: npm run build:hors-ligne && cp dist-hors-ligne/ocellis-plan-hors-ligne.html dist/
+        env:
+          VITE_CALQUE_PDF: '0'
       - uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}

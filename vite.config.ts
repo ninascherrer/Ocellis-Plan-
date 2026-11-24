@@ -21,8 +21,22 @@ function retirerPlanPdf(actif: boolean): Plugin {
 // sous-dossier (intranet, SharePoint, Netlify, GitHub Pages…) sans reconfiguration.
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
+  // Copie hors ligne (npm run build:hors-ligne) : un seul fichier JS, polices et images
+  // intégrées ; outils/copie-hors-ligne.mjs assemble ensuite un unique fichier HTML.
+  const horsLigne = mode === 'hors-ligne';
   return {
     base: './',
     plugins: [react(), retirerPlanPdf(env.VITE_CALQUE_PDF === '1')],
+    build: horsLigne
+      ? {
+          outDir: 'dist-hors-ligne',
+          emptyOutDir: true,
+          copyPublicDir: false,
+          assetsInlineLimit: 100_000_000,
+          cssCodeSplit: false,
+          modulePreload: false,
+          rollupOptions: { output: { inlineDynamicImports: true } },
+        }
+      : undefined,
   };
 });

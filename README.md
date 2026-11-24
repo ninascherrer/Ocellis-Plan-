@@ -44,6 +44,13 @@ reste valable.
 Réglage à faire une seule fois : **Settings → Pages → Build and deployment →
 Source : Deploy from a branch**, branche `gh-pages`, dossier `/ (root)`.
 
+**Copie hors ligne.** `npm run build:hors-ligne` produit
+`dist-hors-ligne/ocellis-plan-hors-ligne.html` : un fichier HTML unique (code,
+polices, données de la maquette et plan d'origine intégrés) qui s'ouvre sans
+réseau, depuis le disque ou une clé USB. Recherche, clics sur les espaces,
+fiches, vues et animation y fonctionnent. Le workflow la publie aussi à
+l'adresse https://ninascherrer.github.io/Ocellis-Plan-/ocellis-plan-hors-ligne.html.
+
 **Confidentialité.** Ce dépôt et le site sont publics : toute personne qui a
 l'adresse peut consulter le plan. Le site n'est pas référencé par les moteurs
 de recherche (`noindex`). Le PDF d'implantation, marqué « ne peut être
@@ -76,9 +83,21 @@ personnages et végétation. Boutons **Maquette / Dessin / Original** en bas à 
   pincement pour zoomer, clic droit, `Maj` + glisser ou deux doigts pour déplacer,
   double-clic pour zoomer ; boutons de quart de tour à côté du zoom ;
   **Vue générale** (touche `0`) revient à la vue de trois quarts depuis le sud-est.
-- **Coupe automatique** : selon l'angle, les façades tournées vers la caméra sont
-  coupées bas et les cloisons qui masquent une pièce meublée sont coupées à 1 m ;
-  les murs qui cachent l'espace sélectionné s'abaissent.
+- **Murs** : les cloisons des salles gardent leur hauteur quel que soit l'angle ;
+  seules les façades tournées vers la caméra sont coupées bas. Un mur qui cache
+  l'espace sélectionné passe en transparence.
+- **Personnage animé** (premier essai) : une personne remonte le couloir ouest,
+  longe le couloir nord et s'arrête devant la porte d'ÉCHO, avec des pauses, puis
+  s'efface et revient discrètement au départ (boucle d'environ 28 s). Elle est
+  triée avec le reste de la maquette : les cloisons placées devant la masquent, et
+  elle reste alignée au sol quand on zoome ou pivote. Bouton **Mettre les
+  animations en pause** à côté de la rotation (choix mémorisé ; pause par défaut
+  si le système demande de réduire les animations). Parcours et pauses :
+  `MARCHEURS` dans `outils/maquette/plateau.py` ; déroulé : `src/maquette/marcheur.ts` ;
+  les tests vérifient qu'elle reste à distance des cloisons et du mobilier.
+  Pour ménager le processeur, seule la zone du personnage est redessinée à chaque image.
+- **Matières** : veinage du bois, trame des tissus, lames de parquet et grain
+  d'ensemble, posés selon les couleurs de la DA (omis pendant les gestes rapides).
 - **Espaces** : les contours de `espaces.json` sont cliquables sur la maquette
   (survol, sélection, fiche, recherche, filtres, liens `#<identifiant>`) ; le
   reste du plan s'estompe autour de l'espace choisi. Au clic (ou via la

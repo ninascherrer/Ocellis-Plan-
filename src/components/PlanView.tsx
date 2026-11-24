@@ -40,7 +40,12 @@ export type PlanVariant = 'dessin' | 'original' | '3d';
 /** `?calque` superpose le plan d'origine au dessin pour contrôler l'alignement. */
 const calque = typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('calque');
 
-const imageUrl = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^\//, '')}`;
+/** Copie hors ligne (fichier HTML unique) : les images y sont intégrées sous forme de données. */
+const imagesIntegrees = typeof window !== 'undefined' ? (window as { __OCELLIS_IMAGES__?: Record<string, string> }).__OCELLIS_IMAGES__ : undefined;
+const imageUrl = (path: string) => {
+  const cle = path.replace(/^\//, '');
+  return imagesIntegrees?.[cle] ?? `${import.meta.env.BASE_URL}${cle}`;
+};
 
 export function PlanView({
   plan,

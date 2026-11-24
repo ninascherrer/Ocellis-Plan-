@@ -85,6 +85,26 @@ export default function App() {
   const detailsRef = useRef<HTMLElement>(null);
   const editorRef = useRef<HTMLElement>(null);
   const maquetteRef = useRef<PlanMaquetteHandle>(null);
+  /** Animations de la maquette : en pause par défaut si le système demande moins de mouvement ; choix mémorisé. */
+  const [animationsEnPause, setAnimationsEnPause] = useState(() => {
+    try {
+      const v = localStorage.getItem('ocellis.animations');
+      if (v) return v === 'pause';
+    } catch {
+      /* stockage indisponible (navigation privée, fichier local) */
+    }
+    return typeof window !== 'undefined' && !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  });
+  const basculerAnimations = useCallback(() => {
+    setAnimationsEnPause((v) => {
+      try {
+        localStorage.setItem('ocellis.animations', v ? 'lecture' : 'pause');
+      } catch {
+        /* rien à mémoriser */
+      }
+      return !v;
+    });
+  }, []);
   /** Position du plan, poussée aux barres de défilement sans re-rendre l'application. */
   const defilRef = useRef<((p: PositionDefilement) => void) | null>(null);
   const is3d = variant === '3d' && !editorOpen;
@@ -342,6 +362,7 @@ export default function App() {
             onBackgroundClick={() => select(null)}
             getInsets={getInsets}
             isDesktop={isDesktop}
+            animations={!animationsEnPause}
           />
         )}
       </main>
@@ -392,6 +413,7 @@ export default function App() {
         variant={editorOpen && variant === '3d' ? 'dessin' : variant}
         onVariantChange={changeVariant}
         allow3d={!editorOpen}
+        animations={is3d ? { enPause: animationsEnPause, onToggle: basculerAnimations } : undefined}
       />
 
       {editionActivee &&

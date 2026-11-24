@@ -16,7 +16,8 @@ import type { PositionDefilement } from '../components/BarresDefilement';
 import { labelPoint, pointInPolygon } from '../lib/geometry';
 import type { ZoneGeom } from '../lib/zones';
 import { AMENAGEMENT, ARCHITECTURE } from './aConfirmer';
-import { dessinerScene, emprise, preparer, projeter, solSousEcran, type Camera, type Preparee, type Scene, type ZoneRendu } from './rendu';
+import { boucleMarcheur } from './marcheur';
+import { dessinerScene, ecranMarcheur, emprise, preparer, projeter, solSousEcran, type Camera, type EtatMarcheur, type Preparee, type Scene, type ZoneRendu } from './rendu';
 
 export interface PlanMaquetteHandle {
   zoomBy: (factor: number) => void;
@@ -43,6 +44,8 @@ interface PlanMaquetteProps {
   isDesktop: boolean;
   /** Position et partie visible du plan sur chaque axe, signalées à chaque image dessinée. */
   onDefilement?: (p: PositionDefilement) => void;
+  /** Personnage animé en mouvement (false : figé là où il est). */
+  animations?: boolean;
 }
 
 /** État de la vue : azimut et inclinaison (radians), échelle (px / m), point du plan au centre de la zone libre. */
@@ -77,6 +80,7 @@ export default function PlanMaquette({
   getInsets,
   isDesktop,
   onDefilement,
+  animations = true,
 }: PlanMaquetteProps) {
   const conteneurRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -123,12 +127,22 @@ export default function PlanMaquette({
     });
   }, [scene, zones, colorOf]);
 
-  const rappels = useRef({ onZoneClick, onZoneHover, onBackgroundClick, getInsets, zones, zonesRendu, selectedId, hoveredId, matchIds, onDefilement });
-  rappels.current = { onZoneClick, onZoneHover, onBackgroundClick, getInsets, zones, zonesRendu, selectedId, hoveredId, matchIds, onDefilement };
+  const rappels = useRef({ onZoneClick, onZoneHover, onBackgroundClick, getInsets, zones, zonesRendu, selectedId, hoveredId, matchIds, onDefilement, animations });
+  rappels.current = { onZoneClick, onZoneHover, onBackgroundClick, getInsets, zones, zonesRendu, selectedId, hoveredId, matchIds, onDefilement, animations };
+
+  // Personnages animés : boucles calculées une fois, horloge propre (arrêtée pendant la pause).
+  const boucles = useMemo(() => (scene?.scene.marcheurs ?? []).filter((m) => m.chemin.length >= 2).map(boucleMarcheur), [scene]);
+  const horloge = useRef({ t: 0, dernier: 0 });
 
   // --- Chargement de la scène (fichier statique, généré par outils/maquette/export.py)
   useEffect(() => {
     let annule = false;
+    // Copie hors ligne (fichier HTML unique) : la scène est déjà dans la page.
+    const integree = (window as { __OCELLIS_SCENE__?: Scene }).__OCELLIS_SCENE__;
+    if (integree) {
+      setScene(preparer(integree));
+      return;
+    }
     fetch(`${import.meta.env.BASE_URL}maquette/scene.json`)
       .then((r) => {
         if (!r.ok) throw new Error(String(r.status));
@@ -298,8 +312,41 @@ export default function PlanMaquette({
       });
     };
 
+    /** Rectangle d'écran occupé par les personnages animés à la dernière image (px CSS). */
+    let rectMarche: [number, number, number, number] | null = null;
+    let derniereMarche = 0;
+    /** Instant de l'horloge des animations montré à l'écran. */
+    let tDessine = -1;
+    const etatsMarche = (): EtatMarcheur[] => boucles.map((b) => b.etat(horloge.current.t));
+    const unir = (cam: Camera, etats: EtatMarcheur[]) => {
+      let r: [number, number, number, number] | null = null;
+      for (const m of etats) {
+        const q = ecranMarcheur(cam, m);
+        r = r ? [Math.min(r[0], q[0]), Math.min(r[1], q[1]), Math.max(r[2], q[2]), Math.max(r[3], q[3])] : q;
+      }
+      return r;
+    };
+    const optionsRendu = () => {
+      const r = rappels.current;
+      return {
+        zones: r.zonesRendu,
+        survolId: r.hoveredId !== r.selectedId ? r.hoveredId : null,
+        choixId: r.selectedId,
+        correspondances: r.matchIds,
+        libelles: false, // les noms s'affichent dans une bulle au clic
+        accent: ACCENT,
+        papier: PAPIER,
+      };
+    };
+
     const boucle = (now: number) => {
       image.current = requestAnimationFrame(boucle);
+      // Horloge des animations : avance seulement quand elles sont actives (pause, onglet caché).
+      const hor = horloge.current;
+      const dt = hor.dernier ? Math.min(now - hor.dernier, 100) : 0;
+      hor.dernier = now;
+      const anime = rappels.current.animations && boucles.length > 0;
+      if (anime) hor.t += dt / 1000;
       const a = anim.current;
       if (a) {
         const t = a.duree === 0 ? 1 : Math.min(1, (now - a.debut) / a.duree);
@@ -318,22 +365,37 @@ export default function PlanMaquette({
       const enMouvement = !!anim.current || appuis.current > 0 || now - interaction.current < 180;
       // une image soignée dès que le mouvement s'arrête
       if (!enMouvement && rapidePrecedent) sale.current = true;
-      if (!sale.current) return;
+      if (!sale.current) {
+        // Image fixe à jour : seul le personnage bouge, on ne redessine que sa zone (≈ 30 images/s).
+        // (une dernière image aussi juste après la pause, pour montrer l'instant exact où il s'est figé)
+        if ((anime || hor.t !== tDessine) && boucles.length > 0 && !enMouvement && now - derniereMarche >= 33) {
+          derniereMarche = now;
+          tDessine = hor.t;
+          const cam = camera(etat.current);
+          const w = conteneur.clientWidth,
+            h = conteneur.clientHeight;
+          const etats = etatsMarche();
+          const neuf = unir(cam, etats);
+          const avant = rectMarche;
+          rectMarche = neuf;
+          const zone = neuf && avant ? [Math.min(neuf[0], avant[0]), Math.min(neuf[1], avant[1]), Math.max(neuf[2], avant[2]), Math.max(neuf[3], avant[3])] : (neuf ?? avant);
+          if (!zone) return;
+          const region: [number, number, number, number] = [Math.max(0, Math.floor(zone[0])), Math.max(0, Math.floor(zone[1])), Math.min(w, Math.ceil(zone[2])), Math.min(h, Math.ceil(zone[3]))];
+          if (region[2] <= region[0] || region[3] <= region[1]) return; // hors écran
+          dessinerScene(ctx, scene, cam, w, h, dpr, { ...optionsRendu(), rapide: false, marcheurs: etats, region });
+        }
+        return;
+      }
       sale.current = false;
       rapidePrecedent = enMouvement;
       const r = rappels.current;
       const cam = camera(etat.current);
       const w = conteneur.clientWidth,
         h = conteneur.clientHeight;
-      const options = {
-        zones: r.zonesRendu,
-        survolId: r.hoveredId !== r.selectedId ? r.hoveredId : null,
-        choixId: r.selectedId,
-        correspondances: r.matchIds,
-        libelles: false, // les noms s'affichent dans une bulle au clic
-        accent: ACCENT,
-        papier: PAPIER,
-      };
+      const etatsM = etatsMarche();
+      tDessine = hor.t;
+      rectMarche = unir(cam, etatsM);
+      const options = { ...optionsRendu(), marcheurs: etatsM };
       const c = cliche.current;
       if (enMouvement && c && !etatChange.current && c.cam.az === cam.az && c.cam.el === cam.el) {
         // Déplacement ou zoom pur : on réutilise la dernière image complète, simplement
@@ -381,7 +443,7 @@ export default function PlanMaquette({
       cancelAnimationFrame(image.current);
       obs.disconnect();
     };
-  }, [scene, camera, invalider, vueGenerale, mesureDefilement]);
+  }, [scene, camera, invalider, vueGenerale, mesureDefilement, boucles]);
 
   useEffect(() => {
     etatChange.current = true;
