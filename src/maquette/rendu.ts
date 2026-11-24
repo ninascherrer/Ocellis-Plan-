@@ -740,6 +740,8 @@ interface Volume {
   m: number;
   dessin: (pt: Peintre) => void;
   mur?: Mur;
+  /** Objet fixé à un mur (écran TV) : masqué quand ce mur est abaissé sous son sommet. */
+  support?: Volume;
   /** Boîte écran, recalculée à chaque image. */
   e: number[];
   prof: number;
@@ -767,6 +769,15 @@ export function preparer(scene: Scene): Preparee {
     e: [0, 0, 0, 0],
     prof: 0,
   }));
+  // Un écran mural est rattaché au mur qu'il touche.
+  scene.objets.forEach((o, i) => {
+    if (o.t !== 'ecran') return;
+    const [x0, y0, x1, y1] = o.b,
+      eps = 0.08;
+    elements[i].support = murs.find(
+      (w) => w.b[0] - eps < x1 && w.b[2] + eps > x0 && w.b[1] - eps < y1 && w.b[3] + eps > y0,
+    );
+  });
   return { scene, elements, murs };
 }
 
@@ -1130,7 +1141,8 @@ export function dessinerScene(
     el.dessin = (q: Peintre) => dessinerMur(q, el.mur!, hauteurs.get(el)!, sc);
     vus.push(el);
   }
-  const ordre = trier(vus, p.ca, p.sa);
+  const visibles = vus.filter((el) => !el.support || (hauteurs.get(el.support) ?? el.support.b[5]) >= el.b[5] - 0.01);
+  const ordre = trier(visibles, p.ca, p.sa);
   for (const el of ordre) el.dessin(pt);
 
   // mise en évidence de l'espace choisi : le reste s'estompe

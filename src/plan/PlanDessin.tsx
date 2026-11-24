@@ -311,8 +311,9 @@ function PlanDessinBrut({ largeur, hauteur, circulations }: PlanDessinProps) {
         <Chaise x={65} y={569} a={-120} />
 
         {/* Rangements le long des cloisons */}
-        <M x={178} y={497} w={12} h={50} r={0.5} />
-        <M x={178} y={550} w={12} h={48} r={0.5} />
+        {/* OSMOSE : mur plein côté sanitaires, avec un grand écran TV face à la table */}
+        <rect className="d-wall-frame" x={176} y={516} width={17} height={84} />
+        <rect className="d-wall" x={172.5} y={540} width={2.5} height={40} rx={0.6} />
         <M x={360} y={492} w={11} h={56} r={0.5} />
         <M x={360} y={551} w={11} h={47} r={0.5} />
 

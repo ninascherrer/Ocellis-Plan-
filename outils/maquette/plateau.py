@@ -213,10 +213,10 @@ shell_chair(*Pt(860, 88), 90, PETROLE_M, 'sit_talk', ST())
 shell_chair(*Pt(835, 141), -90, PETROLE_M)
 shell_chair(*Pt(860, 141), -90, PETROLE_M)
 armchair(*Pt(901, 86), 135, col=ROSE_D, w=0.55, d=0.55)
-def wall_screen(x, y, ang, z0=1.0, w=1.1, hgt=0.65):
+def wall_screen(x, y, ang, z0=1.0, w=1.1, hgt=0.65, tag=None):
     f = (math.cos(math.radians(ang)), math.sin(math.radians(ang)))
     Pp = rect_pts(x, y, 0.04, w, ang)
-    return add(bb2(Pp, z0, z0 + hgt), PR(Pp, z0, z0 + hgt, '#c9c5bf', 0.5, face=[r(f[0]), r(f[1]), '#4d535b']))
+    return add(bb2(Pp, z0, z0 + hgt), PR(Pp, z0, z0 + hgt, '#c9c5bf', 0.5, face=[r(f[0]), r(f[1]), '#4d535b']), tag=tag)
 wall_screen(X(805), Y(114), 0)
 
 # --- Escalier nord + sas
@@ -510,7 +510,11 @@ task_chair(*Pt(722, 777), 90, None, 'sit_type', ST())
 task_chair(*Pt(755, 777), 90)
 T(775, 784, 808, 790); D(775, 787, 33, 90, 'glass')
 Gl(808, 785, 823, 789)
-cabinet(*Pt(823, 785), *Pt(843, 930), 2.0, WOOD, 5)
+# OSMOSE : mur plein côté sanitaires, avec un grand écran TV face à la table
+# Vu depuis l'est, le mur est abaissé pour laisser voir la salle (l'écran disparaît avec lui) ;
+# vu depuis la salle, il monte à 2 m avec l'écran.
+W(823, 785, 843, 937, H_CUT)['h2'] = 2.0
+wall_screen(X(823) - 0.03, Y(879), 180, 0.95, 1.75, 0.98, tag='ecran')
 table_shape(stadium_pts(X(733), Y(879), m(119), m(42), 0, 12), h=0.74, top=WHITE,
             ped=[(X(700), Y(879), 0.1, 0.7), (X(770), Y(879), 0.1, 0.7)], leg=CHAR,
             items=[lambda z: PR(stadium_pts(X(722), Y(879), m(24), m(7), 0, 6), z, z + 0.01, CHAR, 0.3, smooth=True),

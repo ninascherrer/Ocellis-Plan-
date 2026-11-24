@@ -15,7 +15,7 @@ def chevauche(b, x0, y0, x1, y1):
 
 def hauteur_auto(w):
     """Hauteur d'un mur quand la pièce cachée est au sud ou à l'est (vue depuis le nord ou l'ouest)."""
-    if w['k'] != 'int':
+    if w['k'] != 'int' or 'h2' in w:
         return
     x0, y0, x1, y1 = w['r']
     horiz = (x1 - x0) >= (y1 - y0)
