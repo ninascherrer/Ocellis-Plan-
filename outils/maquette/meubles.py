@@ -44,9 +44,11 @@ def person(x, y, ang, pose='stand', st=None):
     shadow(circle_pts(x, y, 0.2, 14), op=0.08, grow=0.0, off=(0.04, 0.04))
     return add((x - 0.22, y - 0.22, x + 0.22, y + 0.22, 0, 1.72), person_prims(x, y, ang, pose, st=st), margin=6, tag='pers')
 
-def _seat_person(parts, x, y, ang, pose, seat_h, st=None, lean=0.0):
+def _seat_person(parts, x, y, ang, pose, seat_h, st=None, lean=0.0, centre=None):
+    """centre : point de tri du personnage (par défaut le siège). Dans un fauteuil, on le place
+    vers l'avant : vu de dos, dossier, assise et accoudoirs passent devant lui ; vu de face, il passe devant eux."""
     if pose:
-        parts += G((x, y, seat_h), person_prims(x, y, ang, pose, seat_h, st, lean), 0.001)
+        parts += G(centre or (x, y, seat_h), person_prims(x, y, ang, pose, seat_h, st, lean), 0 if centre else 0.001)
 
 # ---------------------------------------------------------------- sièges
 def task_chair(x, y, ang, col=None, person=None, st=None):
@@ -117,7 +119,8 @@ def armchair(x, y, ang, col=None, person=None, st=None, w=0.78, d=0.78, seat_h=0
         a = Pp(0.02, s * (w / 2 - 0.07))
         parts += G((a[0], a[1], 0.35), PR(rrect_pts(a[0], a[1], d - 0.1, 0.14, 0.04, ang), 0.08, 0.6, col, FINE))
     c = Pp(0.06, 0)
-    _seat_person(parts, c[0], c[1], ang, person, seat_h, st, lean=0.08)
+    cf = Pp(d / 2 - 0.12, 0)
+    _seat_person(parts, c[0], c[1], ang, person, seat_h, st, lean=0.08, centre=(cf[0], cf[1], 0.3))
     shadow(baseP, op=0.08)
     return add((x - 0.45, y - 0.45, x + 0.45, y + 0.45, 0, 1.2 if person else 0.78), parts, tag='siege')
 

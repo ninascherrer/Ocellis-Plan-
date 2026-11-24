@@ -171,7 +171,7 @@ function PlanDessinBrut({ largeur, hauteur, circulations }: PlanDessinProps) {
             <circle className="d-furniture" cx={x} cy={51} r={5.5} />
           </g>
         ))}
-        <circle className="d-furniture" cx={227} cy={11} r={7} />
+        <circle className="d-furniture" cx={227} cy={11} r={5.5} />
 
         {/* Espace 03 : plan de travail trois places, fauteuil */}
         <M x={381} y={8} w={17} h={52} />
