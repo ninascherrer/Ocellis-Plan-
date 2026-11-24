@@ -788,7 +788,36 @@ function personnage(pt: Peintre, q: Prim) {
     pt.remplir(hairCol);
     pt.tracer(INK, 0.45);
   }
+  // Casque audio : arceau sur le haut du crâne, écouteurs sur les oreilles.
+  if (st[7] === 'casque') {
+    const oreilles = [1, -1].map((sg) => [head[0] + l[0] * 0.105 * sg, head[1] + l[1] * 0.105 * sg, head[2]]);
+    const [A, B] = oreilles.map(P);
+    const haut = [hx, hy - r * 1.32];
+    c.beginPath();
+    c.moveTo(A[0], A[1]);
+    c.quadraticCurveTo(2 * haut[0] - (A[0] + B[0]) / 2, 2 * haut[1] - (A[1] + B[1]) / 2, B[0], B[1]);
+    c.lineCap = 'round';
+    c.strokeStyle = INK;
+    c.lineWidth = 2.4 * bs;
+    c.stroke();
+    c.strokeStyle = CASQUE;
+    c.lineWidth = 1.3 * bs;
+    c.stroke();
+    const profTete = p.prof(head[0], head[1]);
+    oreilles.forEach((o, i) => {
+      const E = i === 0 ? A : B;
+      // écouteur caché derrière la tête quand l'oreille est du côté opposé à la caméra
+      if (p.prof(o[0], o[1]) < profTete - 0.03 && Math.hypot(E[0] - hx, E[1] - hy) < r * 0.85) return;
+      c.beginPath();
+      c.ellipse(E[0], E[1] + r * 0.05, r * 0.36, r * 0.46, 0, 0, Math.PI * 2);
+      pt.remplir(CASQUE);
+      pt.tracer(INK, 0.45);
+    });
+  }
 }
+
+/** Teinte du casque audio (ardoise de la DA). */
+const CASQUE = '#4b5557';
 
 // ------------------------------------------------------------------ scène préparée
 interface Volume {

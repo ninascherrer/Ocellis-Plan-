@@ -102,7 +102,8 @@ PERS_COUNT = [0]
 def PERS(x, y, ang, pose, seat, lean, st):
     PERS_COUNT[0] += 1
     return [['M', r(x), r(y), r(ang), pose, r(seat), r(lean),
-             [st['skin'], st['hair'], st['top'], st['pants'], st['hs'], 1 if st['skirt'] else 0, st['shoes']]]]
+             [st['skin'], st['hair'], st['top'], st['pants'], st['hs'], 1 if st['skirt'] else 0, st['shoes']]
+             + (['casque'] if st.get('casque') else [])]]
 
 def add(bb, prims, margin=0, depth=None, tag=None):
     x0, y0, x1, y1, z0, z1 = bb

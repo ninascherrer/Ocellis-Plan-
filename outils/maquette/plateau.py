@@ -269,12 +269,12 @@ green_wall(X(1078) + 0.005, Y(70), Y(158), 0.0, 2.3)
 desk(*Pt(1167, 68), *Pt(1189, 163), h=1.05, top=WOOD, leg=CHAR, frame='trestle_y',
      items=[lambda z: laptop(X(1180), Y(130), 180, z), lambda z: mug(X(1182), Y(150), z)])
 stool(*Pt(1197, 90), 0.75, SAGE_D)
-stool(*Pt(1197, 133), 0.75, SAGE_D, 'sit_type', 180, ST())
+stool(*Pt(1197, 133), 0.75, SAGE_D, 'sit_type', 180, ST(casque=True))   # casque audio (salle silence)
 desk(*Pt(1268, 70), *Pt(1292, 205), h=0.74, top=WHITE, leg=CHAR, frame='trestle_y',
      items=[lambda z: monitor(X(1285), Y(86), 180, z), lambda z: monitor(X(1285), Y(131), 180, z), lambda z: monitor(X(1285), Y(176), 180, z),
             lambda z: desk_lamp(X(1288), Y(108), 180, z), lambda z: laptop(X(1278), Y(131), 0, z)])
 task_chair(*Pt(1260, 86), 0)
-task_chair(*Pt(1260, 131), 0, None, 'sit_type', ST())
+task_chair(*Pt(1260, 131), 0, None, 'sit_type', ST(casque=True))   # casque audio
 task_chair(*Pt(1260, 176), 0)
 frame(1205, 1240, 1.3, 1.9, BEIGE_D)
 
