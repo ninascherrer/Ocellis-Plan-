@@ -23,7 +23,6 @@
       "description": "Salle créativité : canapé d'angle, poufs, fauteuil et banquette ; tableau blanc tactile Samsung (brainstorm) et Yealink Teams Rooms.",
       "infos": [
         "5 places",
-        "14,01 m²",
         "Usage : réunion"
       ],
       "concept": "Énergie et mouvement",
@@ -49,7 +48,6 @@
       "description": "Salle de réunion de 4 personnes.",
       "infos": [
         "4 places",
-        "8,61 m²",
         "Usage : réunion"
       ],
       "concept": "Un geste englobant et acoustique",
@@ -89,7 +87,6 @@
       "description": "Salle visio de 3 personnes.",
       "infos": [
         "3 places",
-        "6,27 m²",
         "Usage : réunion"
       ],
       "concept": "Expérience hybride",
@@ -116,7 +113,6 @@
       "description": "Salle silence, pour le travail concentré.",
       "infos": [
         "5 places",
-        "13,65 m²",
         "Usage : travail"
       ],
       "concept": "Calme et concentration, un cocon",
@@ -146,7 +142,6 @@
       "description": "Bench (espace de travail ouvert) : deux grandes tables de six postes.",
       "infos": [
         "12 places",
-        "32,89 m²",
         "Usage : travail"
       ],
       "concept": "Activity based working et nouvelles façons de travailler",
@@ -171,7 +166,6 @@
       "description": "Deux postes de travail face à la façade, avec vue sur CDG.",
       "infos": [
         "2 places",
-        "5,06 m²",
         "Usage : travail"
       ],
       "aConfirmer": false,
@@ -189,7 +183,6 @@
       "description": "Salle Quatro : box fermé pour une réunion à quatre.",
       "infos": [
         "4 places",
-        "3,22 m²",
         "Usage : réunion"
       ],
       "aConfirmer": false,
@@ -207,7 +200,6 @@
       "description": "Bench (espace de travail ouvert) : îlot de six postes en vis-à-vis.",
       "infos": [
         "6 places",
-        "21,95 m²",
         "Usage : travail"
       ],
       "concept": "Activity based working et nouvelles façons de travailler",
@@ -246,7 +238,6 @@
       "description": "Poste touchdown pour une personne, sous les casiers.",
       "infos": [
         "1 place",
-        "1,74 m²",
         "Usage : travail"
       ],
       "aConfirmer": false,
@@ -264,7 +255,6 @@
       "description": "Box avec poufs et assises.",
       "infos": [
         "3 places",
-        "2,74 m²",
         "Usage : réunion"
       ],
       "aConfirmer": false,
@@ -282,7 +272,6 @@
       "description": "Box avec banquettes en vis-à-vis.",
       "infos": [
         "4 places",
-        "2,72 m²",
         "Usage : réunion"
       ],
       "aConfirmer": false,
@@ -328,7 +317,6 @@
       "description": "Box : alcôve Nowystyl (modèle SPIX).",
       "infos": [
         "4 places",
-        "3,07 m²",
         "Usage : réunion"
       ],
       "aConfirmer": false,
@@ -346,7 +334,6 @@
       "description": "Poste touchdown pour une personne, sous l'alcôve SPIX.",
       "infos": [
         "1 place",
-        "2,26 m²",
         "Usage : travail"
       ],
       "aConfirmer": false,
@@ -410,9 +397,7 @@
       "nom": "Serveur",
       "categorie": "services",
       "description": "Local serveur (baie de brassage). Accès réservé.",
-      "infos": [
-        "5,83 m²"
-      ],
+      "infos": [],
       "aConfirmer": false,
       "contour": [
         [270, 97],
@@ -427,7 +412,6 @@
       "categorie": "collaboratif",
       "description": "Matériauthèque : espace de présentation des matériaux, entre l'étagère de consultation et la salle OCELLE, bibliothèque comprise.",
       "infos": [
-        "16,15 m²",
         "Usage : présentation"
       ],
       "aConfirmer": false,
@@ -460,7 +444,6 @@
       "description": "Salle de réunion client, ouverte sur la matériauthèque : réunions et présentation des matériaux.",
       "infos": [
         "6 places en réunion, jusqu'à 10 personnes",
-        "19,69 m²",
         "Usage : réunion client"
       ],
       "concept": "Réception, présentation de projets et atelier matériaux",
@@ -500,7 +483,6 @@
       "description": "Espace de vie : linéaire café (fontaine, cave à vins, micro-ondes, réfrigérateurs), mange-debout, banquettes et grande table de huit places ; écran avec Yealink.",
       "infos": [
         "28 places",
-        "58,02 m²",
         "Usage : espace de vie, détente, tisanerie"
       ],
       "concept": "Lobby et cœur de vie : cafétéria et work café",
@@ -528,9 +510,7 @@
       "nom": "Vestiaire / bagagerie",
       "categorie": "services",
       "description": "Vestiaire et bagagerie, le long du linéaire de l'espace de vie.",
-      "infos": [
-        "4,88 m²"
-      ],
+      "infos": [],
       "aConfirmer": false,
       "contour": [
         [351, 332],
@@ -546,7 +526,6 @@
       "description": "Entrée et accueil : îlot café avec tabourets hauts, banquette courbe, tables rondes et fauteuils.",
       "infos": [
         "10 places",
-        "25,89 m²",
         "Usage : accueil"
       ],
       "aConfirmer": false,
@@ -569,7 +548,6 @@
       "description": "OFAD (office for a day) : bureau fermé à la journée, une place.",
       "infos": [
         "1 place",
-        "4,52 m²",
         "Usage : travail"
       ],
       "concept": "Concentration, une bulle colorée",
@@ -595,7 +573,6 @@
       "description": "OFAD (office for a day) : bureau fermé à la journée, deux places.",
       "infos": [
         "2 places",
-        "5,07 m²",
         "Usage : travail"
       ],
       "concept": "Focus à deux, une bulle colorée",
@@ -621,7 +598,6 @@
       "description": "Salle projet : table de réunion et deux postures (assis à la table ovale, debout à la table haute) ; écran avec Yealink.",
       "infos": [
         "8 places",
-        "20,14 m²",
         "Usage : réunion"
       ],
       "concept": "Pratique et efficace",
@@ -659,9 +635,7 @@
       "nom": "Ménage",
       "categorie": "services",
       "description": "Local ménage (local technique).",
-      "infos": [
-        "2,41 m²"
-      ],
+      "infos": [],
       "aConfirmer": false,
       "contour": [
         [233, 489],
@@ -676,7 +650,6 @@
       "categorie": "services",
       "description": "Local copie et fournitures de bureau : imprimante, armoires hautes et papier.",
       "infos": [
-        "4,26 m²",
         "Usage : support"
       ],
       "aConfirmer": false,
