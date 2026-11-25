@@ -17,3 +17,17 @@ createRoot(document.getElementById('root')!).render(
     <App />
   </StrictMode>,
 );
+
+// Ouvertures suivantes plus rapides : le service worker garde le code, les polices et les données
+// de la maquette sur l'appareil (la page elle-même est toujours redemandée au réseau, pour voir
+// chaque mise à jour). Pas sur la copie hors ligne ni en développement.
+if (
+  import.meta.env.PROD &&
+  'serviceWorker' in navigator &&
+  location.protocol === 'https:' &&
+  !(window as { __OCELLIS_SCENE__?: unknown }).__OCELLIS_SCENE__
+) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register(`./sw.js?v=${import.meta.env.VITE_BUILD}`).catch(() => {});
+  });
+}

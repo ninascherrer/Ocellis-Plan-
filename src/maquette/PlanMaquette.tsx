@@ -46,6 +46,10 @@ interface PlanMaquetteProps {
   onDefilement?: (p: PositionDefilement) => void;
   /** Personnage animé en mouvement (false : figé là où il est). */
   animations?: boolean;
+  /** Appelé une fois, quand la première image de la maquette est à l'écran. */
+  onPremiereImage?: () => void;
+  /** Signale si la maquette contient des personnages animés (bouton de pause). */
+  onAnimationsDisponibles?: (oui: boolean) => void;
 }
 
 /** État de la vue : azimut et inclinaison (radians), échelle (px / m), point du plan au centre de la zone libre. */
@@ -81,12 +85,16 @@ export default function PlanMaquette({
   isDesktop,
   onDefilement,
   animations = true,
+  onPremiereImage,
+  onAnimationsDisponibles,
 }: PlanMaquetteProps) {
   const conteneurRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const etiquettesRef = useRef<HTMLDivElement>(null);
   const [scene, setScene] = useState<Preparee | null>(null);
   const [erreur, setErreur] = useState<string | null>(null);
+  /** Première image dessinée : le message de chargement disparaît. */
+  const [pret, setPret] = useState(false);
 
   const etat = useRef<Etat>({ az: AZ_DEPART, el: EL_DEPART, k: 30, px: 12, py: 12 });
   const kAjuste = useRef(30);
@@ -96,6 +104,10 @@ export default function PlanMaquette({
   const appuis = useRef(0);
   const cliche = useRef<{ canvas: HTMLCanvasElement; cam: Camera } | null>(null);
   const basse = useRef<HTMLCanvasElement | null>(null);
+  /** Canvas de travail des images d'animation (zone autour des personnages). */
+  const zoneMarche = useRef<HTMLCanvasElement | null>(null);
+  /** Sol de la dernière image complète, recopié par les images d'animation. */
+  const coucheSol = useRef<HTMLCanvasElement | null>(null);
   /** Un état (sélection, filtre, survol) a changé : l'image en cache n'est plus valable. */
   const etatChange = useRef(true);
   /** Cadrage demandé avant la fin du chargement (lien partagé #<identifiant>). */
@@ -127,12 +139,15 @@ export default function PlanMaquette({
     });
   }, [scene, zones, colorOf]);
 
-  const rappels = useRef({ onZoneClick, onZoneHover, onBackgroundClick, getInsets, zones, zonesRendu, selectedId, hoveredId, matchIds, onDefilement, animations });
-  rappels.current = { onZoneClick, onZoneHover, onBackgroundClick, getInsets, zones, zonesRendu, selectedId, hoveredId, matchIds, onDefilement, animations };
+  const rappels = useRef({ onZoneClick, onZoneHover, onBackgroundClick, getInsets, zones, zonesRendu, selectedId, hoveredId, matchIds, onDefilement, animations, onPremiereImage });
+  rappels.current = { onZoneClick, onZoneHover, onBackgroundClick, getInsets, zones, zonesRendu, selectedId, hoveredId, matchIds, onDefilement, animations, onPremiereImage };
 
   // Personnages animés : boucles calculées une fois, horloge propre (arrêtée pendant la pause).
   const boucles = useMemo(() => (scene?.scene.marcheurs ?? []).filter((m) => m.chemin.length >= 2).map(boucleMarcheur), [scene]);
   const horloge = useRef({ t: 0, dernier: 0 });
+  useEffect(() => {
+    if (scene) onAnimationsDisponibles?.(boucles.length > 0);
+  }, [scene, boucles, onAnimationsDisponibles]);
 
   // --- Chargement de la scène (fichier statique, généré par outils/maquette/export.py)
   useEffect(() => {
@@ -149,7 +164,9 @@ export default function PlanMaquette({
         return r.json() as Promise<Scene>;
       })
       .then((sc) => {
-        if (!annule) setScene(preparer(sc));
+        if (annule) return;
+        performance.mark('maquette:donnees');
+        setScene(preparer(sc));
       })
       .catch(() => {
         if (!annule) setErreur('La maquette n’a pas pu être chargée. Les vues Dessin et Original restent disponibles.');
@@ -282,6 +299,9 @@ export default function PlanMaquette({
     // Écran tactile : rendu en basse définition pendant les rotations.
     const basseDef = window.matchMedia('(pointer: coarse)').matches;
     let rapidePrecedent = false;
+    let premiereImage = false;
+    /** La couche du sol correspond à l'image complète à l'écran. */
+    let solPret = false;
     const redimensionner = () => {
       const w = conteneur.clientWidth,
         h = conteneur.clientHeight;
@@ -312,20 +332,15 @@ export default function PlanMaquette({
       });
     };
 
-    /** Rectangle d'écran occupé par les personnages animés à la dernière image (px CSS). */
-    let rectMarche: [number, number, number, number] | null = null;
+    /** Pour chaque personnage animé : rectangle d'écran (px CSS) et état montrés à la dernière image. */
+    let rectsMarche: [number, number, number, number][] = [];
+    let clesMarche: string[] = [];
+    const cle = (m: EtatMarcheur) =>
+      [m.x, m.y, m.ang, m.phase, m.amp, m.alpha, m.assis ?? 0].map((v) => v.toFixed(3)).join() + (m.pose ?? '');
     let derniereMarche = 0;
     /** Instant de l'horloge des animations montré à l'écran. */
     let tDessine = -1;
     const etatsMarche = (): EtatMarcheur[] => boucles.map((b) => b.etat(horloge.current.t));
-    const unir = (cam: Camera, etats: EtatMarcheur[]) => {
-      let r: [number, number, number, number] | null = null;
-      for (const m of etats) {
-        const q = ecranMarcheur(cam, m);
-        r = r ? [Math.min(r[0], q[0]), Math.min(r[1], q[1]), Math.max(r[2], q[2]), Math.max(r[3], q[3])] : q;
-      }
-      return r;
-    };
     const optionsRendu = () => {
       const r = rappels.current;
       return {
@@ -366,23 +381,43 @@ export default function PlanMaquette({
       // une image soignée dès que le mouvement s'arrête
       if (!enMouvement && rapidePrecedent) sale.current = true;
       if (!sale.current) {
-        // Image fixe à jour : seul le personnage bouge, on ne redessine que sa zone (≈ 30 images/s).
-        // (une dernière image aussi juste après la pause, pour montrer l'instant exact où il s'est figé)
-        if ((anime || hor.t !== tDessine) && boucles.length > 0 && !enMouvement && now - derniereMarche >= 33) {
+        // Image fixe à jour : seuls les personnages bougent, on ne redessine que leur zone (20 images/s),
+        // et rien tant qu'ils sont immobiles (arrêts, assis, au café).
+        // (une dernière image aussi juste après la pause, pour montrer l'instant exact où ils se sont figés)
+        if ((anime || hor.t !== tDessine) && boucles.length > 0 && !enMouvement && now - derniereMarche >= 50) {
           derniereMarche = now;
           tDessine = hor.t;
           const cam = camera(etat.current);
           const w = conteneur.clientWidth,
             h = conteneur.clientHeight;
           const etats = etatsMarche();
-          const neuf = unir(cam, etats);
-          const avant = rectMarche;
-          rectMarche = neuf;
-          const zone = neuf && avant ? [Math.min(neuf[0], avant[0]), Math.min(neuf[1], avant[1]), Math.max(neuf[2], avant[2]), Math.max(neuf[3], avant[3])] : (neuf ?? avant);
+          let zone: number[] | null = null;
+          etats.forEach((m, i) => {
+            const k = cle(m);
+            if (k === clesMarche[i]) return; // immobile : rien à redessiner
+            clesMarche[i] = k;
+            const neuf = ecranMarcheur(cam, m);
+            for (const r of [neuf, rectsMarche[i]])
+              if (r) zone = zone ? [Math.min(zone[0], r[0]), Math.min(zone[1], r[1]), Math.max(zone[2], r[2]), Math.max(zone[3], r[3])] : [...r];
+            rectsMarche[i] = neuf;
+          });
           if (!zone) return;
-          const region: [number, number, number, number] = [Math.max(0, Math.floor(zone[0])), Math.max(0, Math.floor(zone[1])), Math.min(w, Math.ceil(zone[2])), Math.min(h, Math.ceil(zone[3]))];
-          if (region[2] <= region[0] || region[3] <= region[1]) return; // hors écran
-          dessinerScene(ctx, scene, cam, w, h, dpr, { ...optionsRendu(), rapide: false, marcheurs: etats, region });
+          // Rectangle aligné sur les pixels de l'écran : dessiné à part, puis recopié tel quel.
+          const X0 = Math.max(0, Math.floor(zone[0] * dpr)),
+            Y0 = Math.max(0, Math.floor(zone[1] * dpr)),
+            X1 = Math.min(cv.width, Math.ceil(zone[2] * dpr)),
+            Y1 = Math.min(cv.height, Math.ceil(zone[3] * dpr));
+          if (X1 <= X0 || Y1 <= Y0) return; // hors écran
+          // Canvas de travail de la taille de l'écran : mêmes coordonnées que l'image complète.
+          const travail = (zoneMarche.current ??= document.createElement('canvas'));
+          if (travail.width !== cv.width || travail.height !== cv.height) {
+            travail.width = cv.width;
+            travail.height = cv.height;
+          }
+          const region: [number, number, number, number] = [X0 / dpr, Y0 / dpr, X1 / dpr, Y1 / dpr];
+          dessinerScene(travail.getContext('2d')!, scene, cam, w, h, dpr, { ...optionsRendu(), rapide: false, marcheurs: etats, region, coucheSol: solPret ? (coucheSol.current ?? undefined) : undefined });
+          ctx.setTransform(1, 0, 0, 1, 0, 0);
+          ctx.drawImage(travail, X0, Y0, X1 - X0, Y1 - Y0, X0, Y0, X1 - X0, Y1 - Y0);
         }
         return;
       }
@@ -394,7 +429,8 @@ export default function PlanMaquette({
         h = conteneur.clientHeight;
       const etatsM = etatsMarche();
       tDessine = hor.t;
-      rectMarche = unir(cam, etatsM);
+      rectsMarche = etatsM.map((m) => ecranMarcheur(cam, m));
+      clesMarche = etatsM.map(cle);
       const options = { ...optionsRendu(), marcheurs: etatsM };
       const c = cliche.current;
       if (enMouvement && c && !etatChange.current && c.cam.az === cam.az && c.cam.el === cam.el) {
@@ -420,8 +456,23 @@ export default function PlanMaquette({
         ctx.imageSmoothingEnabled = true;
         ctx.drawImage(lr, 0, 0, cv.width, cv.height);
       } else {
-        dessinerScene(ctx, scene, cam, w, h, dpr, { ...options, rapide: enMouvement });
-        if (!enMouvement) {
+        // Ouverture : une première image allégée (sans matières ni ombres) s'affiche au plus vite,
+        // l'image complète suit à l'image suivante.
+        const allegee = enMouvement || !premiereImage;
+        const debutRendu = performance.now();
+        dessinerScene(ctx, scene, cam, w, h, dpr, { ...options, rapide: allegee, coucheSol: allegee ? undefined : (coucheSol.current ??= document.createElement('canvas')) });
+        solPret = !allegee;
+        // Repères de mesure du chargement (outils de développement du navigateur, onglet Performance).
+        if (!premiereImage) {
+          premiereImage = true;
+          rapidePrecedent = true; // redessiner en qualité complète juste après
+          sale.current = true;
+          performance.measure('maquette:rendu', { start: debutRendu, end: performance.now() });
+          performance.mark('maquette:premiere-image');
+          setPret(true);
+          rappels.current.onPremiereImage?.();
+        }
+        if (!allegee) {
           // Image complète gardée en cache pour les déplacements et zooms suivants.
           const copie = cliche.current?.canvas ?? document.createElement('canvas');
           copie.width = cv.width;
@@ -437,8 +488,6 @@ export default function PlanMaquette({
       if (md) r.onDefilement?.({ x: { t: b(md.x.t), part: md.x.part }, y: { t: b(md.y.t), part: md.y.part } });
     };
     image.current = requestAnimationFrame(boucle);
-    // les libellés au sol utilisent Poppins : redessiner quand la police est prête
-    document.fonts?.ready.then(invalider).catch(() => {});
     return () => {
       cancelAnimationFrame(image.current);
       obs.disconnect();
@@ -677,7 +726,11 @@ export default function PlanMaquette({
       ) : (
         <>
           <canvas ref={canvasRef} role="img" aria-label="Maquette axonométrique illustrée du plateau, terrasse comprise" />
-          {!scene && <p className="plan3d-chargement">Chargement de la maquette…</p>}
+          {!pret && (
+            <p className="plan3d-chargement" role="status">
+              <span>Chargement de la maquette…</span>
+            </p>
+          )}
           <div className="plan3d-etiquettes" ref={etiquettesRef}>
             {bulle(selectedId)}
           </div>
@@ -690,7 +743,7 @@ export default function PlanMaquette({
           <span className="plan3d-resume">Légende et points à confirmer</span>
         </summary>
         <p className="plan3d-note">
-          Plateau R6, terrasse comprise, d’après le plan d’implantation (indice 8 du 16-10-2026). Les murs qui masquent une pièce se recoupent selon l’angle de vue.
+          Plateau R6, terrasse comprise, d’après le plan d’implantation (indice 8 du 16-10-2026). Les murs gardent leur hauteur ; ceux qui masquent l’espace choisi passent en transparence.
         </p>
         <p className="plan3d-sous-titre">Architecture</p>
         <ul className="plan3d-choix">

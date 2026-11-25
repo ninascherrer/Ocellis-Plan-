@@ -599,6 +599,22 @@ h3 {
   cursor: grabbing;
 }
 
+.plan3d-chargement span {
+  animation: chargement-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes chargement-pulse {
+  50% {
+    opacity: 0.45;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .plan3d-chargement span {
+    animation: none;
+  }
+}
+
 .plan3d-chargement,
 .plan3d-erreur {
   position: absolute;

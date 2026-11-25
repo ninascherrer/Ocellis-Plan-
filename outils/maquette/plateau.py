@@ -41,6 +41,10 @@ def Box(a, b, c, d, z0, z1, col, sw=FINE, top=None):
 
 rng = random.Random(11)
 MARCHEURS = []   # personnages animés (voir « PERSONNES EN MOUVEMENT »)
+# Animation des personnages (vue Maquette) : désactivée pour la rapidité et l'autonomie sur
+# téléphone. À False, les deux personnes sont posées à leur point d'arrivée (assise à son poste,
+# au café) ; à True, elles marchent jusque-là (src/maquette/marcheur.ts).
+ANIMATIONS = False
 def ST(**kw):
     s = meubles.style(rng)
     s.update(kw)
@@ -467,13 +471,16 @@ cabinet(*Pt(1126, 669), *Pt(1150, 690), 1.8, '#eceae5', 1)
 # ascenseurs par la porte d'entrée, traverse Le Loby en contournant l'îlot et ses tabourets,
 # puis s'arrête au linéaire café, une tasse à la main, avant de s'effacer.
 _st_cafe = ST()
-MARCHEURS.append({
-    'st': [_st_cafe['skin'], _st_cafe['hair'], _st_cafe['top'], _st_cafe['pants'], _st_cafe['hs'], 1 if _st_cafe['skirt'] else 0, _st_cafe['shoes']],
-    'chemin': [[r(X(1052)), r(Y(470))], [r(X(1200)), r(Y(468))], [r(X(1200)), r(Y(600))], [r(X(1186)), r(Y(600))]],
-    'pauses': [0.6, 0.5, 0.3, 8.0],
-    'regard': 180,
-    'poseFin': 'cup',
-})
+if not ANIMATIONS:
+    person(X(1186), Y(600), 180, 'cup', _st_cafe)
+else:
+    MARCHEURS.append({
+        'st': [_st_cafe['skin'], _st_cafe['hair'], _st_cafe['top'], _st_cafe['pants'], _st_cafe['hs'], 1 if _st_cafe['skirt'] else 0, _st_cafe['shoes']],
+        'chemin': [[r(X(1052)), r(Y(470))], [r(X(1200)), r(Y(468))], [r(X(1200)), r(Y(600))], [r(X(1186)), r(Y(600))]],
+        'pauses': [0.6, 0.5, 0.3, 8.0],
+        'regard': 180,
+        'poseFin': 'cup',
+    })
 
 # convivialité nord-est
 cabinet(*Pt(1192, 394), *Pt(1223, 415), 1.8, WOOD, 2)
@@ -683,15 +690,16 @@ person(X(905), Y(184), 180, 'walk', ST(top=PETROLE_M))
 _st = ST()
 _sg = SIEGE_MARCHEUR
 _occupe = task_chair(_sg['x'], _sg['y'], _sg['a'], _sg['col'], 'sit_type', _st)
-eng.OBJS.remove(_occupe)
 eng.SHADOW[-1:] = []   # ombre déjà donnée par le fauteuil vide
-MARCHEURS.append({
-    'st': [_st['skin'], _st['hair'], _st['top'], _st['pants'], _st['hs'], 1 if _st['skirt'] else 0, _st['shoes']],
-    'chemin': [[r(X(772)), r(Y(186))], [r(X(772)), r(Y(556))], [r(_sg['x']), r(Y(556))]],
-    'pauses': [1.2, 1.0, 0.8],
-    'regard': _sg['a'],
-    'siege': {'x': r(_sg['x']), 'y': r(_sg['y']), 'b': _occupe['b'], 'vide': _sg['vide']['p'], 'occupe': _occupe['p']},
-})
+if ANIMATIONS:
+    eng.OBJS.remove(_occupe)
+    MARCHEURS.append({
+        'st': [_st['skin'], _st['hair'], _st['top'], _st['pants'], _st['hs'], 1 if _st['skirt'] else 0, _st['shoes']],
+        'chemin': [[r(X(772)), r(Y(186))], [r(X(772)), r(Y(556))], [r(_sg['x']), r(Y(556))]],
+        'pauses': [1.2, 1.0, 0.8],
+        'regard': _sg['a'],
+        'siege': {'x': r(_sg['x']), 'y': r(_sg['y']), 'b': _occupe['b'], 'vide': _sg['vide']['p'], 'occupe': _occupe['p']},
+    })
 person(X(1000), Y(733), 0, 'tablet', ST())
 person(X(1325), Y(570), 20, 'cup', ST())
 

@@ -95,6 +95,8 @@ export default function App() {
     }
     return typeof window !== 'undefined' && !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
   });
+  /** La maquette contient-elle des personnages animés ? (sinon, pas de bouton de pause) */
+  const [animationsDispo, setAnimationsDispo] = useState(false);
   const basculerAnimations = useCallback(() => {
     setAnimationsEnPause((v) => {
       try {
@@ -108,6 +110,17 @@ export default function App() {
   /** Position du plan, poussée aux barres de défilement sans re-rendre l'application. */
   const defilRef = useRef<((p: PositionDefilement) => void) | null>(null);
   const is3d = variant === '3d' && !editorOpen;
+  // Le plan Dessin (SVG, caché sous la maquette) n'est construit qu'une fois la maquette affichée :
+  // l'ouverture du site n'attend que ce qui se voit.
+  const [dessinMonte, setDessinMonte] = useState(!is3d);
+  useEffect(() => {
+    if (!is3d) setDessinMonte(true);
+  }, [is3d]);
+  const monterDessin = useCallback(() => {
+    const ric = (window as { requestIdleCallback?: (f: () => void, o?: { timeout: number }) => number }).requestIdleCallback;
+    if (ric) ric(() => setDessinMonte(true), { timeout: 2500 });
+    else setTimeout(() => setDessinMonte(true), 800);
+  }, []);
 
   const categoriesById = useMemo(() => new Map(categories.map((c) => [c.id, c])), [categories]);
   const zones = useMemo(() => buildZones(config.espaces), [config.espaces]);
@@ -314,34 +327,36 @@ export default function App() {
           } as CSSProperties
         }
       >
-        <PlanView
-          plan={plan}
-          view={panZoom.view}
-          zones={zones}
-          colorOf={colorOf}
-          selectedId={selectedId}
-          hoveredId={hoveredId}
-          matchIds={editorOpen ? null : matchIds}
-          variant={variant === '3d' ? 'dessin' : variant}
-          editing={editorOpen}
-          onZoneClick={onZoneClick}
-          onZoneHover={setHoveredId}
-          onZonePointerDown={editorOpen ? editor.onZonePointerDown : undefined}
-          svgProps={
-            editorOpen
-              ? {
-                  onPointerMove: editor.onPointerMove,
-                  onPointerUp: editor.onPointerUp,
-                  onPointerCancel: editor.onPointerUp,
-                  onPointerLeave: editor.onPointerLeave,
-                }
-              : undefined
-          }
-        >
-          {editorOpen && (
-            <EditorLayer editor={editor} plan={plan} scale={panZoom.view.k} color={selected ? colorOf(selected) : '#010d2d'} />
-          )}
-        </PlanView>
+        {(dessinMonte || !is3d) && (
+          <PlanView
+            plan={plan}
+            view={panZoom.view}
+            zones={zones}
+            colorOf={colorOf}
+            selectedId={selectedId}
+            hoveredId={hoveredId}
+            matchIds={editorOpen ? null : matchIds}
+            variant={variant === '3d' ? 'dessin' : variant}
+            editing={editorOpen}
+            onZoneClick={onZoneClick}
+            onZoneHover={setHoveredId}
+            onZonePointerDown={editorOpen ? editor.onZonePointerDown : undefined}
+            svgProps={
+              editorOpen
+                ? {
+                    onPointerMove: editor.onPointerMove,
+                    onPointerUp: editor.onPointerUp,
+                    onPointerCancel: editor.onPointerUp,
+                    onPointerLeave: editor.onPointerLeave,
+                  }
+                : undefined
+            }
+          >
+            {editorOpen && (
+              <EditorLayer editor={editor} plan={plan} scale={panZoom.view.k} color={selected ? colorOf(selected) : '#010d2d'} />
+            )}
+          </PlanView>
+        )}
         <ZoneTags
           view={panZoom.view}
           hovered={isDesktop && !editor.drawing ? hovered : null}
@@ -363,6 +378,8 @@ export default function App() {
             getInsets={getInsets}
             isDesktop={isDesktop}
             animations={!animationsEnPause}
+            onPremiereImage={monterDessin}
+            onAnimationsDisponibles={setAnimationsDispo}
           />
         )}
       </main>
@@ -413,7 +430,7 @@ export default function App() {
         variant={editorOpen && variant === '3d' ? 'dessin' : variant}
         onVariantChange={changeVariant}
         allow3d={!editorOpen}
-        animations={is3d ? { enPause: animationsEnPause, onToggle: basculerAnimations } : undefined}
+        animations={is3d && animationsDispo ? { enPause: animationsEnPause, onToggle: basculerAnimations } : undefined}
       />
 
       {editionActivee &&

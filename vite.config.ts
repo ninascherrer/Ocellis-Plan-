@@ -49,7 +49,11 @@ export default defineConfig(({ mode }) => {
   return {
     base: './',
     plugins: [react(), retirerPlanPdf(env.VITE_CALQUE_PDF === '1'), adresseScene(scene)],
-    define: { 'import.meta.env.VITE_SCENE_VERSION': JSON.stringify(scene) },
+    define: {
+      'import.meta.env.VITE_SCENE_VERSION': JSON.stringify(scene),
+      // Identifiant de la mise en ligne : nomme le cache du service worker (public/sw.js).
+      'import.meta.env.VITE_BUILD': JSON.stringify(Date.now().toString(36)),
+    },
     build: horsLigne
       ? {
           outDir: 'dist-hors-ligne',

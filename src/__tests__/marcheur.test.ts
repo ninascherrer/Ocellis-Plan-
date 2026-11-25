@@ -9,9 +9,10 @@ const marcheurs = scene.marcheurs ?? [];
 /** Distance d'un point au rectangle [x0, y0, x1, y1]. */
 const distance = (x: number, y: number, b: number[]) => Math.hypot(Math.max(b[0] - x, 0, x - b[2]), Math.max(b[1] - y, 0, y - b[3]));
 
-describe('personnage animé de la maquette', () => {
+// Animation désactivée par défaut (ANIMATIONS = False dans outils/maquette/plateau.py) : ces tests
+// s'appliquent dès qu'un personnage animé est présent dans la scène.
+describe.skipIf(marcheurs.length === 0)('personnage animé de la maquette', () => {
   it('existe, avec un parcours et une pause par point', () => {
-    expect(marcheurs.length).toBeGreaterThan(0);
     for (const m of marcheurs) {
       expect(m.chemin.length).toBeGreaterThanOrEqual(2);
       expect(m.pauses.length).toBe(m.chemin.length);

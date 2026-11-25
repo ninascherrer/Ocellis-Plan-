@@ -109,8 +109,18 @@ export interface OptionsRendu {
   papier: string;
   /** Personnages animés, dessinés et masqués par les cloisons comme le reste de la maquette. */
   marcheurs?: EtatMarcheur[];
-  /** Ne redessiner que ce rectangle de l'écran (px CSS) : image suivante d'une animation. */
+  /**
+   * Ne dessiner que ce rectangle de l'écran (px CSS, aligné sur les pixels) : image suivante d'une
+   * animation. Le dessin se fait sur un canvas de travail de la taille de l'écran, dans les mêmes
+   * coordonnées et sans découpe (clip), pour un tracé identique au pixel près à l'image complète ;
+   * seul ce rectangle y est à jour, à recopier tel quel.
+   */
   region?: [number, number, number, number];
+  /**
+   * Couche du sol (papier, sols, ombres, zones surlignées) : gardée à chaque image complète,
+   * recopiée telle quelle par les images d'animation (canvas de même taille que l'écran).
+   */
+  coucheSol?: HTMLCanvasElement;
 }
 
 const INK = '#2b2724';
@@ -1413,15 +1423,19 @@ function dessinerSceneDans(
   const p = new Proj(cam);
   const sc = prep.scene;
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  // Image suivante d'une animation : seul le rectangle touché est redessiné, à l'identique.
+  // Image suivante d'une animation : seul le rectangle touché est redessiné (aplats pleine page
+  // limités à ce rectangle, volumes hors du rectangle ignorés).
   const [rx0, ry0, rx1, ry1] = opt.region ?? [0, 0, largeur, hauteur];
-  if (opt.region) {
-    ctx.beginPath();
-    ctx.rect(rx0, ry0, rx1 - rx0, ry1 - ry0);
-    ctx.clip();
+  const pageX = rx0,
+    pageY = ry0,
+    pageW = rx1 - rx0,
+    pageH = ry1 - ry0;
+  // Sol recopié depuis la dernière image complète (images d'animation) : pas de nouveau tracé.
+  const solCopie = !!(opt.region && opt.coucheSol);
+  if (!solCopie) {
+    ctx.fillStyle = opt.papier;
+    ctx.fillRect(pageX, pageY, pageW, pageH);
   }
-  ctx.fillStyle = opt.papier;
-  ctx.fillRect(0, 0, largeur, hauteur);
   ctx.lineJoin = 'round';
   ctx.lineCap = 'round';
   const motif = hachure(ctx, dpr);
@@ -1442,19 +1456,41 @@ function dessinerSceneDans(
   }
 
   // sol
-  sol();
-  pt.dessiner(sc.seuils);
-  if (!opt.rapide) pt.dessiner(sc.ombres);
-  pt.dessiner(sc.marquages);
-  for (const z of [zoneSurvol, zoneChoix]) {
-    if (!z) continue;
-    cheminZone(pt, z.contour);
-    pt.remplir(opt.accent, z === zoneChoix ? 0.16 : 0.1);
+  if (solCopie) {
+    const X = Math.round(rx0 * dpr),
+      Y = Math.round(ry0 * dpr),
+      L = Math.round(pageW * dpr),
+      H = Math.round(pageH * dpr);
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.drawImage(opt.coucheSol!, X, Y, L, H, X, Y, L, H);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  } else {
+    sol();
+    pt.dessiner(sc.seuils);
+    if (!opt.rapide) pt.dessiner(sc.ombres);
+    pt.dessiner(sc.marquages);
+    for (const z of [zoneSurvol, zoneChoix]) {
+      if (!z) continue;
+      cheminZone(pt, z.contour);
+      pt.remplir(opt.accent, z === zoneChoix ? 0.16 : 0.1);
+    }
+    // Image complète : le sol est gardé pour les images d'animation suivantes.
+    if (opt.coucheSol && !opt.region) {
+      const cs = opt.coucheSol;
+      if (cs.width !== ctx.canvas.width || cs.height !== ctx.canvas.height) {
+        cs.width = ctx.canvas.width;
+        cs.height = ctx.canvas.height;
+      }
+      const c2 = cs.getContext('2d')!;
+      c2.setTransform(1, 0, 0, 1, 0, 0);
+      c2.drawImage(ctx.canvas, 0, 0);
+    }
   }
 
   // volumes
   const vus: Volume[] = [];
-  const marge = 40;
+  // marge : un volume (feuillage, personnage…) peut déborder de sa boîte à l'écran
+  const marge = opt.region ? 140 : 40;
   const hors = (e: number[]) => e[2] < rx0 - marge || e[0] > rx1 + marge || e[3] < ry0 - marge || e[1] > ry1 + marge;
   const marcheurs = (opt.marcheurs ?? []).flatMap(volumesMarcheur);
   for (const el of [...prep.elements, ...marcheurs]) {
@@ -1508,7 +1544,7 @@ function dessinerSceneDans(
   if (zoneChoix) {
     ctx.fillStyle = opt.papier;
     ctx.globalAlpha = 0.55;
-    ctx.fillRect(0, 0, largeur, hauteur);
+    ctx.fillRect(pageX, pageY, pageW, pageH);
     ctx.globalAlpha = 1;
     ctx.save();
     cheminZone(pt, zoneChoix.contour, 0);
@@ -1531,7 +1567,7 @@ function dessinerSceneDans(
     const retenues = opt.zones.filter((z) => opt.correspondances!.has(z.id));
     ctx.fillStyle = opt.papier;
     ctx.globalAlpha = 0.62;
-    ctx.fillRect(0, 0, largeur, hauteur);
+    ctx.fillRect(pageX, pageY, pageW, pageH);
     ctx.globalAlpha = 1;
     for (const z of retenues) {
       ctx.save();
@@ -1559,7 +1595,7 @@ function dessinerSceneDans(
   if (tex) {
     ctx.globalAlpha = 0.6;
     ctx.fillStyle = tex.grain;
-    ctx.fillRect(0, 0, largeur, hauteur);
+    ctx.fillRect(pageX, pageY, pageW, pageH);
     ctx.globalAlpha = 1;
   }
   for (const z of [zoneSurvol, zoneChoix]) {

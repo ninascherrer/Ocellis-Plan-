@@ -86,21 +86,21 @@ personnages et végétation. Boutons **Maquette / Dessin / Original** en bas à 
 - **Murs** : les cloisons des salles gardent leur hauteur quel que soit l'angle ;
   seules les façades tournées vers la caméra sont coupées bas. Un mur qui cache
   l'espace sélectionné passe en transparence.
-- **Personnage animé** (premier essai) : une personne arrive du couloir nord,
-  descend le couloir ouest, tourne dans l'allée du bench et va s'asseoir à un
-  poste libre de l'open space ; elle y travaille un moment, puis s'efface et
-  revient discrètement au départ (boucle d'environ 33 s). Le fauteuil de ce poste
-  est dessiné par l'animation (vide, puis occupé).
-  Une seconde personne arrive du palier des ascenseurs par la porte d'entrée,
-  traverse Le Loby en contournant l'îlot et s'arrête au linéaire café, une tasse
-  à la main (boucle d'environ 25 s). Elle est
-  triée avec le reste de la maquette : les cloisons placées devant la masquent, et
-  elle reste alignée au sol quand on zoome ou pivote. Bouton **Mettre les
-  animations en pause** à côté de la rotation (choix mémorisé ; pause par défaut
-  si le système demande de réduire les animations). Parcours et pauses :
-  `MARCHEURS` dans `outils/maquette/plateau.py` ; déroulé : `src/maquette/marcheur.ts` ;
-  les tests vérifient qu'elle reste à distance des cloisons et du mobilier.
-  Pour ménager le processeur, seule la zone du personnage est redessinée à chaque image.
+- **Personnages animés** (essai, désactivé) : le moteur sait faire marcher des
+  personnes le long d'un parcours (pauses, masquées par les cloisons, bouton
+  « Mettre les animations en pause »). Il est désactivé pour la rapidité et
+  l'autonomie sur téléphone : `ANIMATIONS = False` dans
+  `outils/maquette/plateau.py`, les deux personnes sont posées à leur point
+  d'arrivée (assise à un poste de l'open space, au café). Pour le réactiver :
+  `ANIMATIONS = True`, puis `python3 outils/maquette/export.py`. Déroulé :
+  `src/maquette/marcheur.ts` ; seule la zone des personnages est redessinée,
+  au pixel près, à 20 images/s.
+- **Chargement** : première image allégée puis complète, plan Dessin construit
+  après l'affichage de la maquette, données de la maquette versionnées
+  (`scene.json?v=…`). Un service worker (`public/sw.js`) garde le code, les
+  polices et les données sur l'appareil : les ouvertures suivantes sont presque
+  immédiates et possibles sans réseau ; la page est toujours redemandée au
+  réseau pour voir chaque mise à jour.
 - **Matières** : veinage du bois, trame des tissus, lames de parquet et grain
   d'ensemble, posés selon les couleurs de la DA (omis pendant les gestes rapides).
 - **Espaces** : les contours de `espaces.json` sont cliquables sur la maquette
