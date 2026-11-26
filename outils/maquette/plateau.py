@@ -28,7 +28,7 @@ def W(a, b, c, d, h=H_PART, kind='int', **kw):
 def Gl(a, b, c, d, h=2.45, post=1.2):
     return glass(X(a), Y(b), X(c), Y(d), h, post)
 
-# Portes vitrées intérieures dessinées fermées (on voit déjà à travers) ; portes-fenêtres de la terrasse ouvertes.
+# Portes vitrées dessinées fermées (on voit déjà à travers), portes-fenêtres de la terrasse comprises.
 def D(hgx, hgy, wgx, ang, kind='wood', h=2.1):
     return door(X(hgx), Y(hgy), m(wgx), ang, h, kind)
 
@@ -165,12 +165,10 @@ W(634, 937, 1304, 943, H_BACK, 'ext', out=[0, 1], glazed=True)           # sud
 W(1298, 68, 1304, 545, H_BACK, 'ext', out=[1, 0], glazed=True)           # est
 W(1298, 577, 1304, 732, H_BACK, 'ext', out=[1, 0], glazed=True)
 W(1298, 763, 1304, 937, H_BACK, 'ext', out=[1, 0], glazed=True)
-# accès terrasse : deux portes-fenêtres (ouvrant vers l'intérieur, d'après le plan)
+# accès terrasse : deux portes-fenêtres, dessinées fermées (on voit déjà à travers)
 T(1296, 545, 1306, 577); T(1296, 732, 1306, 763)
-D(1300, 545, 32, 180, 'glass')
-D(1300, 732, 31, 180, 'glass')
-door_arc(X(1300), Y(545), m(32), 90, 180)
-door_arc(X(1300), Y(732), m(31), 90, 180)
+D(1300, 545, 32, 90, 'glass')
+D(1300, 732, 31, 90, 'glass')
 column(*Pt(633, 300), 0.42, 2.0)
 column(*Pt(1276, 485), 0.42, 2.0)
 column(*Pt(1278, 718), 0.42, 2.0)
